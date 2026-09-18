@@ -1,5 +1,7 @@
 # MemoryOS
 
+in the making 
+
 An AI operating system for developers that remembers, connects, and understands everything you build.
 
 Point it at your notes, your PDFs, and your Git repositories, then ask questions in plain
