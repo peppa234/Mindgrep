@@ -1,0 +1,17 @@
+# CPU model server, for machines without a usable GPU. With an NVIDIA GPU on Windows, run
+# it on the host instead (.\make.ps1 models): it is several times faster.
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1 HF_HOME=/models
+
+RUN pip install --no-cache-dir uv \
+    && uv pip install --system --no-cache torch --index-url https://download.pytorch.org/whl/cpu \
+    && uv pip install --system --no-cache "sentence-transformers>=5" "transformers>=4.51" \
+       fastapi "uvicorn[standard]"
+
+WORKDIR /srv
+COPY app/__init__.py ./app/__init__.py
+COPY app/modelserver ./app/modelserver
+
+EXPOSE 8001
+CMD ["uvicorn", "app.modelserver.main:app", "--host", "0.0.0.0", "--port", "8001"]

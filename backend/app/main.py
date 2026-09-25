@@ -2,43 +2,69 @@ import logging
 from contextlib import asynccontextmanager
 
 import redis.asyncio as redis
+from arq import create_pool
+from arq.connections import RedisSettings
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from app.api.v1 import documents, search, sources
 from app.config import settings
+from app.core.logging import configure_logging
 from app.db.session import engine
+from app.services.embedding.base import ModelUnavailable
+from app.services.embedding.factory import get_embedder, get_reranker
 
-logging.basicConfig(level=settings.log_level)
+configure_logging(settings.log_level)
 log = logging.getLogger("memoryos")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.redis = redis.from_url(settings.redis_url, decode_responses=True)
+    app.state.arq = await create_pool(RedisSettings.from_dsn(settings.redis_url))
     yield
+    await app.state.arq.aclose()
     await app.state.redis.aclose()
     await engine.dispose()
 
 
-app = FastAPI(title="MemoryOS", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="MemoryOS",
+    version="0.2.0",
+    description="Index notes, PDFs and repositories; search them with hybrid retrieval.",
+    lifespan=lifespan,
+)
+
+for module in (sources, search, documents):
+    app.include_router(module.router, prefix="/api/v1")
 
 
-@app.get("/health")
+@app.get("/health", tags=["health"])
 async def health() -> JSONResponse:
     """Liveness plus real dependency checks.
 
     Reports which Postgres extensions are actually installed, because a missing
     `vector` extension fails much later and much more confusingly at query time.
+    The model server is reported but does not fail the check: without it, search
+    degrades to lexical-only rather than going down.
     """
-    checks: dict[str, object] = {}
+    checks: dict[str, dict] = {}
 
     try:
         async with engine.connect() as conn:
             result = await conn.execute(
-                text("SELECT extname FROM pg_extension WHERE extname IN ('vector', 'pg_trgm')")
+                text(
+                    "SELECT extname, extversion FROM pg_extension "
+                    "WHERE extname IN ('vector', 'pg_trgm') ORDER BY extname"
+                )
             )
-            checks["postgres"] = {"ok": True, "extensions": sorted(r[0] for r in result)}
+            rows = result.all()
+            checks["postgres"] = {
+                "ok": True,
+                "extensions": [r[0] for r in rows],
+                "versions": {r[0]: r[1] for r in rows},
+            }
     except Exception as exc:
         log.exception("postgres health check failed")
         checks["postgres"] = {"ok": False, "error": str(exc)}
@@ -50,7 +76,20 @@ async def health() -> JSONResponse:
         log.exception("valkey health check failed")
         checks["valkey"] = {"ok": False, "error": str(exc)}
 
-    healthy = all(c["ok"] for c in checks.values())  # type: ignore[index]
+    healthy = all(c["ok"] for c in checks.values())
+
+    models: dict[str, object] = {"embedder": settings.embedder, "reranker": settings.reranker}
+    embedder, reranker = get_embedder(), get_reranker()
+    try:
+        if embedder is not None:
+            models["embedding_model"] = await embedder.model_name()
+        if reranker is not None:
+            models["reranker_model"] = await reranker.model_name()
+        models["ok"] = True
+    except ModelUnavailable as exc:
+        models.update(ok=False, error=str(exc))
+    checks["models"] = models
+
     return JSONResponse(
         status_code=200 if healthy else 503,
         content={"status": "ok" if healthy else "degraded", "checks": checks},

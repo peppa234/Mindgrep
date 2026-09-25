@@ -1,5 +1,23 @@
 name: memoryos
 
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+  REDIS_URL: redis://valkey:6379/0
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  EMBEDDER: ${EMBEDDER:-http}
+  RERANKER: ${RERANKER:-http}
+  MODEL_SERVER_URL: ${MODEL_SERVER_URL:-http://host.docker.internal:8001}
+
+x-backend-volumes: &backend-volumes
+  # Source is mounted so edits apply without a rebuild.
+  - ./backend/app:/srv/app
+  - ./backend/alembic:/srv/alembic
+  - ./backend/tests:/srv/tests
+  - ./eval:/srv/eval
+  # The folders you want indexed. Point SOURCES_DIR at them in .env; read-only on purpose.
+  - ${SOURCES_DIR:-./data/sources}:/sources:ro
+  - repos:/data/repos
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -32,22 +50,56 @@ services:
 
   api:
     build: ./backend
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      REDIS_URL: redis://valkey:6379/0
-      LOG_LEVEL: ${LOG_LEVEL}
+    environment: *backend-env
     ports:
       - "${API_PORT}:8000"
-    volumes:
-      # Source is mounted so --reload picks up edits without a rebuild.
-      - ./backend/app:/srv/app
+    volumes: *backend-volumes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
       valkey:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  worker:
+    build: ./backend
+    environment: *backend-env
+    volumes: *backend-volumes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      api:
+        condition: service_started
+    # --watch restarts the worker when code changes, like uvicorn --reload does for the api.
+    command: arq app.workers.main.WorkerSettings --watch /srv/app
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://api:8000
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - api
+
+  # CPU fallback for the model server. Only started with: docker compose --profile models up
+  # (then set MODEL_SERVER_URL=http://models:8001 in .env). With an NVIDIA GPU, prefer
+  # running it on the host: .\make.ps1 models
+  models:
+    profiles: ["models"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.models
+    ports:
+      - "8001:8001"
+    volumes:
+      - hfcache:/models
 
 volumes:
   pgdata:
   valkeydata:
+  repos:
+  hfcache:

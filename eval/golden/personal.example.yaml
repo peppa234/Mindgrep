@@ -1,0 +1,41 @@
+# Your personal benchmark: queries over YOUR notes and repos, labelled by hand.
+#
+# This is the number that belongs in the README. The fixture benchmark proves the pipeline
+# works; this one proves it works on four years of real, messy data.
+#
+#   1. cp eval/golden/personal.example.yaml eval/golden/personal.yaml
+#   2. For each query: .\make.ps1 label "your query"  -> judge candidates, paste labels
+#   3. .\make.ps1 eval-personal
+#
+# Aim for 60-100 queries, written *before* looking at results, from things you actually
+# remember doing. 20 a day for a week. Include ~15 unanswerable ones: things you never did.
+# Mix the categories so the report can tell you where each stage helps.
+#
+# personal.yaml is gitignored by default (it names your private repos and files).
+# Commit the reports in eval/reports/ instead: they contain only numbers and query ids.
+
+version: 1
+# Sources to search (their names on the Sources page). Omit to search everything indexed.
+sources: [notes, projects]
+
+queries:
+  - id: p-001
+    q: where did I implement JWT authentication
+    category: identifier  # identifier | keyword | vague | note | pdf | temporal
+    relevant:
+      - { source: projects, path: student-portal/backend/app/auth/jwt.py, symbol: create_access_token, grade: 2 }
+      - { source: projects, path: student-portal/backend/app/auth/routes.py, symbol: login, grade: 1 }
+
+  - id: p-002
+    q: that function that turned timestamps into "3 days ago"
+    category: vague
+    relevant:
+      - { source: projects, path: todo-app/src/utils/time.ts, symbol: timeAgo, grade: 2 }
+
+  - id: p-003
+    q: my notes on the paper about retrieval augmented generation
+    category: note
+    relevant:
+      - { source: notes, path: papers/rag-lewis-2020.md, grade: 2 }
+
+  - { id: p-none-01, q: kubernetes operator I wrote, category: unanswerable, answerable: false }

@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: memoryos
+          POSTGRES_PASSWORD: memoryos
+          POSTGRES_DB: memoryos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U memoryos" --health-interval 5s
+          --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+asyncpg://memoryos:memoryos@localhost:5432/memoryos
+      # No model downloads in CI: the hashing embedder gives a deterministic vector channel.
+      EMBEDDER: hash
+      RERANKER: none
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        run: |
+          uv venv --python 3.12
+          uv pip install -e ".[dev]"
+      - name: Lint
+        run: |
+          uv run --no-sync ruff check . ../eval
+          uv run --no-sync ruff format --check . ../eval
+      - name: Migrate
+        run: uv run --no-sync alembic upgrade head
+      - name: Test
+        run: uv run --no-sync pytest -q
+      - name: Retrieval eval gate
+        # Fails the build if NDCG@10, Recall@10 or MRR drop more than 0.02 below the
+        # committed baseline. Regenerate the baseline deliberately when a change is meant
+        # to move the numbers (see eval/README.md).
+        env:
+          EVAL_CORPUS_DIR: ${{ github.workspace }}/eval/corpus
+          PYTHONPATH: ${{ github.workspace }}/backend:${{ github.workspace }}
+        # Explicit bash turns on pipefail, so `| tee` cannot hide a failing gate.
+        shell: bash
+        run: |
+          mkdir -p /tmp/eval
+          uv run --no-sync python -m eval.runners.retrieval_eval \
+            --modes lexical,vector,hybrid --name ci --out /tmp/eval \
+            --baseline ../eval/reports/baseline-ci.json | tee /tmp/eval/gate.txt
+      - name: Eval summary
+        if: always()
+        run: |
+          if [ -f /tmp/eval/ci.md ]; then
+            cat /tmp/eval/ci.md >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            sed -n '/^comparing/,$p' /tmp/eval/gate.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build

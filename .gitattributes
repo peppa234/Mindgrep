@@ -1,0 +1,4 @@
+# The benchmark corpus is byte-for-byte fixed: line-ending conversion on checkout would change
+# content hashes, chunk sizes, and therefore eval numbers between Windows and Linux (CI).
+eval/corpus/** -text
+*.pdf binary

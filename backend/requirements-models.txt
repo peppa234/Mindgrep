@@ -1,0 +1,7 @@
+# Model server only (app/modelserver). Install torch first from the right index:
+#   GPU (CUDA 12.8, RTX 20xx-50xx): uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   CPU:                            uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers>=5.0
+transformers>=4.51
+fastapi>=0.115
+uvicorn[standard]>=0.32

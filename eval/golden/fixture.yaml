@@ -1,0 +1,274 @@
+# Golden queries for the fixture corpus (eval/corpus).
+#
+# This is the regression benchmark: small, versioned, runs in CI. It does NOT replace the
+# personal benchmark over your own notes and repos (see eval/golden/personal.example.yaml),
+# which is the number that belongs in the README.
+#
+# Labels are stable keys, never database ids, so re-indexing never invalidates them:
+#   path    : document path relative to the corpus root (required)
+#   symbol  : a defined name (functions, classes, `Class.method`) or a Markdown heading
+#   page    : a PDF page number
+#   grade   : 2 = the answer, 1 = useful context. Used for NDCG.
+# A label with only `path` matches any chunk of that document.
+#
+# `answerable: false` queries have no answer in the corpus. They are excluded from recall and
+# NDCG and used to measure whether scores separate "found it" from "nothing here", which
+# sets the abstention threshold for chat.
+
+version: 1
+queries:
+  # ---------------------------------------------------------------- identifiers
+  - id: id-01
+    q: create_access_token
+    category: identifier
+    relevant:
+      - { path: repos/auth-service/app/security.py, symbol: create_access_token, grade: 2 }
+  - id: id-02
+    q: fetchWithRetry
+    category: identifier
+    relevant:
+      - { path: repos/task-board/src/api/client.ts, symbol: fetchWithRetry, grade: 2 }
+  - id: id-03
+    q: useTaskStore moveTask
+    category: identifier
+    relevant:
+      - { path: repos/task-board/src/store/tasks.ts, symbol: useTaskStore, grade: 2 }
+  - id: id-04
+    q: ParseRobots
+    category: identifier
+    relevant:
+      - { path: repos/link-checker/robots.go, symbol: ParseRobots, grade: 2 }
+  - id: id-05
+    q: cosine_similarity implementation
+    category: identifier
+    relevant:
+      - { path: repos/vecstore/src/lib.rs, symbol: cosine_similarity, grade: 2 }
+  - id: id-06
+    q: reserveStock
+    category: identifier
+    relevant:
+      - { path: repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java, symbol: InventoryService.reserveStock, grade: 2 }
+  - id: id-07
+    q: limit_login
+    category: identifier
+    relevant:
+      - { path: repos/auth-service/app/rate_limit.py, symbol: limit_login_attempts, grade: 2 }
+  - id: id-08
+    q: extract_links from html
+    category: identifier
+    relevant:
+      - { path: repos/link-checker/crawler.go, symbol: extractLinks, grade: 2 }
+
+  # ---------------------------------------------------------------- keywords
+  - id: kw-01
+    q: argon2 password hashing
+    category: keyword
+    relevant:
+      - { path: repos/auth-service/app/security.py, symbol: hash_password, grade: 2 }
+      - { path: repos/auth-service/app/security.py, symbol: verify_password, grade: 1 }
+  - id: kw-02
+    q: refresh token rotation and reuse detection
+    category: keyword
+    relevant:
+      - { path: repos/auth-service/app/routes/auth.py, symbol: refresh, grade: 2 }
+      - { path: repos/auth-service/app/security.py, symbol: create_refresh_token, grade: 1 }
+  - id: kw-03
+    q: robots.txt disallow rules
+    category: keyword
+    relevant:
+      - { path: repos/link-checker/robots.go, symbol: ParseRobots, grade: 2 }
+  - id: kw-04
+    q: postgres deadlock
+    category: keyword
+    relevant:
+      - { path: notes/journal/2024-03-12.md, grade: 2 }
+  - id: kw-05
+    q: git bisect
+    category: keyword
+    relevant:
+      - { path: notes/cheatsheets/git.md, symbol: Find the commit that broke something, grade: 2 }
+  - id: kw-06
+    q: sliding window rate limiter redis sorted set
+    category: keyword
+    relevant:
+      - { path: repos/auth-service/app/rate_limit.py, symbol: allow_request, grade: 2 }
+      - { path: repos/auth-service/app/rate_limit.py, symbol: _client, grade: 1 }
+
+  # ---------------------------------------------------------------- vague descriptions
+  # The Phase 1 promise: describe it loosely, get the function.
+  - id: vague-01
+    q: the function that waits longer and longer between retries when the server fails
+    category: vague
+    relevant:
+      - { path: repos/task-board/src/api/client.ts, symbol: fetchWithRetry, grade: 2 }
+  - id: vague-02
+    q: hook that delays a value until the user stops typing
+    category: vague
+    relevant:
+      - { path: repos/task-board/src/hooks/useDebounce.ts, symbol: useDebounce, grade: 2 }
+  - id: vague-03
+    q: show a date as something like three days ago
+    category: vague
+    relevant:
+      - { path: repos/task-board/src/lib/dates.ts, symbol: formatRelativeTime, grade: 2 }
+  - id: vague-04
+    q: concurrent website crawler with a pool of goroutines
+    category: vague
+    relevant:
+      - { path: repos/link-checker/crawler.go, symbol: Crawler.Run, grade: 2 }
+      - { path: repos/link-checker/crawler.go, symbol: Crawler, grade: 1 }
+  - id: vague-05
+    q: prevent two customers from buying the last item at the same time
+    category: vague
+    relevant:
+      - { path: repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java, symbol: InventoryService.reserveStock, grade: 2 }
+  - id: vague-06
+    q: keep only the best k results using a heap
+    category: vague
+    relevant:
+      - { path: repos/vecstore/src/lib.rs, symbol: VecStore.search, grade: 2 }
+  - id: vague-07
+    q: stop people from brute forcing the login form
+    category: vague
+    relevant:
+      - { path: repos/auth-service/app/rate_limit.py, symbol: limit_login_attempts, grade: 2 }
+      - { path: repos/auth-service/app/rate_limit.py, symbol: allow_request, grade: 1 }
+  - id: vague-08
+    q: drag cards to reorder them in a kanban column
+    category: vague
+    relevant:
+      - { path: repos/task-board/src/components/TaskList.tsx, symbol: TaskList, grade: 2 }
+      - { path: repos/task-board/src/store/tasks.ts, symbol: useTaskStore, grade: 1 }
+  - id: vague-09
+    q: move a card to another column and renumber the positions
+    category: vague
+    relevant:
+      - { path: repos/task-board/src/store/tasks.ts, symbol: useTaskStore, grade: 2 }
+      - { path: repos/task-board/src/store/tasks.ts, symbol: reindex, grade: 1 }
+  - id: vague-10
+    q: save the vector index to disk
+    category: vague
+    relevant:
+      - { path: repos/vecstore/src/lib.rs, symbol: VecStore.to_bytes, grade: 2 }
+  - id: vague-11
+    q: test that a refresh token cannot be used as an access token
+    category: vague
+    relevant:
+      - { path: repos/auth-service/tests/test_security.py, symbol: test_refresh_token_is_not_an_access_token, grade: 2 }
+      - { path: repos/auth-service/app/security.py, symbol: decode_token, grade: 1 }
+  - id: vague-12
+    q: one database session per request
+    category: vague
+    relevant:
+      - { path: repos/auth-service/app/db.py, symbol: get_session, grade: 2 }
+  - id: vague-13
+    q: don't reveal whether an email is registered when the login fails
+    category: vague
+    relevant:
+      - { path: repos/auth-service/app/routes/auth.py, symbol: login, grade: 2 }
+  - id: vague-14
+    q: command line options for the broken link tool
+    category: vague
+    relevant:
+      - { path: repos/link-checker/main.go, symbol: main, grade: 2 }
+  - id: vague-15
+    q: give the stock back when a payment fails
+    category: vague
+    relevant:
+      - { path: repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java, symbol: InventoryService.releaseStock, grade: 2 }
+  - id: vague-16
+    q: issue a signed token that expires after fifteen minutes
+    category: vague
+    relevant:
+      - { path: repos/auth-service/app/security.py, symbol: create_access_token, grade: 2 }
+
+  # ---------------------------------------------------------------- notes and concepts
+  - id: note-01
+    q: what does ef_search control
+    category: note
+    relevant:
+      - { path: notes/learning/hnsw.md, symbol: Parameters, grade: 2 }
+  - id: note-02
+    q: why does a filter give me fewer vector search results than I asked for
+    category: note
+    relevant:
+      - { path: notes/learning/hnsw.md, symbol: Things that bit me, grade: 2 }
+  - id: note-03
+    q: how to combine keyword and vector search rankings
+    category: note
+    relevant:
+      - { path: notes/learning/reciprocal-rank-fusion.md, grade: 2 }
+      - { path: papers/bm25-notes.pdf, page: 3, grade: 1 }
+  - id: note-04
+    q: original architecture of the student portal
+    category: note
+    relevant:
+      - { path: notes/projects/student-portal-architecture.md, symbol: "Original design (v1, September 2023)", grade: 2 }
+  - id: note-05
+    q: what took the student portal down during exam week
+    category: note
+    relevant:
+      - { path: notes/projects/student-portal-architecture.md, symbol: "Original design (v1, September 2023)", grade: 2 }
+      - { path: notes/projects/student-portal-architecture.md, symbol: Lessons, grade: 1 }
+  - id: note-06
+    q: question answering for Algerian dialect
+    category: note
+    relevant:
+      - { path: notes/ideas/rag-for-darija.md, grade: 2 }
+  - id: note-07
+    q: Arabizi transliteration
+    category: note
+    relevant:
+      - { path: notes/ideas/rag-for-darija.md, symbol: Rough plan, grade: 2 }
+      - { path: notes/ideas/rag-for-darija.md, symbol: Why it is hard, grade: 1 }
+  - id: note-08
+    q: bot that comments on pull requests
+    category: note
+    relevant:
+      - { path: notes/ideas/code-review-bot.md, grade: 2 }
+  - id: note-09
+    q: how to undo a bad git reset
+    category: note
+    relevant:
+      - { path: notes/cheatsheets/git.md, symbol: Undo, grade: 2 }
+  - id: note-10
+    q: wait for the database to be ready before starting the api container
+    category: note
+    relevant:
+      - { path: notes/cheatsheets/docker.md, symbol: Healthchecks and depends_on, grade: 2 }
+  - id: note-11
+    q: see which query is blocking another one
+    category: note
+    relevant:
+      - { path: notes/journal/2024-03-12.md, grade: 2 }
+
+  # ---------------------------------------------------------------- PDFs
+  - id: pdf-01
+    q: BM25 k1 and b parameters
+    category: pdf
+    relevant:
+      - { path: papers/bm25-notes.pdf, page: 2, grade: 2 }
+  - id: pdf-02
+    q: what is SPLADE
+    category: pdf
+    relevant:
+      - { path: papers/bm25-notes.pdf, page: 3, grade: 2 }
+  - id: pdf-03
+    q: is keyword search still competitive with dense retrievers
+    category: pdf
+    relevant:
+      - { path: papers/bm25-notes.pdf, page: 1, grade: 2 }
+
+  # ---------------------------------------------------------------- unanswerable
+  - { id: none-01, q: kubernetes helm chart for deploying the api, category: unanswerable, answerable: false }
+  - { id: none-02, q: stripe webhook signature verification, category: unanswerable, answerable: false }
+  - { id: none-03, q: graphql resolver for user profiles, category: unanswerable, answerable: false }
+  - { id: none-04, q: how did I configure terraform state locking, category: unanswerable, answerable: false }
+  - { id: none-05, q: flutter widget for the login screen, category: unanswerable, answerable: false }
+  - { id: none-06, q: notes on pruning attention heads in transformers, category: unanswerable, answerable: false }
+  - { id: none-07, q: websocket chat server, category: unanswerable, answerable: false }
+  - { id: none-08, q: kafka consumer group rebalancing, category: unanswerable, answerable: false }
+  - { id: none-09, q: my notes from the machine learning exam, category: unanswerable, answerable: false }
+  - { id: none-10, q: resize uploaded images in a lambda function, category: unanswerable, answerable: false }
+  - { id: none-11, q: google oauth sign in callback, category: unanswerable, answerable: false }
+  - { id: none-12, q: elasticsearch index mapping for products, category: unanswerable, answerable: false }

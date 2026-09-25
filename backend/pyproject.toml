@@ -10,14 +10,31 @@ dependencies = [
     "pydantic-settings>=2.6",
     "sqlalchemy[asyncio]>=2.0.36",
     "asyncpg>=0.30",
-    "redis>=5.2",
+    "alembic>=1.14",
+    "pgvector>=0.3.6",
+    "redis>=5.2,<6",
+    "arq>=0.26",
+    "httpx>=0.28",
+    "pyyaml>=6.0",
+    # Ingestion
+    "pathspec>=0.12",
+    "python-frontmatter>=1.1",
+    "pymupdf>=1.25",
+    # Code parsing: one grammar package per supported language
+    # 0.26.0 corrupts memory on Windows (access violations mid-chunking); 0.25 is stable.
+    "tree-sitter>=0.23,<0.26",
+    "tree-sitter-python>=0.23",
+    "tree-sitter-javascript>=0.23",
+    "tree-sitter-typescript>=0.23",
+    "tree-sitter-go>=0.23",
+    "tree-sitter-rust>=0.23",
+    "tree-sitter-java>=0.23",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
-    "httpx>=0.28",
     "ruff>=0.8",
 ]
 
@@ -31,10 +48,17 @@ packages = ["app"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom, not a mutable default.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]

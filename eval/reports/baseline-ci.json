@@ -1,0 +1,2734 @@
+{
+  "benchmark": "fixture",
+  "created_at": "2026-09-25T20:25:36+00:00",
+  "answerable": 44,
+  "unanswerable": 12,
+  "models": {
+    "embedding": "hash-v1",
+    "reranker": null
+  },
+  "skipped_modes": [],
+  "modes": {
+    "lexical": {
+      "summary": {
+        "queries": 44,
+        "recall_10": 0.9886,
+        "recall_50": 0.9886,
+        "ndcg_10": 0.8855,
+        "mrr": 0.8833,
+        "latency_p50_ms": 21.3,
+        "latency_p95_ms": 103.0,
+        "ndcg_10_by_category": {
+          "identifier": 1.0,
+          "keyword": 0.8623,
+          "note": 0.8908,
+          "pdf": 1.0,
+          "vague": 0.8119
+        }
+      },
+      "queries": [
+        {
+          "id": "id-01",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 119.5,
+          "top3": [
+            "repos/auth-service/app/security.py :: create_access_token",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-02",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 58.0,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: fetchWithRetry, getJson",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-03",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 76.7,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-04",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 27.0,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/link-checker/crawler.go :: extractLinks"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-05",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 26.6,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-06",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 21.0,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-07",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 21.7,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/rate_limit.py :: allow_request"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-08",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 25.3,
+          "top3": [
+            "repos/link-checker/crawler.go :: extractLinks",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/link-checker/crawler.go :: Crawler, BrokenLink, job"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-01",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 20.7,
+          "top3": [
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-02",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 21.3,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/security.py :: create_refresh_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6590018048024133,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "kw-03",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 21.4,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-04",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 17.9,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-05",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 17.2,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-06",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 22.6,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "repos/auth-service/app/config.py :: Settings, settings",
+            "repos/auth-service/app/rate_limit.py :: allow_request"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6885288809404666,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-01",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 22.7,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: fetchWithRetry, getJson",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-02",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 19.5,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "vague-03",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 24.1,
+          "top3": [
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "notes/cheatsheets/git.md :: Git cheatsheet"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-04",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 19.4,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler, BrokenLink, job",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/link-checker/crawler.go :: Crawler.Run"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6885288809404666,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-05",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 27.8,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.38685280723454163,
+          "mrr": 0.2,
+          "first_relevant_rank": 5
+        },
+        {
+          "id": "vague-06",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 25.7,
+          "top3": [
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "vague-07",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 23.9,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/config.py :: Settings, settings"
+          ],
+          "recall_10": 0.5,
+          "recall_50": 0.5,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-08",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 19.8,
+          "top3": [
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/task-board/src/components/TaskList.tsx :: TaskCard"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.944847956559586,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-09",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 22.8,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9639404333166532,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-10",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 26.6,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-11",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 35.7,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9180385079206221,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-12",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 21.3,
+          "top3": [
+            "repos/auth-service/app/db.py :: get_session, engine, SessionLocal",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-13",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 14.5,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-14",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 17.5,
+          "top3": [
+            "repos/link-checker/crawler.go :: extractLinks",
+            "repos/link-checker/crawler.go :: Crawler, BrokenLink, job",
+            "repos/link-checker/main.go :: main"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "vague-15",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 12.4,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-16",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 16.1,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/auth-service/app/security.py :: create_access_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "note-01",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 14.3,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "papers/bm25-notes.pdf :: p. 1"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "note-02",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 22.4,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-03",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 18.5,
+          "top3": [
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9058464496821221,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-04",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 16.4,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-05",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 16.2,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-06",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 15.4,
+          "top3": [
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "note-07",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 13.3,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-08",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 15.7,
+          "top3": [
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/auth-service/app/rate_limit.py :: allow_request",
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-09",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 13.8,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-10",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 22.9,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: ApiError, ApiError.constructor, BASE_URL",
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "repos/link-checker/main.go :: main"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "note-11",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 26.5,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-01",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 14.9,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 2",
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-02",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 16.9,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-03",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 21.7,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 3",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "none-01",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 25.7,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: ApiError, ApiError.constructor, BASE_URL",
+            "repos/task-board/src/api/client.ts :: fetchWithRetry, getJson",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock"
+          ]
+        },
+        {
+          "id": "none-02",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 14.5,
+          "top3": [
+            "repos/auth-service/app/security.py :: decode_token"
+          ]
+        },
+        {
+          "id": "none-03",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 17.3,
+          "top3": [
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ]
+        },
+        {
+          "id": "none-04",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 16.4,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ]
+        },
+        {
+          "id": "none-05",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 151.2,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/config.py :: Settings, settings"
+          ]
+        },
+        {
+          "id": "none-06",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 39.4,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World)"
+          ]
+        },
+        {
+          "id": "none-07",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 19.2,
+          "top3": [
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture"
+          ]
+        },
+        {
+          "id": "none-08",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 20.4,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler.Run",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed"
+          ]
+        },
+        {
+          "id": "none-09",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 100.0,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World)"
+          ]
+        },
+        {
+          "id": "none-10",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 71.6,
+          "top3": [
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "papers/bm25-notes.pdf :: p. 2",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList"
+          ]
+        },
+        {
+          "id": "none-11",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 60.1,
+          "top3": [
+            "repos/auth-service/app/security.py :: create_access_token"
+          ]
+        },
+        {
+          "id": "none-12",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 103.0,
+          "top3": [
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ]
+        }
+      ]
+    },
+    "vector": {
+      "summary": {
+        "queries": 44,
+        "recall_10": 0.8295,
+        "recall_50": 1.0,
+        "ndcg_10": 0.7268,
+        "mrr": 0.7397,
+        "latency_p50_ms": 38.6,
+        "latency_p95_ms": 98.0,
+        "ndcg_10_by_category": {
+          "identifier": 0.8109,
+          "keyword": 0.926,
+          "note": 0.9091,
+          "pdf": 0.6667,
+          "vague": 0.496
+        }
+      },
+      "queries": [
+        {
+          "id": "id-01",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 143.7,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/security.py :: create_access_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "id-02",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 92.5,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: fetchWithRetry, getJson",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-03",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 82.2,
+          "top3": [
+            "repos/task-board/src/components/TaskList.tsx :: TaskCard",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.3562071871080222,
+          "mrr": 0.16666666666666666,
+          "first_relevant_rank": 6
+        },
+        {
+          "id": "id-04",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 96.9,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "repos/link-checker/crawler.go :: extractLinks"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-05",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 103.2,
+          "top3": [
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored",
+            "repos/task-board/src/api/client.ts :: ApiError, ApiError.constructor, BASE_URL"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "id-06",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 98.0,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-07",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 96.4,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/rate_limit.py :: allow_request",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-08",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 93.5,
+          "top3": [
+            "repos/link-checker/crawler.go :: extractLinks",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/task-board/src/api/client.ts :: ApiError, ApiError.constructor, BASE_URL"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-01",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 82.2,
+          "top3": [
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-02",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 92.6,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9327783893101107,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-03",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 81.1,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/auth-service/app/security.py :: create_access_token",
+            "repos/auth-service/app/security.py :: decode_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-04",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 64.2,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "repos/vecstore/Cargo.toml :: None"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-05",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 27.4,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/vecstore/Cargo.toml :: None"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-06",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 31.2,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "repos/auth-service/app/rate_limit.py :: allow_request",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.7967075809905066,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-01",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 33.9,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 3",
+            "papers/bm25-notes.pdf :: p. 2",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.05263157894736842,
+          "first_relevant_rank": 19
+        },
+        {
+          "id": "vague-02",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 35.3,
+          "top3": [
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce",
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-03",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 31.3,
+          "top3": [
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "repos/auth-service/app/security.py :: create_refresh_token",
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-04",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 35.4,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler, BrokenLink, job",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 0.5,
+          "recall_50": 1.0,
+          "ndcg_10": 0.27541155237618664,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-05",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 35.3,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.02857142857142857,
+          "first_relevant_rank": 35
+        },
+        {
+          "id": "vague-06",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 42.3,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "papers/bm25-notes.pdf :: p. 3",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "vague-07",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 39.2,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 0.5,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-08",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 42.0,
+          "top3": [
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ],
+          "recall_10": 0.5,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-09",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 40.7,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "papers/bm25-notes.pdf :: p. 2",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.05555555555555555,
+          "first_relevant_rank": 18
+        },
+        {
+          "id": "vague-10",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 41.1,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.08333333333333333,
+          "first_relevant_rank": 12
+        },
+        {
+          "id": "vague-11",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 29.0,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/security.py :: decode_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9639404333166532,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-12",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 26.3,
+          "top3": [
+            "repos/auth-service/app/db.py :: get_session, engine, SessionLocal",
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/link-checker/main.go :: main"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-13",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 29.9,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.3562071871080222,
+          "mrr": 0.16666666666666666,
+          "first_relevant_rank": 6
+        },
+        {
+          "id": "vague-14",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 29.4,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/link-checker/crawler.go :: Crawler.Run",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.38685280723454163,
+          "mrr": 0.2,
+          "first_relevant_rank": 5
+        },
+        {
+          "id": "vague-15",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 33.1,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.3010299956639812,
+          "mrr": 0.1111111111111111,
+          "first_relevant_rank": 9
+        },
+        {
+          "id": "vague-16",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 36.5,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: create_access_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "note-01",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 38.6,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-02",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 43.7,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "papers/bm25-notes.pdf :: p. 1"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-03",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 32.7,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World)"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.09090909090909091,
+          "first_relevant_rank": 11
+        },
+        {
+          "id": "note-04",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 59.7,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-05",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 41.5,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-06",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 31.0,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-07",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 33.6,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "repos/link-checker/crawler.go :: Crawler.Run"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-08",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 31.1,
+          "top3": [
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/task-board/src/store/tasks.ts :: useTaskStore"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-09",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 47.9,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "notes/cheatsheets/docker.md :: Docker notes"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-10",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 47.0,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-11",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 35.2,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-01",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 51.4,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 2",
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-02",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 48.1,
+          "top3": [
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "repos/auth-service/app/routes/auth.py :: refresh"
+          ],
+          "recall_10": 0.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.0,
+          "mrr": 0.09090909090909091,
+          "first_relevant_rank": 11
+        },
+        {
+          "id": "pdf-03",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0164,
+          "latency_ms": 34.0,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "none-01",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 43.1,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: Scored, Scored.cmp, Scored.partial_cmp",
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ]
+        },
+        {
+          "id": "none-02",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 33.0,
+          "top3": [
+            "repos/auth-service/app/security.py :: decode_token",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "notes/cheatsheets/git.md :: Git cheatsheet"
+          ]
+        },
+        {
+          "id": "none-03",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 32.1,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed"
+          ]
+        },
+        {
+          "id": "none-04",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 39.6,
+          "top3": [
+            "repos/auth-service/app/config.py :: Settings, settings",
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/auth-service/app/db.py :: get_session, engine, SessionLocal"
+          ]
+        },
+        {
+          "id": "none-05",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 47.8,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/README.md :: auth-service",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ]
+        },
+        {
+          "id": "none-06",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 37.4,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ]
+        },
+        {
+          "id": "none-07",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 41.9,
+          "top3": [
+            "repos/link-checker/crawler.go :: extractLinks",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken"
+          ]
+        },
+        {
+          "id": "none-08",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 33.1,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: create_access_token",
+            "repos/auth-service/app/routes/auth.py :: refresh"
+          ]
+        },
+        {
+          "id": "none-09",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 35.6,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)"
+          ]
+        },
+        {
+          "id": "none-10",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 32.1,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 2"
+          ]
+        },
+        {
+          "id": "none-11",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 26.3,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "papers/bm25-notes.pdf :: p. 3",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ]
+        },
+        {
+          "id": "none-12",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0164,
+          "latency_ms": 35.8,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "repos/vecstore/src/lib.rs :: Scored, Scored.cmp, Scored.partial_cmp"
+          ]
+        }
+      ]
+    },
+    "hybrid": {
+      "summary": {
+        "queries": 44,
+        "recall_10": 0.9886,
+        "recall_50": 1.0,
+        "ndcg_10": 0.839,
+        "mrr": 0.8182,
+        "latency_p50_ms": 59.4,
+        "latency_p95_ms": 99.0,
+        "ndcg_10_by_category": {
+          "identifier": 0.9539,
+          "keyword": 0.9311,
+          "note": 0.9129,
+          "pdf": 1.0,
+          "vague": 0.6661
+        }
+      },
+      "queries": [
+        {
+          "id": "id-01",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0489,
+          "latency_ms": 75.1,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: create_access_token",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "id-02",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 51.3,
+          "top3": [
+            "repos/task-board/src/api/client.ts :: fetchWithRetry, getJson",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "notes/journal/2024-03-12.md :: 2024-03-12"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-03",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0479,
+          "latency_ms": 78.6,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-04",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 62.7,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/link-checker/crawler.go :: extractLinks",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-05",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0489,
+          "latency_ms": 99.0,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: cosine_similarity, Scored",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-06",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 83.7,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-07",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 73.0,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/rate_limit.py :: allow_request",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "id-08",
+          "category": "identifier",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 59.4,
+          "top3": [
+            "repos/link-checker/crawler.go :: extractLinks",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World)",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-01",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 54.0,
+          "top3": [
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-02",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 50.7,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/security.py :: create_refresh_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9639404333166532,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-03",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0492,
+          "latency_ms": 40.2,
+          "top3": [
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/auth-service/app/security.py :: create_access_token",
+            "repos/auth-service/app/security.py :: decode_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-04",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 41.3,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-05",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 43.8,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/vecstore/Cargo.toml :: None"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "kw-06",
+          "category": "keyword",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 53.2,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS",
+            "repos/auth-service/app/rate_limit.py :: allow_request",
+            "repos/auth-service/app/config.py :: Settings, settings"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.7967075809905066,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-01",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0318,
+          "latency_ms": 46.1,
+          "top3": [
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "papers/bm25-notes.pdf :: p. 2",
+            "notes/cheatsheets/docker.md :: Docker notes"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.3333333333333333,
+          "mrr": 0.14285714285714285,
+          "first_relevant_rank": 7
+        },
+        {
+          "id": "vague-02",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 57.9,
+          "top3": [
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-03",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 40.0,
+          "top3": [
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "repos/auth-service/app/security.py :: create_refresh_token",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-04",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 34.9,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler, BrokenLink, job",
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/link-checker/main.go :: main"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.631251450669265,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-05",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0323,
+          "latency_ms": 46.0,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "repos/auth-service/app/security.py :: verify_password, hash_password, _hasher"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.3154648767857287,
+          "mrr": 0.125,
+          "first_relevant_rank": 8
+        },
+        {
+          "id": "vague-06",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0323,
+          "latency_ms": 45.3,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "vague-07",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 35.8,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 0.5,
+          "recall_50": 1.0,
+          "ndcg_10": 0.8262346571285599,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-08",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 46.2,
+          "top3": [
+            "repos/task-board/src/components/TaskList.tsx :: TaskList",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/task-board/src/store/tasks.ts :: useTaskStore"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.9639404333166532,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-09",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0294,
+          "latency_ms": 36.1,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.4935456744811716,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "vague-10",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0323,
+          "latency_ms": 28.5,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "repos/task-board/src/components/TaskList.tsx :: TaskList"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.38685280723454163,
+          "mrr": 0.2,
+          "first_relevant_rank": 5
+        },
+        {
+          "id": "vague-11",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 41.3,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.944847956559586,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-12",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 40.3,
+          "top3": [
+            "repos/auth-service/app/db.py :: get_session, engine, SessionLocal",
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "vague-13",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.032,
+          "latency_ms": 34.1,
+          "top3": [
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "vague-14",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.032,
+          "latency_ms": 76.5,
+          "top3": [
+            "repos/link-checker/crawler.go :: Crawler.fetch, Crawler.record",
+            "repos/link-checker/crawler.go :: Crawler.Run",
+            "repos/link-checker/main.go :: main"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "vague-15",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0323,
+          "latency_ms": 57.6,
+          "top3": [
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "vague-16",
+          "category": "vague",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 62.5,
+          "top3": [
+            "repos/auth-service/tests/test_security.py :: test_refresh_token_is_not_an_access_token, test_password_roundtrip, test_access_token_carries_subject",
+            "repos/auth-service/app/routes/auth.py :: refresh",
+            "repos/auth-service/app/security.py :: create_access_token"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.5,
+          "mrr": 0.3333333333333333,
+          "first_relevant_rank": 3
+        },
+        {
+          "id": "note-01",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0421,
+          "latency_ms": 50.0,
+          "top3": [
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "papers/bm25-notes.pdf :: p. 1"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.6309297535714574,
+          "mrr": 0.5,
+          "first_relevant_rank": 2
+        },
+        {
+          "id": "note-02",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 56.8,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "papers/bm25-notes.pdf :: p. 1",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-03",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.032,
+          "latency_ms": 42.0,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 0.4114350473367146,
+          "mrr": 0.2,
+          "first_relevant_rank": 5
+        },
+        {
+          "id": "note-04",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 29.6,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-05",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 41.3,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/auth-service/README.md :: auth-service"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-06",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 33.9,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/ideas/code-review-bot.md :: Code review bot"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-07",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 78.3,
+          "top3": [
+            "notes/ideas/rag-for-darija.md :: RAG for Darija > Rough plan",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "repos/link-checker/crawler.go :: Crawler.Run"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-08",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 380.9,
+          "top3": [
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/auth-service/app/db.py :: get_session, engine, SessionLocal"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-09",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 76.7,
+          "top3": [
+            "notes/cheatsheets/git.md :: Git cheatsheet",
+            "notes/ideas/code-review-bot.md :: Code review bot",
+            "notes/cheatsheets/docker.md :: Docker notes"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-10",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0325,
+          "latency_ms": 74.2,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "note-11",
+          "category": "note",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 71.4,
+          "top3": [
+            "notes/journal/2024-03-12.md :: 2024-03-12",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-01",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 69.6,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 2",
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-02",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0305,
+          "latency_ms": 84.1,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 3",
+            "notes/learning/reciprocal-rank-fusion.md :: Reciprocal Rank Fusion",
+            "repos/auth-service/app/rate_limit.py :: _client, WINDOW_SECONDS"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "pdf-03",
+          "category": "pdf",
+          "answerable": true,
+          "top_score": 0.0328,
+          "latency_ms": 92.8,
+          "top3": [
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Things that bit me",
+            "papers/bm25-notes.pdf :: p. 3"
+          ],
+          "recall_10": 1.0,
+          "recall_50": 1.0,
+          "ndcg_10": 1.0,
+          "mrr": 1.0,
+          "first_relevant_rank": 1
+        },
+        {
+          "id": "none-01",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0301,
+          "latency_ms": 82.7,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "repos/task-board/src/api/client.ts :: ApiError, ApiError.constructor, BASE_URL",
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce"
+          ]
+        },
+        {
+          "id": "none-02",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0328,
+          "latency_ms": 81.9,
+          "top3": [
+            "repos/auth-service/app/security.py :: decode_token",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "notes/cheatsheets/git.md :: Git cheatsheet"
+          ]
+        },
+        {
+          "id": "none-03",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0323,
+          "latency_ms": 89.3,
+          "top3": [
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed",
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken"
+          ]
+        },
+        {
+          "id": "none-04",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0325,
+          "latency_ms": 377.9,
+          "top3": [
+            "repos/task-board/src/store/tasks.ts :: useTaskStore",
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "repos/task-board/src/hooks/useDebounce.ts :: useDebounce"
+          ]
+        },
+        {
+          "id": "none-05",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0328,
+          "latency_ms": 67.8,
+          "top3": [
+            "repos/auth-service/app/rate_limit.py :: limit_login_attempts",
+            "repos/auth-service/README.md :: auth-service",
+            "repos/auth-service/app/routes/auth.py :: login, TokenPair, LoginRequest"
+          ]
+        },
+        {
+          "id": "none-06",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0325,
+          "latency_ms": 66.6,
+          "top3": [
+            "notes/cheatsheets/docker.md :: Docker notes",
+            "papers/bm25-notes.pdf :: p. 1",
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World)"
+          ]
+        },
+        {
+          "id": "none-07",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0323,
+          "latency_ms": 62.7,
+          "top3": [
+            "repos/auth-service/app/models.py :: User, Base, RevokedToken",
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture",
+            "repos/link-checker/crawler.go :: extractLinks"
+          ]
+        },
+        {
+          "id": "none-08",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0313,
+          "latency_ms": 66.5,
+          "top3": [
+            "notes/projects/student-portal-architecture.md :: Student Portal architecture > Current design (v2, 2024)",
+            "repos/link-checker/crawler.go :: Crawler.Run",
+            "repos/link-checker/robots.go :: ParseRobots, RobotsRules, RobotsRules.Allowed"
+          ]
+        },
+        {
+          "id": "none-09",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0318,
+          "latency_ms": 73.8,
+          "top3": [
+            "notes/learning/hnsw.md :: HNSW notes > HNSW (Hierarchical Navigable Small World) > Parameters",
+            "papers/bm25-notes.pdf :: p. 1",
+            "papers/bm25-notes.pdf :: p. 3"
+          ]
+        },
+        {
+          "id": "none-10",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.032,
+          "latency_ms": 69.3,
+          "top3": [
+            "repos/task-board/src/lib/dates.ts :: formatRelativeTime, isOverdue",
+            "papers/bm25-notes.pdf :: p. 2",
+            "papers/bm25-notes.pdf :: p. 1"
+          ]
+        },
+        {
+          "id": "none-11",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0278,
+          "latency_ms": 83.7,
+          "top3": [
+            "repos/auth-service/app/security.py :: create_access_token",
+            "notes/ideas/rag-for-darija.md :: RAG for Darija",
+            "papers/bm25-notes.pdf :: p. 3"
+          ]
+        },
+        {
+          "id": "none-12",
+          "category": "unanswerable",
+          "answerable": false,
+          "top_score": 0.0325,
+          "latency_ms": 88.3,
+          "top3": [
+            "repos/inventory-api/src/main/java/com/example/inventory/InventoryService.java :: InventoryService, InventoryService.InventoryService, InventoryService.reserveStock",
+            "repos/task-board/src/store/tasks.ts :: reindex, TaskState, Task",
+            "repos/vecstore/src/lib.rs :: VecStore, VecStore.new, VecStore.insert"
+          ]
+        }
+      ]
+    }
+  }
+}

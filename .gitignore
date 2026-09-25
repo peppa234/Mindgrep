@@ -8,6 +8,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-*/
 venv/
 .pytest_cache/
 .ruff_cache/
@@ -22,6 +23,8 @@ out/
 # Data the indexer produces — never commit a corpus
 data/
 corpus/
+# ...except the small, versioned benchmark corpus, which is the point of eval/
+!eval/corpus/
 *.sqlite
 *.db
 
@@ -36,3 +39,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Personal benchmark labels name private repos and files; commit only the reports.
+eval/golden/personal.yaml

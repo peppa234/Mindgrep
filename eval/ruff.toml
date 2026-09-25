@@ -1,0 +1,9 @@
+# Same rules as backend/pyproject.toml (self-contained: in the container eval/ is mounted
+# without backend/ beside it). Report-formatting code gets a little more line length.
+line-length = 120
+target-version = "py312"
+# The benchmark corpus is fixture data: reformatting it would change the eval numbers.
+extend-exclude = ["corpus"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
