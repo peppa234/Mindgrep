@@ -11,6 +11,7 @@ from app.deps import get_arq, get_session
 from app.schemas.source import RunOut, SourceCreate, SourceOut
 from app.services.ingestion import git
 from app.services.ingestion.pipeline import repo_dir, resolve_local, start_run
+from app.services.llm.factory import get_extraction_chat
 
 router = APIRouter(prefix="/sources", tags=["sources"])
 
@@ -154,6 +155,25 @@ async def embed_source(
     """Embed chunks left without vectors, e.g. when the model server was down during indexing."""
     await _get(session, source_id)
     job = await arq.enqueue_job("embed_source", source_id)
+    return {"job_id": job.job_id if job else None}
+
+
+@router.post("/{source_id}/extract", status_code=status.HTTP_202_ACCEPTED)
+async def extract_source(
+    source_id: int,
+    max_chunks: int = Query(500, ge=1, le=5000),
+    session: AsyncSession = Depends(get_session),
+    arq: ArqRedis = Depends(get_arq),
+) -> dict:
+    """LLM concept extraction over the source's notes and READMEs, on top of the deterministic
+    graph that indexing already built. Spends chat-model quota; cached results are reused."""
+    await _get(session, source_id)
+    if get_extraction_chat() is None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "no chat model configured: set GEMINI_API_KEY, GROQ_API_KEY or OLLAMA_MODEL",
+        )
+    job = await arq.enqueue_job("extract_source_concepts", source_id, max_chunks)
     return {"job_id": job.job_id if job else None}
 
 

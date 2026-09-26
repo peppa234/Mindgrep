@@ -1,6 +1,7 @@
 """ARQ worker. Run with: arq app.workers.main.WorkerSettings"""
 
 import logging
+from dataclasses import asdict
 from typing import Any
 
 from arq.connections import RedisSettings
@@ -8,6 +9,7 @@ from arq.connections import RedisSettings
 from app.config import settings
 from app.core.logging import configure_logging
 from app.db.session import SessionLocal
+from app.services.graph.concepts import extract_concepts
 from app.services.ingestion.pipeline import Pipeline, embed_pending, summarize
 
 log = logging.getLogger("memoryos.worker")
@@ -26,6 +28,16 @@ async def embed_source(ctx: dict[str, Any], source_id: int | None = None) -> dic
     return {"embedded": embedded, "pending": pending, "warning": warning}
 
 
+async def extract_source_concepts(
+    ctx: dict[str, Any], source_id: int, max_chunks: int = 500
+) -> dict[str, Any]:
+    """LLM concept extraction over a source's notes and READMEs. Separate from indexing on
+    purpose: it spends model quota, so it runs when asked, and resumes from its cache."""
+    stats = await extract_concepts(SessionLocal, source_id, max_chunks)
+    log.info("concepts for source %s: %s", source_id, stats)
+    return asdict(stats)
+
+
 async def startup(ctx: dict[str, Any]) -> None:
     configure_logging(settings.log_level)
     log.info(
@@ -34,7 +46,7 @@ async def startup(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions = [index_source, embed_source]
+    functions = [index_source, embed_source, extract_source_concepts]
     on_startup = startup
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     # A large repo on a CPU-only model server can take a long time to embed.

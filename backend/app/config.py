@@ -35,5 +35,30 @@ class Settings(BaseSettings):
     candidates_per_channel: int = 60
     rerank_candidates: int = 60
 
+    # --- Chat models ---
+    # Tried in order; a provider without its key (or model, for ollama) is skipped. Every
+    # provider speaks the OpenAI chat-completions protocol, so one client serves them all.
+    # fake: a deterministic extractive model with no network, used by tests and CI.
+    llm_providers: str = "gemini,groq,ollama"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    ollama_model: str = ""
+    ollama_base_url: str = "http://host.docker.internal:11434/v1"
+    llm_timeout_s: float = 60.0
+    # Extraction runs in bulk; it may use a cheaper lane than the answer the user reads.
+    extraction_providers: str = ""  # empty = same chain as llm_providers
+
+    # --- Chat ---
+    chat_context_chunks: int = 8
+    chat_context_tokens: int = 6000
+    chat_history_turns: int = 3
+    # Below this top reranker score the chat answers "not in your memory" without asking the
+    # model. Measure it with `.\make.ps1 eval` (the Abstention line) and set it from there.
+    abstain_threshold: float = 0.1
+
 
 settings = Settings()
