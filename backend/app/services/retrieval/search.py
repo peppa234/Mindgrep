@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.models import Chunk, Document, Source
-from app.schemas.search import SearchHit, SearchRequest, SearchResponse
+from app.schemas.search import SearchFilters, SearchHit, SearchRequest, SearchResponse
 from app.services.embedding.base import ModelUnavailable
 from app.services.embedding.factory import get_embedder, get_reranker
 from app.services.retrieval import channels
@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 RERANK_TEXT_MAX_CHARS = 2000
 
 
-async def search(session: AsyncSession, request: SearchRequest) -> SearchResponse:
+async def search(
+    session: AsyncSession, request: SearchRequest, scope: SearchFilters | None = None
+) -> SearchResponse:
+    """`scope` is a soft filter: the channels run a second time restricted to it and join
+    the fusion as extra lists, so chunks inside the scope rise without the rest vanishing.
+    Chat uses it when a question names a project ("how does auth-service hash passwords")."""
     timings: dict[str, float] = {}
     degraded: list[str] = []
     started = time.perf_counter()
@@ -45,6 +50,7 @@ async def search(session: AsyncSession, request: SearchRequest) -> SearchRespons
     ranked: dict[str, list[int]] = {}
 
     t = time.perf_counter()
+    query_vector: list[float] | None = None
     if use_vector:
         embedder = get_embedder()
         if embedder is None:
@@ -71,6 +77,20 @@ async def search(session: AsyncSession, request: SearchRequest) -> SearchRespons
                 session, analyzed.identifiers, request.filters, pool
             )
             t = lap("symbol", t)
+
+    if scope is not None:
+        scoped = request.filters.model_copy(
+            update={"source_ids": scope.source_ids, "path_prefix": scope.path_prefix}
+        )
+        if query_vector is not None:
+            ranked["scope_vector"] = await channels.vector_candidates(
+                session, query_vector, scoped, pool
+            )
+        if use_lexical and analyzed.tsquery:
+            ranked["scope_lexical"] = await channels.lexical_candidates(
+                session, analyzed.tsquery, scoped, pool
+            )
+        t = lap("scope", t)
 
     fused = rrf(ranked)
     candidates = len(fused)

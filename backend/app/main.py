@@ -8,12 +8,13 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from app.api.v1 import documents, search, sources
+from app.api.v1 import chat, documents, graph, search, sources
 from app.config import settings
 from app.core.logging import configure_logging
 from app.db.session import engine
 from app.services.embedding.base import ModelUnavailable
 from app.services.embedding.factory import get_embedder, get_reranker
+from app.services.llm.factory import get_chat, get_extraction_chat
 
 configure_logging(settings.log_level)
 log = logging.getLogger("memoryos")
@@ -31,12 +32,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="MemoryOS",
-    version="0.2.0",
-    description="Index notes, PDFs and repositories; search them with hybrid retrieval.",
+    version="0.3.0",
+    description=(
+        "Index notes, PDFs and repositories; search them with hybrid retrieval, ask questions "
+        "with cited answers, and query the knowledge graph built from them."
+    ),
     lifespan=lifespan,
 )
 
-for module in (sources, search, documents):
+for module in (sources, search, documents, chat, graph):
     app.include_router(module.router, prefix="/api/v1")
 
 
@@ -89,6 +93,13 @@ async def health() -> JSONResponse:
     except ModelUnavailable as exc:
         models.update(ok=False, error=str(exc))
     checks["models"] = models
+
+    chat, extraction = get_chat(), get_extraction_chat()
+    checks["chat"] = {
+        "configured": chat is not None,
+        "models": [m.name for m in chat.models] if chat else [],
+        "extraction": [m.name for m in extraction.models] if extraction else [],
+    }
 
     return JSONResponse(
         status_code=200 if healthy else 503,
