@@ -1,6 +1,11 @@
 import type {
+  Conversation,
+  ConversationDetail,
   DocumentDetail,
   Health,
+  MessageOut,
+  NodeDetail,
+  ProjectSummary,
   SearchFilters,
   SearchMode,
   SearchResponse,
@@ -52,4 +57,18 @@ export const api = {
   stats: () => request<Stats>("/api/v1/stats"),
   document: (id: number) => request<DocumentDetail>(`/api/v1/documents/${id}`),
   health: () => request<Health>("/health"),
+
+  conversations: () => request<Conversation[]>("/api/v1/conversations"),
+  conversation: (id: number) => request<ConversationDetail>(`/api/v1/conversations/${id}`),
+  deleteConversation: (id: number) => request<void>(`/api/v1/conversations/${id}`, { method: "DELETE" }),
+  feedback: (messageId: number, rating: 1 | -1) =>
+    request<MessageOut>(`/api/v1/messages/${messageId}/feedback`, {
+      method: "POST",
+      body: JSON.stringify({ rating }),
+    }),
+  projects: (uses?: string) =>
+    request<ProjectSummary[]>(`/api/v1/graph/projects${uses ? `?uses=${encodeURIComponent(uses)}` : ""}`),
+  node: (id: number) => request<NodeDetail>(`/api/v1/graph/nodes/${id}`),
+  extract: (sourceId: number) =>
+    request<{ job_id: string }>(`/api/v1/sources/${sourceId}/extract`, { method: "POST" }),
 };

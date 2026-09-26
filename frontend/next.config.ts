@@ -7,6 +7,8 @@ const apiUrl = process.env.API_URL ?? "http://localhost:8000";
 
 const config: NextConfig = {
   output: "standalone",
+  // The rewrite proxy's default 30 s timeout would cut long streamed chat answers short.
+  experimental: { proxyTimeout: 300_000 },
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiUrl}/api/:path*` },

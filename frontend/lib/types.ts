@@ -1,5 +1,5 @@
-// Mirrors backend/app/schemas. Hand-written for Phase 1; generate from /openapi.json once
-// the API surface settles (openapi-typescript).
+// Mirrors backend/app/schemas. Hand-written; generate from /openapi.json once the API surface
+// settles (openapi-typescript).
 
 export type SearchMode = "auto" | "vector" | "lexical" | "hybrid" | "rerank";
 export type DocKind = "code" | "markdown" | "pdf" | "text";
@@ -139,6 +139,119 @@ export interface Health {
   status: "ok" | "degraded";
   checks: {
     models?: { ok: boolean; embedder: string; reranker: string; embedding_model?: string; error?: string };
+    chat?: { configured: boolean; models: string[]; extraction: string[] };
     [key: string]: unknown;
   };
+}
+
+// ---------------------------------------------------------------- chat (Phase 2)
+
+export type Intent = "rag" | "graph_projects" | "graph_stack";
+
+export interface ChatSource {
+  n: number;
+  kind: "chunk" | "evidence";
+  chunk_id: number | null;
+  document_id: number | null;
+  source_name: string | null;
+  path: string | null;
+  doc_kind: DocKind | null;
+  language: string | null;
+  symbol: string | null;
+  title: string | null;
+  start_line: number | null;
+  end_line: number | null;
+  page: number | null;
+  modified_at: string | null;
+  content: string;
+  score: number | null;
+}
+
+export interface ChatDone {
+  message_id: number;
+  conversation_id: number;
+  intent: Intent;
+  abstained: boolean;
+  citations: number[];
+  grounded: boolean;
+  model: string | null;
+  degraded: string[];
+  timings_ms: Record<string, number>;
+}
+
+export interface MessageOut {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  intent: Intent | null;
+  abstained: boolean;
+  sources: ChatSource[];
+  citations: number[];
+  trace: Record<string, unknown> & { model?: string | null; grounded?: boolean; degraded?: string[] };
+  created_at: string;
+  feedback: 1 | -1 | null;
+}
+
+export interface Conversation {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages: number;
+}
+
+export interface ConversationDetail extends Conversation {
+  turns: MessageOut[];
+}
+
+// ---------------------------------------------------------------- graph (Phase 2)
+
+export interface StackTech {
+  name: string;
+  category: string | null;
+  via: string[];
+}
+
+export interface ProjectSummary {
+  id: number;
+  name: string;
+  source_id: number | null;
+  source_name: string;
+  root: string;
+  manifests: string[];
+  technologies: StackTech[];
+  package_count: number;
+}
+
+export interface Evidence {
+  edge_id: number;
+  type: string;
+  extractor: string;
+  evidence: string | null;
+  confidence: number;
+  document_id: number | null;
+  path: string | null;
+  source_name: string | null;
+  line: number | null;
+  chunk_ids: number[];
+  meta: Record<string, unknown>;
+}
+
+export interface Related {
+  node_id: number;
+  kind: string;
+  name: string;
+  meta: Record<string, unknown>;
+  confidence: number;
+  evidence: Evidence[];
+}
+
+export interface NodeDetail {
+  id: number;
+  kind: string;
+  name: string;
+  source_id: number | null;
+  meta: Record<string, unknown>;
+  outgoing: Record<string, Related[]>;
+  incoming: Record<string, Related[]>;
 }

@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MemoryOS",
-  description: "Search everything you have written: notes, papers, and code.",
+  description: "Ask and search everything you have written: notes, papers, and code.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

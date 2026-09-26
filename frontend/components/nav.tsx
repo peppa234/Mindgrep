@@ -8,7 +8,9 @@ import { api } from "@/lib/api";
 import type { Health } from "@/lib/types";
 
 const links = [
+  { href: "/chat", label: "Chat" },
   { href: "/search", label: "Search" },
+  { href: "/projects", label: "Projects" },
   { href: "/sources", label: "Sources" },
 ];
 
@@ -53,7 +55,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-10 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-6 px-4">
-        <Link href="/search" className="font-semibold tracking-tight">
+        <Link href="/chat" className="font-semibold tracking-tight">
           Memory<span className="text-amber-600 dark:text-amber-400">OS</span>
         </Link>
         <nav className="flex gap-1 text-sm">
