@@ -24,6 +24,8 @@ jobs:
       # No model downloads in CI: the hashing embedder gives a deterministic vector channel.
       EMBEDDER: hash
       RERANKER: none
+      # And no API keys: a deterministic fake chat model exercises the chat pipeline.
+      LLM_PROVIDERS: fake
     defaults:
       run:
         working-directory: backend
@@ -56,6 +58,14 @@ jobs:
           uv run --no-sync python -m eval.runners.retrieval_eval \
             --modes lexical,vector,hybrid --name ci --out /tmp/eval \
             --baseline ../eval/reports/baseline-ci.json | tee /tmp/eval/gate.txt
+      - name: Graph eval gate
+        # The deterministic graph must be exactly right on the fixture: precision and recall
+        # of 1.0 for "which projects use X" and project stacks, and every routing decision.
+        env:
+          EVAL_CORPUS_DIR: ${{ github.workspace }}/eval/corpus
+          PYTHONPATH: ${{ github.workspace }}/backend:${{ github.workspace }}
+        shell: bash
+        run: uv run --no-sync python -m eval.runners.graph_eval --gate --out /tmp/eval --name graph | tee /tmp/eval/graph.txt
       - name: Eval summary
         if: always()
         run: |
@@ -64,6 +74,9 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             sed -n '/^comparing/,$p' /tmp/eval/gate.txt >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f /tmp/eval/graph.md ]; then
+            cat /tmp/eval/graph.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
   frontend:

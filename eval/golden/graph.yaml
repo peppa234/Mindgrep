@@ -1,0 +1,66 @@
+# Golden facts for the knowledge graph built from the fixture corpus (eval/corpus).
+#
+# Every expectation here was checked by hand against the corpus files. The deterministic
+# extractors (manifests, imports, Dockerfiles, languages) must get all of it right: the CI gate
+# requires precision and recall of 1.0. A miss is a bug in extraction or in the alias table,
+# not noise.
+#
+#   projects_using : "which projects use X?"  X is written the way a person would type it.
+#   stacks         : the technologies detected for a project. Exact set.
+#   routing        : where the chat sends a question. graph intents only count when the
+#                    subject resolves to a graph node; otherwise the question goes to rag.
+
+version: 1
+
+projects_using:
+  - { q: postgres, expected: [auth-service, inventory-api] }
+  - { q: PostgreSQL, expected: [auth-service, inventory-api] }
+  - { q: fastapi, expected: [auth-service] }
+  - { q: jwt, expected: [auth-service] }
+  - { q: redis, expected: [auth-service] }
+  - { q: argon2, expected: [auth-service] }
+  - { q: sqlalchemy, expected: [auth-service] }
+  - { q: react, expected: [task-board] }
+  - { q: ReactJS, expected: [task-board] }
+  - { q: zustand, expected: [task-board] }
+  - { q: dnd-kit, expected: [task-board] }
+  - { q: vite, expected: [task-board] }
+  - { q: spring boot, expected: [inventory-api] }
+  - { q: springboot, expected: [inventory-api] }
+  - { q: maven, expected: [inventory-api] }
+  - { q: golang, expected: [link-checker] }
+  - { q: rust, expected: [vecstore] }
+  - { q: serde, expected: [vecstore] }
+  - { q: typescript, expected: [task-board] }
+  - { q: python, expected: [auth-service] }
+  - { q: java, expected: [inventory-api] }
+  # Declared dependencies without a curated technology still answer through package nodes.
+  - { q: golang.org/x/net, expected: [link-checker] }
+  - { q: bincode, expected: [vecstore] }
+  # Nothing uses these: the answer is empty, never a guess.
+  - { q: kafka, expected: [] }
+  - { q: django, expected: [] }
+  - { q: mongodb, expected: [] }
+  - { q: preact, expected: [] }
+
+stacks:
+  auth-service: [Argon2, FastAPI, JWT, PostgreSQL, Pydantic, pytest, Python, Redis, SQLAlchemy]
+  task-board: [dnd kit, React, TypeScript, Vite, Vitest, Zustand]
+  inventory-api: [Java, Maven, PostgreSQL, Spring Boot]
+  link-checker: [Go]
+  vecstore: [Rust, Serde]
+
+routing:
+  - { q: "Which project used PostgreSQL?", intent: graph_projects }
+  - { q: "Show every project where I used FastAPI", intent: graph_projects }
+  - { q: "which of my repos use redis?", intent: graph_projects }
+  - { q: "Have I ever used Spring Boot?", intent: graph_projects }
+  - { q: "projects using React", intent: graph_projects }
+  - { q: "What stack does auth-service use?", intent: graph_stack }
+  - { q: "tech stack of task-board", intent: graph_stack }
+  - { q: "what is vecstore written in?", intent: graph_stack }
+  - { q: "Where did I implement JWT authentication?", intent: rag }
+  - { q: "What was my original architecture for Student Portal?", intent: rag }
+  - { q: "how does the login rate limiter work", intent: rag }
+  - { q: "Which projects use the flux capacitor?", intent: rag }
+  - { q: "Which projects use Kubernetes?", intent: rag }
