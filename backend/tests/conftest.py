@@ -2,7 +2,8 @@
 
 Unit tests need nothing running. Integration tests need Postgres (with pgvector) and use a
 separate database, `<name>_test`, created and migrated on first use; they are skipped when
-Postgres is unreachable. Models are never needed: the hashing embedder stands in.
+Postgres is unreachable. Models are never needed: the hashing embedder and a deterministic
+fake chat model stand in.
 """
 
 import asyncio
@@ -18,6 +19,9 @@ if not CORPUS.exists():  # inside the api container, eval/ is mounted at /srv/ev
     CORPUS = REPO_ROOT / "eval" / "corpus"
 os.environ["EMBEDDER"] = "hash"
 os.environ["RERANKER"] = "none"
+# The deterministic fake chat model: tests never reach a real provider, even with keys in .env.
+os.environ["LLM_PROVIDERS"] = "fake"
+os.environ["EXTRACTION_PROVIDERS"] = "fake"
 os.environ["EVAL_CORPUS_DIR"] = str(CORPUS)
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))  # makes `eval.runners` importable
@@ -81,7 +85,9 @@ async def db_engine():
 async def sessions(db_engine):
     """A session factory on a clean test database."""
     async with db_engine.begin() as conn:
-        await conn.execute(text("TRUNCATE sources RESTART IDENTITY CASCADE"))
+        await conn.execute(
+            text("TRUNCATE sources, conversations, llm_extractions RESTART IDENTITY CASCADE")
+        )
     return async_sessionmaker(db_engine, expire_on_commit=False)
 
 
