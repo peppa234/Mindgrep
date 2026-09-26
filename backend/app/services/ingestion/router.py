@@ -79,6 +79,14 @@ FILENAMES = {
     "Procfile": Route("text", None),
     "Jenkinsfile": Route("text", "groovy"),
     ".env.example": Route("text", "dotenv"),
+    # Dependency manifests without an indexable extension. Indexed so that every graph edge
+    # read from them (services/graph/manifests.py) cites a document you can open.
+    "go.mod": Route("text", "gomod"),
+    "pom.xml": Route("text", "xml"),
+    "build.gradle": Route("text", "gradle"),
+    "build.gradle.kts": Route("text", "gradle"),
+    "Gemfile": Route("text", "ruby"),
+    "Pipfile": Route("text", "toml"),
     ".env.sample": Route("text", "dotenv"),
 }
 

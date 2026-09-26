@@ -1,4 +1,4 @@
-"""The indexing pipeline: sync -> walk -> parse -> embed.
+"""The indexing pipeline: sync -> walk -> parse -> graph -> embed.
 
 Idempotent by construction. A file is re-parsed only when its content hash or the parser
 version changed; files that disappeared are deleted; chunks whose embedding came from a
@@ -23,6 +23,7 @@ from app.services.chunking.identifiers import identifier_terms, path_terms, symb
 from app.services.chunking.types import PARSER_VERSION, ChunkDraft, ParsedDocument
 from app.services.embedding.base import ModelUnavailable
 from app.services.embedding.factory import get_embedder
+from app.services.graph.builder import build_source_graph
 from app.services.ingestion import git
 from app.services.ingestion.walker import WalkedFile, walk
 from app.services.parsing.dispatch import parse_document
@@ -182,6 +183,9 @@ class Pipeline:
 
             await self._save_run(stage="parse")
             await self._parse_all(root, walked.files, history)
+
+            await self._save_run(stage="graph")
+            await self._graph(root, walked.repo_roots)
 
             await self._save_run(stage="embed")
             await self._embed()
@@ -348,6 +352,17 @@ class Pipeline:
             self.stats["failed"] += 1
         else:
             self.stats["indexed"] += 1
+
+    async def _graph(self, root: Path, repo_roots: list[str]) -> None:
+        """Deterministic knowledge graph. Cheap, and never fails the run: the documents are
+        indexed and searchable whether or not the graph could be built."""
+        try:
+            self.stats["graph"] = await build_source_graph(
+                self.sessions, self.source_id, root, repo_roots
+            )
+        except Exception as exc:
+            log.exception("graph build failed for source %s", self.source_id)
+            self.stats["warnings"].append(f"graph build failed: {exc!r}"[:500])
 
     async def _embed(self) -> None:
         embedded, pending, warning = await embed_pending(

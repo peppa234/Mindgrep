@@ -130,3 +130,38 @@ def file_history(repo: Path) -> dict[str, FileCommit]:
             if name and name not in latest:
                 latest[name] = info
     return latest
+
+
+@dataclass(frozen=True)
+class AuthorStats:
+    name: str
+    email: str
+    commits: int
+    first: datetime
+    last: datetime
+
+
+def authors(repo: Path, subpath: str = "") -> list[AuthorStats]:
+    """Who committed to `subpath` of `repo` (the whole repo if empty), most commits first."""
+    args = ["log", "--no-merges", "--format=%an%x1f%ae%x1f%aI", "HEAD"]
+    if subpath:
+        args += ["--", subpath]
+    try:
+        output = run_git(args, cwd=repo, timeout=120)
+    except (GitError, FileNotFoundError, NotADirectoryError):
+        return []
+    stats: dict[str, list] = {}
+    for line in output.splitlines():
+        parts = line.split("\x1f")
+        if len(parts) != 3:
+            continue
+        name, email, date = parts
+        when = datetime.fromisoformat(date)
+        key = (email or name).lower()
+        entry = stats.setdefault(key, [name, email, 0, when, when])
+        entry[2] += 1
+        entry[3] = min(entry[3], when)
+        entry[4] = max(entry[4], when)
+    return sorted(
+        (AuthorStats(*entry) for entry in stats.values()), key=lambda a: (-a.commits, a.name)
+    )
