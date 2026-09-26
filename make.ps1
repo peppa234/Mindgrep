@@ -101,6 +101,13 @@ switch ($Task) {
             "alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci"
         docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE memoryos_ci"
     }
+    "eval-graph" { docker compose exec api python -m eval.runners.graph_eval --out eval/reports @Rest }
+    "eval-chat" { docker compose exec api python -m eval.runners.chat_eval @Rest }
+    "extract" {
+        if (-not $Rest) { Write-Host 'Usage: .\make.ps1 extract <source id>' -ForegroundColor Red; exit 1 }
+        $r = Invoke-WebRequest -Method Post -Uri "http://localhost:8000/api/v1/sources/$($Rest[0])/extract" -UseBasicParsing
+        $r.Content
+    }
     "label" {
         if (-not $Rest) { Write-Host 'Usage: .\make.ps1 label "your query"' -ForegroundColor Red; exit 1 }
         docker compose exec api python -m eval.runners.label ($Rest -join " ")
@@ -134,6 +141,9 @@ switch ($Task) {
         Write-Host "    eval           fixture benchmark, every search mode -> eval/reports/"
         Write-Host "    eval-personal  your benchmark (eval/golden/personal.yaml)"
         Write-Host "    eval-baseline  regenerate the CI baseline"
+        Write-Host "    eval-graph     knowledge-graph precision/recall and chat routing"
+        Write-Host "    eval-chat      end-to-end chat: abstention and citations (needs real models)"
+        Write-Host "    extract <id>   LLM concept extraction over a source's notes and READMEs"
         Write-Host '    label "query"  candidates with ready-to-paste golden labels'
     }
 }

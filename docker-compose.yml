@@ -7,6 +7,15 @@ x-backend-env: &backend-env
   EMBEDDER: ${EMBEDDER:-http}
   RERANKER: ${RERANKER:-http}
   MODEL_SERVER_URL: ${MODEL_SERVER_URL:-http://host.docker.internal:8001}
+  LLM_PROVIDERS: ${LLM_PROVIDERS:-gemini,groq,ollama}
+  EXTRACTION_PROVIDERS: ${EXTRACTION_PROVIDERS:-}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+  GROQ_API_KEY: ${GROQ_API_KEY:-}
+  GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+  OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+  ABSTAIN_THRESHOLD: ${ABSTAIN_THRESHOLD:-0.1}
 
 x-backend-volumes: &backend-volumes
   # Source is mounted so edits apply without a rebuild.

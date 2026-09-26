@@ -1,6 +1,6 @@
 # Same tasks as make.ps1, for CI, WSL, Linux and macOS. On Windows use: .\make.ps1 <task>
 .PHONY: help up down restart build logs ps health docs psql valkey migrate test fmt lint \
-        models eval eval-personal eval-baseline label clean
+        models eval eval-personal eval-baseline eval-graph eval-chat extract label clean
 
 MODELS_VENV := backend/.venv-models
 DC_EVAL := docker compose exec api python -m eval.runners.retrieval_eval
@@ -23,6 +23,9 @@ help:
 	@echo "eval           fixture benchmark, every search mode"
 	@echo "eval-personal  your benchmark (eval/golden/personal.yaml)"
 	@echo "eval-baseline  regenerate the CI baseline"
+	@echo "eval-graph     knowledge-graph precision/recall and chat routing"
+	@echo "eval-chat      end-to-end chat: abstention and citations (needs real models)"
+	@echo "extract ID=... LLM concept extraction over a source's notes and READMEs"
 	@echo "label Q=...    candidates with ready-to-paste golden labels"
 	@echo "clean          stop the stack AND delete all data volumes"
 
@@ -93,6 +96,15 @@ eval-baseline:
 		-e EMBEDDER=hash -e RERANKER=none api sh -c \
 		"alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci"
 	docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE memoryos_ci"
+
+eval-graph:
+	docker compose exec api python -m eval.runners.graph_eval --out eval/reports
+
+eval-chat:
+	docker compose exec api python -m eval.runners.chat_eval
+
+extract:
+	curl -sS -X POST http://localhost:8000/api/v1/sources/$(ID)/extract
 
 label:
 	docker compose exec api python -m eval.runners.label "$(Q)"
