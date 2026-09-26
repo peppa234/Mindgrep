@@ -28,8 +28,9 @@ corpus/
 *.sqlite
 *.db
 
-# Model weights
-models/
+# Model weights (anchored: backend/app/db/models/ is source code)
+/models/
+/data/models/
 *.gguf
 *.safetensors
 
