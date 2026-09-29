@@ -1,0 +1,94 @@
+# Production overrides for one small VPS. Layered on top of docker-compose.yml:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# (infra/deploy.sh runs exactly that.) What changes from development:
+#   * Caddy in front: TLS from Let's Encrypt, and basic auth over everything. MemoryOS is
+#     single-user; the whole index is private, so nothing is reachable without the password.
+#   * No published ports except Caddy's 80/443: Postgres, Valkey, the API and the frontend
+#     are only reachable on the compose network.
+#   * The code is baked into the images (no bind mounts, no --reload), and every service
+#     restarts on failure.
+#   * A nightly pg_dump into the `backups` volume (infra/backup.sh), 14 days kept.
+#
+# Models: a small VPS has no GPU. Either run the CPU model server here (profile `models`,
+# needs ~4 GB of RAM on top of the rest), point MODEL_SERVER_URL at a GPU machine you
+# reach over a private network (Tailscale, WireGuard), or set EMBEDDER=none RERANKER=none
+# for lexical search only. See docs/deploy.md.
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  postgres:
+    <<: *restart
+    ports: !reset []
+
+  valkey:
+    <<: *restart
+    ports: !reset []
+
+  api:
+    <<: *restart
+    ports: !reset []
+    volumes: !override
+      - ${SOURCES_DIR:-./data/sources}:/sources:ro
+      - repos:/data/repos
+      - ./eval:/srv/eval:ro
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 --proxy-headers"
+
+  worker:
+    <<: *restart
+    volumes: !override
+      - ${SOURCES_DIR:-./data/sources}:/sources:ro
+      - repos:/data/repos
+    command: arq app.workers.main.WorkerSettings
+
+  frontend:
+    <<: *restart
+    ports: !reset []
+
+  models:
+    <<: *restart
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    <<: *restart
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env, e.g. memory.example.com}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?set BASIC_AUTH_USER in .env}
+      # A bcrypt hash, not the password: docker run --rm caddy:2-alpine caddy hash-password
+      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:?set BASIC_AUTH_HASH in .env}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
+  backup:
+    image: pgvector/pgvector:pg16
+    <<: *restart
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ./infra/backup.sh:/usr/local/bin/backup.sh:ro
+      - backups:/backups
+    entrypoint: ["sh", "/usr/local/bin/backup.sh", "--loop"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:
+  backups:

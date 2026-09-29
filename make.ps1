@@ -103,6 +103,11 @@ switch ($Task) {
     }
     "eval-graph" { docker compose exec api python -m eval.runners.graph_eval --out eval/reports @Rest }
     "eval-chat" { docker compose exec api python -m eval.runners.chat_eval @Rest }
+    "eval-ideas" { docker compose exec api python -m eval.runners.idea_eval --out eval/reports @Rest }
+    "refresh-ideas" {
+        $r = Invoke-WebRequest -Method Post -Uri "http://localhost:8000/api/v1/ideas/refresh" -UseBasicParsing
+        $r.Content
+    }
     "extract" {
         if (-not $Rest) { Write-Host 'Usage: .\make.ps1 extract <source id>' -ForegroundColor Red; exit 1 }
         $r = Invoke-WebRequest -Method Post -Uri "http://localhost:8000/api/v1/sources/$($Rest[0])/extract" -UseBasicParsing
@@ -143,6 +148,8 @@ switch ($Task) {
         Write-Host "    eval-baseline  regenerate the CI baseline"
         Write-Host "    eval-graph     knowledge-graph precision/recall and chat routing"
         Write-Host "    eval-chat      end-to-end chat: abstention and citations (needs real models)"
+        Write-Host "    eval-ideas     idea <-> implementation gap: detection, matching, thresholds"
+        Write-Host "    refresh-ideas  re-match every idea against every project"
         Write-Host "    extract <id>   LLM concept extraction over a source's notes and READMEs"
         Write-Host '    label "query"  candidates with ready-to-paste golden labels'
     }

@@ -1,6 +1,6 @@
 # Same tasks as make.ps1, for CI, WSL, Linux and macOS. On Windows use: .\make.ps1 <task>
 .PHONY: help up down restart build logs ps health docs psql valkey migrate test fmt lint \
-        models eval eval-personal eval-baseline eval-graph eval-chat extract label clean
+        models eval eval-personal eval-baseline eval-graph eval-chat eval-ideas \n        refresh-ideas extract label clean deploy
 
 MODELS_VENV := backend/.venv-models
 DC_EVAL := docker compose exec api python -m eval.runners.retrieval_eval
@@ -25,9 +25,12 @@ help:
 	@echo "eval-baseline  regenerate the CI baseline"
 	@echo "eval-graph     knowledge-graph precision/recall and chat routing"
 	@echo "eval-chat      end-to-end chat: abstention and citations (needs real models)"
+	@echo "eval-ideas     idea <-> implementation gap: detection, matching, thresholds"
+	@echo "refresh-ideas  re-match every idea against every project"
 	@echo "extract ID=... LLM concept extraction over a source's notes and READMEs"
 	@echo "label Q=...    candidates with ready-to-paste golden labels"
 	@echo "clean          stop the stack AND delete all data volumes"
+	@echo "deploy         on the VPS: build and start the production stack (docs/deploy.md)"
 
 .env:
 	cp .env.example .env
@@ -103,6 +106,12 @@ eval-graph:
 eval-chat:
 	docker compose exec api python -m eval.runners.chat_eval
 
+eval-ideas:
+	docker compose exec api python -m eval.runners.idea_eval --out eval/reports
+
+refresh-ideas:
+	curl -sS -X POST http://localhost:8000/api/v1/ideas/refresh
+
 extract:
 	curl -sS -X POST http://localhost:8000/api/v1/sources/$(ID)/extract
 
@@ -111,3 +120,6 @@ label:
 
 clean:
 	docker compose down -v
+
+deploy:
+	./infra/deploy.sh

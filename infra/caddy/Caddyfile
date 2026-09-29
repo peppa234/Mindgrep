@@ -1,0 +1,28 @@
+# TLS is automatic (Let's Encrypt) once DOMAIN points at this machine.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Liveness for an uptime monitor: status only, no data behind it.
+	handle /health {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		basic_auth {
+			{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+		}
+		# The frontend proxies /api/* to FastAPI itself; streamed chat answers need
+		# flushing straight through rather than buffering.
+		reverse_proxy frontend:3000 {
+			flush_interval -1
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		-Server
+	}
+}
