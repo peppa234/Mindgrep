@@ -146,7 +146,7 @@ export interface Health {
 
 // ---------------------------------------------------------------- chat (Phase 2)
 
-export type Intent = "rag" | "graph_projects" | "graph_stack";
+export type Intent = "rag" | "graph_projects" | "graph_stack" | "ideas";
 
 export interface ChatSource {
   n: number;
@@ -254,4 +254,91 @@ export interface NodeDetail {
   meta: Record<string, unknown>;
   outgoing: Record<string, Related[]>;
   incoming: Record<string, Related[]>;
+}
+
+export interface GraphNode {
+  id: number;
+  kind: string;
+  name: string;
+  depth: number;
+  meta: Record<string, unknown>;
+}
+
+export interface GraphEdge {
+  src: number;
+  dst: number;
+  type: string;
+  evidence: number;
+  confidence: number;
+}
+
+export interface Neighbourhood {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface NodeOut {
+  id: number;
+  kind: string;
+  name: string;
+  source_id: number | null;
+  meta: Record<string, unknown>;
+}
+
+// ---------------------------------------------------------------- ideas (Phase 3)
+
+export type IdeaStatus = "implemented" | "partial" | "unimplemented" | "abandoned";
+
+export interface IdeaCandidate {
+  project_id: number;
+  project: string;
+  coverage: number;
+  similarity: number | null;
+  matched: string[];
+  linked: boolean;
+  best: {
+    chunk_id: number;
+    document_id: number;
+    path: string;
+    symbol: string | null;
+    start_line: number | null;
+    end_line: number | null;
+  } | null;
+  best_document: { document_id: number; path: string; coverage: number } | null;
+}
+
+export interface Idea {
+  id: number;
+  title: string;
+  summary: string;
+  extractor: "note" | "inline" | "llm";
+  source_id: number;
+  source_name: string;
+  document_id: number;
+  path: string;
+  line: number | null;
+  chunk_id: number | null;
+  node_id: number | null;
+  written_on: string | null;
+  tags: string[];
+  status: IdeaStatus;
+  origin: "match" | "declared" | "user";
+  project: { id: number; name: string } | null;
+  matched_status: "implemented" | "partial" | "unimplemented";
+  score: number;
+  closest: IdeaCandidate | null;
+  candidates: IdeaCandidate[];
+  missing: string[];
+  signals: string[];
+  declared_status: string | null;
+  declared_project: string | null;
+  user_note: string | null;
+  matched_at: string | null;
+}
+
+export interface IdeaSummary {
+  total: number;
+  by_status: Partial<Record<IdeaStatus, number>>;
+  projects: number;
+  signals: string[];
 }

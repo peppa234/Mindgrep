@@ -3,8 +3,13 @@ import type {
   ConversationDetail,
   DocumentDetail,
   Health,
+  Idea,
+  IdeaStatus,
+  IdeaSummary,
   MessageOut,
+  Neighbourhood,
   NodeDetail,
+  NodeOut,
   ProjectSummary,
   SearchFilters,
   SearchMode,
@@ -71,4 +76,22 @@ export const api = {
   node: (id: number) => request<NodeDetail>(`/api/v1/graph/nodes/${id}`),
   extract: (sourceId: number) =>
     request<{ job_id: string }>(`/api/v1/sources/${sourceId}/extract`, { method: "POST" }),
+  neighbourhood: (id: number, depth = 1, kinds?: string[], limit = 50) => {
+    const params = new URLSearchParams({ depth: String(depth), limit: String(limit) });
+    for (const kind of kinds ?? []) params.append("kind", kind);
+    return request<Neighbourhood>(`/api/v1/graph/nodes/${id}/neighbourhood?${params}`);
+  },
+  searchNodes: (q: string, kinds?: string[], limit = 12) => {
+    const params = new URLSearchParams({ q, limit: String(limit) });
+    for (const kind of kinds ?? []) params.append("kind", kind);
+    return request<NodeOut[]>(`/api/v1/graph/nodes?${params}`);
+  },
+
+  ideas: (status: IdeaStatus | "all" = "all", sort: "oldest" | "newest" | "closest" = "oldest") =>
+    request<Idea[]>(`/api/v1/ideas?status=${status}&sort=${sort}`),
+  ideaSummary: () => request<IdeaSummary>("/api/v1/ideas/summary"),
+  overrideIdea: (id: number, body: { status: IdeaStatus; project_id?: number | null; note?: string | null }) =>
+    request<Idea>(`/api/v1/ideas/${id}/override`, { method: "PUT", body: JSON.stringify(body) }),
+  clearIdeaOverride: (id: number) => request<Idea>(`/api/v1/ideas/${id}/override`, { method: "DELETE" }),
+  refreshIdeas: () => request<{ job_id: string }>("/api/v1/ideas/refresh", { method: "POST" }),
 };

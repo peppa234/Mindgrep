@@ -11,6 +11,8 @@ const links = [
   { href: "/chat", label: "Chat" },
   { href: "/search", label: "Search" },
   { href: "/projects", label: "Projects" },
+  { href: "/ideas", label: "Ideas" },
+  { href: "/graph", label: "Graph" },
   { href: "/sources", label: "Sources" },
 ];
 

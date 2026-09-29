@@ -87,12 +87,20 @@ export function ProjectView({ id }: { id: number }) {
           <h1 className="text-xl font-semibold tracking-tight">{node.name}</h1>
           <p className="font-mono text-xs text-zinc-500">{(node.meta.root as string) || "(source root)"}</p>
         </div>
-        <Link
-          href={`/chat?q=${encodeURIComponent(`How is ${node.name} structured, and what does it do?`)}`}
-          className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm hover:border-amber-400 dark:border-zinc-800"
-        >
-          Ask about this project
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/graph?node=${node.id}`}
+            className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm hover:border-amber-400 dark:border-zinc-800"
+          >
+            Graph
+          </Link>
+          <Link
+            href={`/chat?q=${encodeURIComponent(`How is ${node.name} structured, and what does it do?`)}`}
+            className="rounded-md border border-zinc-200 px-3 py-1.5 text-sm hover:border-amber-400 dark:border-zinc-800"
+          >
+            Ask about this project
+          </Link>
+        </div>
       </div>
 
       <Section title="Stack">
