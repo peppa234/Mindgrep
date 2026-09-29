@@ -66,6 +66,45 @@ PROJECT_STACK = [
     ),
 ]
 
+# Questions about the list of ideas: "what AI ideas have I never implemented?". Plural
+# "ideas", or "which/what idea": "I have an idea for X, how do I build it?" is not one.
+IDEAS = re.compile(r"\bideas\b|\b(?:which|what)\s+(?:\S+\s+){0,2}idea\b", re.IGNORECASE)
+IDEAS_NEVER = re.compile(
+    r"\b(?:never|not\s+yet|haven'?t|have\s+not|didn'?t|did\s+not|unimplemented|unbuilt|"
+    r"not\s+(?:been\s+)?(?:built|implemented|started|done|made)|still\s+(?:open|to\s+do)|"
+    r"forgot(?:ten)?|left\s+(?:behind|undone)|gap)\b",
+    re.IGNORECASE,
+)
+IDEAS_PARTIAL = re.compile(
+    r"\b(?:partial(?:ly)?|half[-\s]?(?:built|done|finished|implemented)|started\s+but|"
+    r"unfinished|in\s+progress)\b",
+    re.IGNORECASE,
+)
+IDEAS_DONE = re.compile(
+    r"\b(?:implemented|built|shipped|finished|completed|made\s+real|turned\s+into|"
+    r"did\s+i\s+(?:build|implement|ship|finish|make))\b",
+    re.IGNORECASE,
+)
+IDEAS_ABANDONED = re.compile(r"\b(?:abandon(?:ed)?|dropped|gave\s+up|shelved)\b", re.IGNORECASE)
+# The topic in "what AI ideas", "my rust ideas", "ideas about search".
+_NOT_TOPIC = {
+    "my", "the", "of", "all", "any", "your", "own", "old", "project", "app", "these", "those",
+    "other", "new", "good", "best", "unimplemented", "implemented", "unbuilt", "built",
+    "abandoned", "partial", "unfinished", "past", "previous", "many", "few", "some", "i",
+}  # fmt: skip
+IDEA_TOPIC = [
+    re.compile(
+        r"\b(?:what|which|list|show|all|any|my|the)\s+(?:of\s+)?(?:my\s+)?"
+        r"(?P<topic>[\w+#.-]+(?:\s+[\w+#.-]+)?)\s+ideas?\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\bideas?\s+(?:about|on|for|around|involving|related\s+to|with|in)\s+"
+        r"(?P<topic>[\w+#.\s-]+?)(?:\s+(?:that|which|have|did|i|i've|were)\b|[?.!,]|$)",
+        re.IGNORECASE,
+    ),
+]
+
 EARLIEST = re.compile(
     r"\b(?:original(?:ly)?|first|initial(?:ly)?|earliest|oldest|v1|at\s+the\s+(?:start|"
     r"beginning)|back\s+when|used\s+to)\b",
@@ -86,9 +125,12 @@ _TRAILING = re.compile(
 
 @dataclass(frozen=True)
 class QueryIntent:
-    kind: Literal["rag", "graph_projects", "graph_stack"]
-    subject: str | None = None  # the words naming the entity, for graph intents
+    kind: Literal["rag", "graph_projects", "graph_stack", "ideas"]
+    # graph intents: the words naming the entity. ideas: the status asked about
+    # (unimplemented | partial | implemented | abandoned | all).
+    subject: str | None = None
     temporal: Literal["earliest", "latest"] | None = None
+    topic: str | None = None  # ideas: "AI" in "what AI ideas have I never implemented"
 
 
 def _clean(subject: str) -> str:
@@ -97,7 +139,38 @@ def _clean(subject: str) -> str:
     return _TRAILING.sub("", subject).strip(" ,;:")
 
 
+def _idea_topic(question: str) -> str | None:
+    for pattern in IDEA_TOPIC:
+        match = pattern.search(question)
+        if not match:
+            continue
+        words = [w for w in match.group("topic").split() if w.lower() not in _NOT_TOPIC]
+        if words and not IDEAS_NEVER.fullmatch(" ".join(words)):
+            return " ".join(words)
+    return None
+
+
+def detect_ideas(question: str) -> QueryIntent | None:
+    if not IDEAS.search(question):
+        return None
+    if IDEAS_ABANDONED.search(question):
+        status = "abandoned"
+    elif IDEAS_PARTIAL.search(question):
+        status = "partial"
+    elif IDEAS_NEVER.search(question):
+        status = "unimplemented"
+    elif IDEAS_DONE.search(question):
+        status = "implemented"
+    elif re.search(r"\b(?:what|which|list|show|all|any|my)\b", question, re.IGNORECASE):
+        status = "all"
+    else:
+        return None
+    return QueryIntent("ideas", status, None, _idea_topic(question))
+
+
 def detect(question: str) -> QueryIntent:
+    if (ideas := detect_ideas(question)) is not None:
+        return ideas
     temporal = None
     if EARLIEST.search(question):
         temporal = "earliest"

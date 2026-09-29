@@ -63,6 +63,10 @@ testpaths = ["tests"]
 # A hand-curated data table: one technology per entry reads better than wrapped lines.
 "app/services/graph/technologies.py" = ["E501"]
 
+[tool.ruff.lint.isort]
+# eval/ sits beside app/ in the container but outside backend/ in CI: pin it so both agree.
+known-third-party = ["eval"]
+
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's dependency-injection idiom, not a mutable default.
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]

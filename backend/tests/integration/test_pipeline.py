@@ -37,15 +37,15 @@ async def index(sessions, name="fixture"):
 async def test_index_is_complete_and_idempotent(sessions, sources_root):
     source_id, first = await index(sessions)
     # go.mod and pom.xml are indexed as text so graph evidence always links to a document.
-    assert first["files_total"] == 33
-    assert first["indexed"] == 32
+    assert first["files_total"] == 38
+    assert first["indexed"] == 37
     assert first["needs_ocr"] == 1  # the scanned whiteboard PDF
     assert first["failed"] == 0
     assert first["embedded"] == first["chunks_written"] > 40
-    assert first["documents_by_kind"] == {"code": 17, "markdown": 9, "pdf": 2, "text": 5}
+    assert first["documents_by_kind"] == {"code": 17, "markdown": 14, "pdf": 2, "text": 5}
 
     _, second = await index(sessions)
-    assert second["unchanged"] == 33
+    assert second["unchanged"] == 38
     assert second["chunks_written"] == 0
     assert second["embedded"] == 0
 
@@ -56,7 +56,7 @@ async def test_index_is_complete_and_idempotent(sessions, sources_root):
     _, third = await index(sessions)
     assert third["indexed"] == 1
     assert third["deleted"] == 1
-    assert third["unchanged"] == 31
+    assert third["unchanged"] == 36
     async with sessions() as session:
         paths = set(
             (

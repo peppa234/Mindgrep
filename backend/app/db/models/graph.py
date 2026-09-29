@@ -39,7 +39,7 @@ class Node(TimestampMixin, Base):
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    # project | technology | package | person | note | topic | concept
+    # project | technology | package | person | note | topic | concept | idea
     kind: Mapped[str] = mapped_column(String(16))
     key: Mapped[str] = mapped_column(Text)
     name: Mapped[str] = mapped_column(Text)
@@ -66,7 +66,7 @@ class Edge(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     src_id: Mapped[int] = mapped_column(ForeignKey("nodes.id", ondelete="CASCADE"))
     dst_id: Mapped[int] = mapped_column(ForeignKey("nodes.id", ondelete="CASCADE"))
-    # uses | depends_on | authored | mentions | links_to | tagged
+    # uses | depends_on | authored | mentions | links_to | tagged | proposes | implemented_by
     type: Mapped[str] = mapped_column(String(24))
     # The source whose indexing produced this edge; rebuilding a source replaces its edges.
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"), index=True)
@@ -79,7 +79,7 @@ class Edge(Base):
         ARRAY(BigInteger), default=list, server_default="{}"
     )
     evidence: Mapped[str | None] = mapped_column(Text)
-    # manifest | import | docker | compose | language | git | wikilink | tag | llm
+    # manifest | import | docker | compose | language | git | wikilink | tag | llm | idea
     extractor: Mapped[str] = mapped_column(String(32))
     confidence: Mapped[float] = mapped_column(Float, default=1.0, server_default="1")
     meta: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, server_default="{}")

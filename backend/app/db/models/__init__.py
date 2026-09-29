@@ -1,6 +1,7 @@
 from app.db.models.chat import Conversation, Feedback, Message
 from app.db.models.document import EMBEDDING_DIM, Chunk, Document
 from app.db.models.graph import Edge, LlmExtraction, Node
+from app.db.models.idea import Idea
 from app.db.models.source import IndexRun, Source
 
 __all__ = [
@@ -10,6 +11,7 @@ __all__ = [
     "Document",
     "Edge",
     "Feedback",
+    "Idea",
     "IndexRun",
     "LlmExtraction",
     "Message",

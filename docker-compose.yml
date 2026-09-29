@@ -15,7 +15,11 @@ x-backend-env: &backend-env
   GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
   OLLAMA_MODEL: ${OLLAMA_MODEL:-}
   OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
-  ABSTAIN_THRESHOLD: ${ABSTAIN_THRESHOLD:-0.1}
+  ABSTAIN_THRESHOLD: ${ABSTAIN_THRESHOLD:-0.008}
+  IDEA_COVERAGE_PARTIAL: ${IDEA_COVERAGE_PARTIAL:-0.3}
+  IDEA_COVERAGE_IMPLEMENTED: ${IDEA_COVERAGE_IMPLEMENTED:-0.45}
+  IDEA_SIMILARITY_PARTIAL: ${IDEA_SIMILARITY_PARTIAL:-0.15}
+  IDEA_SIMILARITY_IMPLEMENTED: ${IDEA_SIMILARITY_IMPLEMENTED:-0.5}
 
 x-backend-volumes: &backend-volumes
   # Source is mounted so edits apply without a rebuild.
@@ -23,6 +27,7 @@ x-backend-volumes: &backend-volumes
   - ./backend/alembic:/srv/alembic
   - ./backend/tests:/srv/tests
   - ./eval:/srv/eval
+  - ./backend/pyproject.toml:/srv/pyproject.toml:ro
   # The folders you want indexed. Point SOURCES_DIR at them in .env; read-only on purpose.
   - ${SOURCES_DIR:-./data/sources}:/sources:ro
   - repos:/data/repos

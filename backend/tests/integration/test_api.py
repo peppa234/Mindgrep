@@ -100,11 +100,11 @@ async def test_search_documents_and_stats(client, sessions):
     assert document.json()["chunks"][0]["embedded"] is True
 
     stats = (await client.get("/api/v1/stats")).json()
-    assert stats["documents_by_kind"] == {"markdown": 8}
+    assert stats["documents_by_kind"] == {"markdown": 13}
     assert stats["chunks"] == stats["embedded"] > 0
 
     listed = (await client.get("/api/v1/sources")).json()
-    assert listed[0]["documents"] == 8 and listed[0]["status"] == "ready"
+    assert listed[0]["documents"] == 13 and listed[0]["status"] == "ready"
 
     async with sessions() as session:
         assert (await session.execute(select(Source.last_indexed_at))).scalar_one() is not None

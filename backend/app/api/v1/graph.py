@@ -17,7 +17,9 @@ from app.services.graph import queries
 
 router = APIRouter(prefix="/graph", tags=["graph"])
 
-NODE_KINDS = ("project", "technology", "package", "person", "note", "topic", "concept")
+NODE_KINDS = (
+    "project", "technology", "package", "person", "note", "topic", "concept", "idea",
+)  # fmt: skip
 KIND_HELP = f"Any of: {', '.join(NODE_KINDS)}"
 
 
@@ -91,10 +93,13 @@ async def neighbourhood(
     node_id: int,
     depth: int = Query(1, ge=1, le=3),
     limit: int = Query(50, ge=1, le=200),
+    kind: list[str] | None = Query(None, description=f"Only walk through these. {KIND_HELP}"),
     session: AsyncSession = Depends(get_session),
 ) -> Neighbourhood:
     """The ego network around one node (recursive CTE, both directions, nearest first).
     Capped on purpose: a global graph of everything is unreadable."""
     if await session.get(Node, node_id) is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "node not found")
-    return Neighbourhood.model_validate(await queries.neighbourhood(session, node_id, depth, limit))
+    return Neighbourhood.model_validate(
+        await queries.neighbourhood(session, node_id, depth, limit, kind)
+    )

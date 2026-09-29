@@ -556,9 +556,14 @@ async def persist(session: AsyncSession, source_id: int, graph: GraphDraft) -> d
         await session.execute(pg_insert(Edge), rows[start : start + 1000])
 
     # Projects and notes that no longer exist in the source; their LLM edges go with them.
+    # (Idea nodes are the ideas service's to keep in step with the ideas table.)
     owned = [i for (kind, _), i in ids.items() if kind in ("project", "note")]
     await session.execute(
-        delete(Node).where(Node.source_id == source_id, Node.id.not_in(owned or [0]))
+        delete(Node).where(
+            Node.source_id == source_id,
+            Node.kind.in_(("project", "note")),
+            Node.id.not_in(owned or [0]),
+        )
     )
     await prune_orphans(session)
     return {

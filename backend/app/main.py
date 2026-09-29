@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from app.api.v1 import chat, documents, graph, search, sources
+from app.api.v1 import chat, documents, graph, ideas, search, sources
 from app.config import settings
 from app.core.logging import configure_logging
 from app.db.session import engine
@@ -32,15 +32,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="MemoryOS",
-    version="0.3.0",
+    version="0.4.0",
     description=(
         "Index notes, PDFs and repositories; search them with hybrid retrieval, ask questions "
-        "with cited answers, and query the knowledge graph built from them."
+        "with cited answers, query the knowledge graph built from them, and find the ideas "
+        "you wrote down and never implemented."
     ),
     lifespan=lifespan,
 )
 
-for module in (sources, search, documents, chat, graph):
+for module in (sources, search, documents, chat, graph, ideas):
     app.include_router(module.router, prefix="/api/v1")
 
 

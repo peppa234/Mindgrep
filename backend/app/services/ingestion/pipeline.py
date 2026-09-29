@@ -1,4 +1,4 @@
-"""The indexing pipeline: sync -> walk -> parse -> graph -> embed.
+"""The indexing pipeline: sync -> walk -> parse -> graph -> embed -> ideas.
 
 Idempotent by construction. A file is re-parsed only when its content hash or the parser
 version changed; files that disappeared are deleted; chunks whose embedding came from a
@@ -24,6 +24,7 @@ from app.services.chunking.types import PARSER_VERSION, ChunkDraft, ParsedDocume
 from app.services.embedding.base import ModelUnavailable
 from app.services.embedding.factory import get_embedder
 from app.services.graph.builder import build_source_graph
+from app.services.ideas.service import detect_source, match_all
 from app.services.ingestion import git
 from app.services.ingestion.walker import WalkedFile, walk
 from app.services.parsing.dispatch import parse_document
@@ -189,6 +190,9 @@ class Pipeline:
 
             await self._save_run(stage="embed")
             await self._embed()
+
+            await self._save_run(stage="ideas")
+            await self._ideas(root)
 
             await self._finish(root)
         except Exception as exc:
@@ -363,6 +367,16 @@ class Pipeline:
         except Exception as exc:
             log.exception("graph build failed for source %s", self.source_id)
             self.stats["warnings"].append(f"graph build failed: {exc!r}"[:500])
+
+    async def _ideas(self, root: Path) -> None:
+        """Ideas in this source's notes, then every idea re-matched against every project
+        (this source's code may implement ideas written anywhere). Never fails the run."""
+        try:
+            found = await detect_source(self.sessions, self.source_id, root)
+            self.stats["ideas"] = {"found": found, **await match_all(self.sessions)}
+        except Exception as exc:
+            log.exception("idea matching failed for source %s", self.source_id)
+            self.stats["warnings"].append(f"idea matching failed: {exc!r}"[:500])
 
     async def _embed(self) -> None:
         embedded, pending, warning = await embed_pending(

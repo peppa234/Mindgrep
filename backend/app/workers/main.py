@@ -10,6 +10,7 @@ from app.config import settings
 from app.core.logging import configure_logging
 from app.db.session import SessionLocal
 from app.services.graph.concepts import extract_concepts
+from app.services.ideas.service import match_all
 from app.services.ingestion.pipeline import Pipeline, embed_pending, summarize
 
 log = logging.getLogger("memoryos.worker")
@@ -38,6 +39,11 @@ async def extract_source_concepts(
     return asdict(stats)
 
 
+async def refresh_ideas(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Re-match every idea against every project, e.g. after changing the thresholds."""
+    return await match_all(SessionLocal)
+
+
 async def startup(ctx: dict[str, Any]) -> None:
     configure_logging(settings.log_level)
     log.info(
@@ -46,7 +52,7 @@ async def startup(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions = [index_source, embed_source, extract_source_concepts]
+    functions = [index_source, embed_source, extract_source_concepts, refresh_ideas]
     on_startup = startup
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     # A large repo on a CPU-only model server can take a long time to embed.

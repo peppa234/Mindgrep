@@ -58,7 +58,16 @@ class Settings(BaseSettings):
     chat_history_turns: int = 3
     # Below this top reranker score the chat answers "not in your memory" without asking the
     # model. Measure it with `.\make.ps1 eval` (the Abstention line) and set it from there.
-    abstain_threshold: float = 0.1
+    abstain_threshold: float = 0.008
+
+    # --- Ideas: when does a project count as implementing an idea?
+    # coverage: IDF-weighted share of the idea's distinctive words found in the project.
+    # similarity: reranker score of the idea against the project's best chunk (0..1).
+    # Either signal can decide. Calibrate with `.\make.ps1 eval-ideas`.
+    idea_coverage_implemented: float = 0.45
+    idea_coverage_partial: float = 0.3
+    idea_similarity_implemented: float = 0.5
+    idea_similarity_partial: float = 0.15
 
 
 settings = Settings()

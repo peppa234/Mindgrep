@@ -23,7 +23,7 @@ from app.config import settings
 from app.db.models import Conversation, Message
 from app.schemas.chat import ChatRequest, ChatSource
 from app.schemas.search import SearchFilters, SearchRequest
-from app.services.chat import graph_answer
+from app.services.chat import graph_answer, idea_answer
 from app.services.chat.context import (
     assemble,
     citations,
@@ -166,10 +166,15 @@ async def respond(
         intent = detect(question)
         turn.trace["intent"] = {
             "kind": intent.kind, "subject": intent.subject, "temporal": intent.temporal,
+            "topic": intent.topic,
         }  # fmt: skip
 
         answered = False
-        if intent.kind != "rag" and intent.subject:
+        if intent.kind == "ideas":
+            async for event in _ideas(sessions, intent, turn):
+                answered = True
+                yield event
+        elif intent.kind != "rag" and intent.subject:
             async for event in _graph(sessions, intent, turn):
                 answered = True
                 yield event
@@ -216,14 +221,30 @@ async def _graph(
         else:
             answer = await graph_answer.project_stack(session, entities)
         turn.lap("graph")
-    turn.intent = intent.kind
+    for event in _emit(turn, intent.kind, answer):
+        yield event
+
+
+async def _ideas(
+    sessions: async_sessionmaker[AsyncSession], intent: QueryIntent, turn: Turn
+) -> AsyncIterator[Event]:
+    async with sessions() as session:
+        answer = await idea_answer.ideas(session, intent.subject or "all", intent.topic)
+    turn.lap("ideas")
+    for event in _emit(turn, "ideas", answer):
+        yield event
+
+
+def _emit(turn: Turn, intent: str, answer: graph_answer.GraphAnswer) -> list[Event]:
+    """A deterministic answer (no model wrote it), streamed the way a model's would be."""
+    turn.intent = intent
     turn.sources = answer.sources
     turn.text = answer.text
     turn.trace["model"] = "graph"
     turn.trace["citations"] = citations(answer.text, len(answer.sources))
-    yield Event("sources", {"sources": [s.model_dump(mode="json") for s in answer.sources]})
-    for paragraph in answer.text.split("\n"):
-        yield Event("token", {"text": paragraph + "\n"})
+    events = [Event("sources", {"sources": [s.model_dump(mode="json") for s in answer.sources]})]
+    events += [Event("token", {"text": paragraph + "\n"}) for paragraph in answer.text.split("\n")]
+    return events
 
 
 async def _rag(

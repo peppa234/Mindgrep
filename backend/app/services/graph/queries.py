@@ -6,7 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any
 
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import ARRAY, Text, bindparam, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Document, Edge, Node, Source
@@ -276,26 +276,35 @@ NEIGHBOURHOOD_SQL = text(
     WITH RECURSIVE walk(node_id, depth) AS (
         SELECT CAST(:start AS BIGINT), 0
       UNION
-        SELECT CASE WHEN e.src_id = w.node_id THEN e.dst_id ELSE e.src_id END, w.depth + 1
+        SELECT n.id, w.depth + 1
         FROM walk w
         JOIN edges e ON e.src_id = w.node_id OR e.dst_id = w.node_id
-        WHERE w.depth < :depth
+        JOIN nodes n ON n.id = CASE WHEN e.src_id = w.node_id THEN e.dst_id ELSE e.src_id END
+        WHERE w.depth < :depth AND (CAST(:kinds AS TEXT[]) IS NULL OR n.kind = ANY(:kinds))
     )
     SELECT node_id, MIN(depth) AS depth FROM walk GROUP BY node_id
     ORDER BY MIN(depth), node_id
     LIMIT :limit
     """
-)
+).bindparams(bindparam("kinds", type_=ARRAY(Text)))
 
 
 async def neighbourhood(
-    session: AsyncSession, node_id: int, depth: int = 1, limit: int = 50
+    session: AsyncSession,
+    node_id: int,
+    depth: int = 1,
+    limit: int = 50,
+    kinds: list[str] | None = None,
 ) -> dict[str, Any]:
     """The ego network around one node: nodes within `depth` hops (both directions, capped
     at `limit`, nearest first) and the edges among them, collapsed to one per (src, dst,
-    type) with the number of pieces of evidence."""
+    type) with the number of pieces of evidence. `kinds` limits the walk to those node kinds
+    (the focal node always counts): a project's 300 packages would crowd out everything."""
     rows = (
-        await session.execute(NEIGHBOURHOOD_SQL, {"start": node_id, "depth": depth, "limit": limit})
+        await session.execute(
+            NEIGHBOURHOOD_SQL,
+            {"start": node_id, "depth": depth, "limit": limit, "kinds": kinds or None},
+        )
     ).all()
     depths = {r.node_id: r.depth for r in rows}
     if not depths:

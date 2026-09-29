@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.search import SearchFilters
 
-Intent = Literal["rag", "graph_projects", "graph_stack"]
+Intent = Literal["rag", "graph_projects", "graph_stack", "ideas"]
 
 
 class ChatRequest(BaseModel):
