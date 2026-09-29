@@ -1,0 +1,54 @@
+# Golden labels for the idea <-> implementation gap on the fixture corpus (eval/corpus).
+#
+#   ideas      every idea in the corpus's notes, by `path` (and `title`, or `title_contains`
+#              for inline "Idea:" lines). Anything else detected is a false positive.
+#     matched  what matching alone should conclude from the code: implemented | partial |
+#              unimplemented. Frontmatter and overrides are ignored for this, so declared
+#              ideas still test the matcher.
+#     project  the project that (partly) implements it
+#     status   what the user should see, after the note's own frontmatter (default: matched)
+#   questions  chat questions about ideas, with the ideas each should list
+#
+# The trust-killer is an idea you did build reported as "never implemented" (false never).
+# It is counted on its own and gated.
+
+version: 1
+
+ideas:
+  - path: notes/ideas/broken-link-crawler.md
+    title: Broken link crawler
+    matched: implemented
+    project: link-checker
+  - path: notes/ideas/vector-database-from-scratch.md
+    title: Vector database from scratch
+    # vecstore is the exact-search baseline the note starts from, without the HNSW index,
+    # quantization or gRPC: half of it.
+    matched: partial
+    project: vecstore
+  - path: notes/ideas/study-group-kanban.md
+    title: Kanban board for the study group
+    matched: implemented
+    project: task-board
+  - path: notes/ideas/habit-tracker.md
+    title: Habit tracker
+    matched: unimplemented
+    status: abandoned
+  - path: notes/ideas/code-review-bot.md
+    title: Code review bot
+    matched: unimplemented
+  - path: notes/ideas/rag-for-darija.md
+    title: RAG for Darija
+    matched: unimplemented
+  - path: notes/journal/2024-05-02.md
+    title_contains: git log
+    matched: unimplemented
+
+questions:
+  - q: What AI ideas have I never implemented?
+    expected: [Code review bot, RAG for Darija]
+  - q: What ideas have I written down and never implemented?
+    expected: [Code review bot, RAG for Darija, git log]
+  - q: Which of my ideas did I build?
+    expected: [Broken link crawler, Kanban board for the study group]
+  - q: Which ideas have I abandoned?
+    expected: [Habit tracker]

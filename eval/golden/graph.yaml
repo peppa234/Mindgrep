@@ -64,3 +64,7 @@ routing:
   - { q: "how does the login rate limiter work", intent: rag }
   - { q: "Which projects use the flux capacitor?", intent: rag }
   - { q: "Which projects use Kubernetes?", intent: rag }
+  - { q: "What AI ideas have I never implemented?", intent: ideas }
+  - { q: "What ideas have I written down and never implemented?", intent: ideas }
+  - { q: "which of my ideas did I build?", intent: ideas }
+  - { q: "I have an idea for a CLI, how would I implement it?", intent: rag }

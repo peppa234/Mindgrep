@@ -66,6 +66,14 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/backend:${{ github.workspace }}
         shell: bash
         run: uv run --no-sync python -m eval.runners.graph_eval --gate --out /tmp/eval --name graph | tee /tmp/eval/graph.txt
+      - name: Idea eval gate
+        # Ideas found exactly (precision and recall 1.0), declared statuses honoured, nothing
+        # unbuilt called built, and matching by word coverage alone at its measured floor.
+        env:
+          EVAL_CORPUS_DIR: ${{ github.workspace }}/eval/corpus
+          PYTHONPATH: ${{ github.workspace }}/backend:${{ github.workspace }}
+        shell: bash
+        run: uv run --no-sync python -m eval.runners.idea_eval --gate --out /tmp/eval --name ideas | tee /tmp/eval/ideas.txt
       - name: Eval summary
         if: always()
         run: |
@@ -77,6 +85,9 @@ jobs:
           fi
           if [ -f /tmp/eval/graph.md ]; then
             cat /tmp/eval/graph.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f /tmp/eval/ideas.md ]; then
+            cat /tmp/eval/ideas.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
   frontend:

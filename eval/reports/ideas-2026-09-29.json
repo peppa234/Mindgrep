@@ -1,0 +1,183 @@
+{
+  "created_at": "2026-09-29T20:22:42+00:00",
+  "config": {
+    "embedder": "http",
+    "reranker": "http",
+    "coverage": [
+      0.3,
+      0.45
+    ],
+    "similarity": [
+      0.15,
+      0.5
+    ]
+  },
+  "signals": [
+    "coverage",
+    "similarity"
+  ],
+  "detection": {
+    "expected": 7,
+    "precision": 1.0,
+    "recall": 1.0,
+    "missing": [],
+    "unexpected": []
+  },
+  "matching": {
+    "summary": {
+      "items": 7,
+      "status_accuracy": 1.0,
+      "project_accuracy": 1.0,
+      "false_never": 0,
+      "false_built": 0
+    },
+    "rows": [
+      {
+        "idea": "notes/ideas/broken-link-crawler.md :: Broken link crawler",
+        "expected": "implemented",
+        "got": "implemented",
+        "project": "link-checker",
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "link-checker (0.67 / 0.96)"
+      },
+      {
+        "idea": "notes/ideas/vector-database-from-scratch.md :: Vector database from scratch",
+        "expected": "partial",
+        "got": "partial",
+        "project": "vecstore",
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "vecstore (0.17 / 0.41)"
+      },
+      {
+        "idea": "notes/ideas/study-group-kanban.md :: Kanban board for the study group",
+        "expected": "implemented",
+        "got": "implemented",
+        "project": "task-board",
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "task-board (0.49 / 0.30)"
+      },
+      {
+        "idea": "notes/ideas/habit-tracker.md :: Habit tracker",
+        "expected": "unimplemented",
+        "got": "unimplemented",
+        "project": null,
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "task-board (0.07 / 0.00)"
+      },
+      {
+        "idea": "notes/ideas/code-review-bot.md :: Code review bot",
+        "expected": "unimplemented",
+        "got": "unimplemented",
+        "project": null,
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "auth-service (0.19 / 0.00)"
+      },
+      {
+        "idea": "notes/ideas/rag-for-darija.md :: RAG for Darija",
+        "expected": "unimplemented",
+        "got": "unimplemented",
+        "project": null,
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "auth-service (0.03 / 0.00)"
+      },
+      {
+        "idea": "notes/journal/2024-05-02.md :: A CLI that turns the git log of every repository into a weekly changelog",
+        "expected": "unimplemented",
+        "got": "unimplemented",
+        "project": null,
+        "status_ok": true,
+        "project_ok": true,
+        "closest": "inventory-api (0.13 / 0.02)"
+      }
+    ]
+  },
+  "effective": {
+    "items": 7,
+    "accuracy": 1.0,
+    "declared_accuracy": 1.0
+  },
+  "questions": [
+    {
+      "q": "What AI ideas have I never implemented?",
+      "intent": "ideas",
+      "expected": [
+        "Code review bot",
+        "RAG for Darija"
+      ],
+      "got": [
+        "Code review bot",
+        "RAG for Darija"
+      ],
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "q": "What ideas have I written down and never implemented?",
+      "intent": "ideas",
+      "expected": [
+        "A CLI that turns the git log of every repository into a weekly changelog",
+        "Code review bot",
+        "RAG for Darija"
+      ],
+      "got": [
+        "A CLI that turns the git log of every repository into a weekly changelog",
+        "Code review bot",
+        "RAG for Darija"
+      ],
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "q": "Which of my ideas did I build?",
+      "intent": "ideas",
+      "expected": [
+        "Broken link crawler",
+        "Kanban board for the study group"
+      ],
+      "got": [
+        "Broken link crawler",
+        "Kanban board for the study group"
+      ],
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "q": "Which ideas have I abandoned?",
+      "intent": "ideas",
+      "expected": [
+        "Habit tracker"
+      ],
+      "got": [
+        "Habit tracker"
+      ],
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  ],
+  "sweep": {
+    "coverage": {
+      "partial": 0.15,
+      "implemented": 0.45,
+      "items": 7,
+      "status_accuracy": 0.8571,
+      "project_accuracy": 1.0,
+      "false_never": 0,
+      "false_built": 1
+    },
+    "similarity": {
+      "partial": 0.1,
+      "implemented": 0.95,
+      "items": 7,
+      "status_accuracy": 0.8571,
+      "project_accuracy": 1.0,
+      "false_never": 0,
+      "false_built": 0
+    }
+  }
+}

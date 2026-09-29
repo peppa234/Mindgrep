@@ -67,6 +67,8 @@ async def stack(name: str, source_id: int) -> set[str] | None:
 
 async def routed(question: str) -> str:
     intent = detect(question)
+    if intent.kind == "ideas":
+        return "ideas"
     if intent.kind == "rag" or not intent.subject:
         return "rag"
     async with SessionLocal() as session:

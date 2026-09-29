@@ -39,6 +39,25 @@ project's exact stack, and whether the chat routes a question to the graph or to
 `runners/graph_eval.py` reports precision and recall, and CI fails below 1.0: the
 deterministic extractors have no excuse for noise, so any miss is a bug.
 
+## Ideas
+
+`golden/ideas.yaml` lists every idea in the fixture notes (tagged notes, the `ideas/` folder,
+an `Idea:` line in a journal) with what matching alone should conclude from the code
+(`matched`: implemented, partial, unimplemented), the project, and what the user should see
+after the note's own frontmatter (`status`). `runners/idea_eval.py` reports:
+
+- detection precision and recall (anything detected that is not labelled is a false positive);
+- matching status accuracy and project accuracy;
+- **false never** (built or half-built, reported as never implemented) and **false built**,
+  counted separately because they do not cost the same;
+- the ideas each chat question lists ("What AI ideas have I never implemented?");
+- a threshold sweep per signal (coverage, similarity): the thresholds that would have been
+  best on the labelled set, which is how `IDEA_COVERAGE_*` / `IDEA_SIMILARITY_*` get set.
+
+CI runs it with word coverage only and gates detection at 1.0, declared statuses at 1.0,
+false built at 0, and false never at 1 (the half-built vector database, which only the
+reranker's similarity catches). With the real models it scores 1.0 across the board.
+
 ## Chat
 
 `runners/chat_eval.py` runs the retrieval golden set through the whole chat pipeline and
@@ -55,6 +74,7 @@ reranker and a real chat model, so it is not a CI gate.
 .\make.ps1 eval-personal                   # your benchmark over what you have indexed
 .\make.ps1 eval-graph                      # knowledge-graph precision/recall and routing
 .\make.ps1 eval-chat                       # end-to-end chat: abstention and citations
+.\make.ps1 eval-ideas                      # idea <-> implementation gap, threshold sweep
 ```
 
 CI runs the fixture with `EMBEDDER=hash` (no model download) and fails if NDCG@10, Recall@10
@@ -69,7 +89,7 @@ the numbers, regenerate the baseline in the same PR:
 
 - `corpus/`: the fixture corpus. Byte-exact (`.gitattributes` disables line-ending conversion).
 - `golden/`: query sets.
-- `runners/`: `retrieval_eval.py` (the harness), `graph_eval.py`, `chat_eval.py`, `metrics.py`,
+- `runners/`: `retrieval_eval.py` (the harness), `graph_eval.py`, `idea_eval.py`, `chat_eval.py`, `metrics.py`,
   `label.py`.
 - `reports/`: committed results, one pair of `.md` + `.json` per run worth keeping.
 - `tools/build_pdfs.py`: regenerates the fixture PDFs.
