@@ -14,10 +14,19 @@ The query it is ultimately built for is the one no ordinary search can answer:
 Answering that means extracting ideas from notes, detecting implementations in code, and
 returning the *difference* between them: retrieval over the absence of things.
 
-**Status:** Phase 2 of 3 (*The Brain*) is complete: chat with cited, streamed answers that
-abstain when the answer is not in your data, and a knowledge graph of your projects built
-from manifests, imports and git, with an LLM layer on top. Phase 1 (*The Index*) is below it.
-See [Roadmap](#roadmap).
+It answers that one now. Every idea you wrote down (a note tagged `#idea`, a note in an
+`ideas/` folder, a line starting with `Idea:`) is checked against the code of every project
+you indexed, and comes back as built, partly built, or never built, with the evidence:
+
+> **2 of 2 ideas** about **AI** have no implementation in your 5 indexed projects (oldest first):
+> - **Code review bot**, 2023-11-02 [1]: A GitHub app that comments on pull requests…
+>   (closest: auth-service, 19% of its distinctive words; nowhere in your code: *bot, comments, downgrade, linter, migration*)
+> - **RAG for Darija**, 2024-02-11 [2]: Retrieval-augmented question answering over Algerian and Moroccan Darija…
+>   (no project comes close; nowhere in your code: *algerian, answering, augmented, big, french*)
+
+**Status:** Phase 3 of 3 (*The Product*) is underway: the idea ↔ implementation gap, the
+ego-network graph view, measured numbers with the real models, and a production deployment
+setup are in. Phases 1 (*The Index*) and 2 (*The Brain*) are complete. See [Roadmap](#roadmap).
 
 ---
 
@@ -47,10 +56,19 @@ the model is never called, and a model that finds no answer in the sources must 
 range). Invented citation numbers are dropped, and an answer citing nothing is flagged
 ([ADR-0004](docs/adr/0004-chat-pipeline.md)).
 
+**"Never implemented" is a verdict with evidence, and you have the last word.** For each
+idea and each project, two absolute signals: the share of the idea's distinctive words
+(IDF-weighted) that occur in the project, and the reranker's score for the idea against the
+project's closest code. The idea is "never built" only when no project clears either bar,
+and the page shows the words no project contains. Frontmatter (`status: abandoned`,
+`implemented_by: task-board`) and your corrections on the Ideas page outrank matching and
+survive every re-index ([ADR-0006](docs/adr/0006-idea-implementation-gap.md)).
+
 **Quality is measured, not claimed.** A labelled retrieval benchmark (Recall@k, NDCG@10,
 MRR per search mode, including *unanswerable* queries), a graph benchmark (precision and
 recall of extracted facts), and an end-to-end chat eval (abstention accuracy, citation
-precision). The first two gate CI. See [Evaluation](#evaluation).
+precision), and an idea benchmark (detection, and matching errors in both directions). All
+but the chat eval gate CI. See [Evaluation](#evaluation).
 
 ---
 
@@ -59,21 +77,38 @@ precision). The first two gate CI. See [Evaluation](#evaluation).
 Fixture benchmark: 44 answerable + 12 unanswerable queries over five small repos (five
 languages), a notes vault, and two PDFs ([eval/](eval/README.md)).
 
-**With the real models** (Qwen3-Embedding-0.6B + bge-reranker-v2-m3, RTX 5050 laptop GPU):
-run `.\make.ps1 eval` to produce `eval/reports/fixture-<date>.md`. That report, and the
-personal benchmark over my own notes and repos, are the numbers this section will carry.
+**Retrieval, real models** (Qwen3-Embedding-0.6B + bge-reranker-v2-m3 on an RTX 5050 laptop
+GPU; [report](eval/reports/fixture-2026-09-29.md)):
 
-**CI baseline** (model-free: hashing embedder, no reranker; every PR is gated on it):
+| Mode | Recall@10 | NDCG@10 | MRR | p50 latency |
+|---|---|---|---|---|
+| lexical (full-text + symbol) | 0.977 | 0.854 | 0.844 | 21 ms |
+| vector (Qwen3-Embedding) | **1.000** | **0.935** | 0.936 | 411 ms |
+| hybrid (RRF) | 0.989 | 0.914 | 0.920 | 75 ms |
+| hybrid + rerank | 0.989 | 0.931 | **0.940** | 1.4 s |
 
-| Mode | Recall@10 | NDCG@10 | MRR |
-|---|---|---|---|
-| lexical (full-text + symbol) | 0.989 | 0.885 | 0.883 |
-| vector (hashing) | 0.830 | 0.727 | 0.740 |
-| hybrid (RRF) | 0.989 | 0.839 | 0.818 |
+What this says, honestly: on a corpus this small, a good embedder alone is already at the
+ceiling, and fusing it with lexical search costs a little NDCG (fusion helps identifiers, which
+are already at 1.0). The reranker wins most of it back and gives the best MRR. Its other job is
+abstention: a top score of 0.008 separates answerable from unanswerable queries with 98%
+accuracy (no answerable query refused, 1 of 12 unanswerable let through to the model's own
+`NO_ANSWER` check), which is where the `ABSTAIN_THRESHOLD` default comes from. The personal
+benchmark over my own notes and repos is what will settle whether fusion earns its place.
 
-The CI numbers are a regression floor, not a quality claim: a bag-of-words "embedding" drags
-hybrid below lexical on vague descriptions (NDCG 0.67). That gap is exactly what the real
-embedder and the reranker have to close, and the per-category report shows whether they do.
+**Idea ↔ implementation gap** (`eval/golden/ideas.yaml`: 7 ideas, built, partly built,
+abandoned and never built; [report](eval/reports/ideas-2026-09-29.md)):
+
+| Check | Word coverage only (CI) | + reranker similarity |
+|---|---|---|
+| ideas found (precision / recall) | 1.000 / 1.000 | 1.000 / 1.000 |
+| matching status accuracy | 0.857 | **1.000** |
+| false "never built" (it was built) | 1 | **0** |
+| false "built" (it never was) | 0 | 0 |
+| "What AI ideas have I never implemented?" (precision / recall) | 1.000 / 1.000 | 1.000 / 1.000 |
+
+The one miss without models is the half-built vector database: *"a tiny exact
+nearest-neighbour vector store"* in the code shares few words with *"a vector database with an
+HNSW index"* in the note. The reranker scores the pair 0.41 and gets it.
 
 **Knowledge graph** (`eval/golden/graph.yaml`, gated in CI at 1.0):
 
@@ -81,11 +116,23 @@ embedder and the reranker have to close, and the per-category report shows wheth
 |---|---|---|---|
 | "which projects use X" (X typed the way a person would: `postgres`, `springboot`, `golang`) | 27 | 1.000 | 1.000 |
 | project stacks | 5 | 1.000 | 1.000 |
-| chat routing (graph vs. RAG) | 13 | accuracy 1.000 | |
+| chat routing (graph vs. ideas vs. RAG) | 17 | accuracy 1.000 | |
+
+**CI baseline** (model-free: hashing embedder, no reranker; every PR is gated on it):
+
+| Mode | Recall@10 | NDCG@10 | MRR |
+|---|---|---|---|
+| lexical | 0.977 | 0.854 | 0.844 |
+| vector (hashing) | 0.807 | 0.702 | 0.703 |
+| hybrid (RRF) | 0.989 | 0.814 | 0.777 |
+
+A regression floor, not a quality claim. It dropped by 0.02 to 0.04 NDCG when the idea notes
+joined the corpus: they describe the same things the code does, and now compete with it (the
+"broken link crawler" note outranks `crawler.go` for a vague description of it). The labels
+were left alone; harder is more realistic.
 
 **Chat** (`.\make.ps1 eval-chat`): abstention accuracy and citation precision over the same
-56 queries. It needs the real reranker and a real chat model to mean anything, so its numbers
-land here with the first real-model run.
+56 queries. It needs a real chat model (a Gemini or Groq key), so its numbers are still to come.
 
 ---
 
@@ -98,17 +145,18 @@ GPU ([ADR-0002](docs/adr/0002-model-server.md)).
 
 ```
 Next.js ──/api proxy──> FastAPI ─────────────────────────────────> Postgres 16
- chat · search ·           │  chat (SSE): condense → intent ─┬─> graph answer (no model)
- projects · sources ·      │                                 └─> search → abstain? → LLM
- document view             │  search: vector ∥ fts ∥ symbol → RRF → rerank
+ chat · search · ideas ·   │  chat (SSE): condense → intent ─┬─> graph / ideas answer (no model)
+ graph · projects ·        │                                 └─> search → abstain? → LLM
+ sources · documents       │  search: vector ∥ fts ∥ symbol → RRF → rerank
                            │                                          chunks: HNSW · tsvector · pg_trgm
-                           │  Gemini ┐                                nodes · edges (graph)
+                           │  Gemini ┐                                nodes · edges · ideas
                            │  Groq   ├ fallback chain, one            conversations · feedback
                            │  Ollama ┘ OpenAI-compatible client
                            │ enqueue
                         Valkey <──> ARQ worker ──> sync (git) → walk (.gitignore, secrets)
                         queue +     → parse (tree-sitter · Markdown · PyMuPDF) → chunk
                         emb. cache  → graph (manifests, imports, git, wikilinks) → embed
+                                    → ideas (detect in notes, match against every project)
                                     · on demand: LLM concept extraction (cached, verified)
                                          │
                                          └──HTTP──> model server (host GPU)
@@ -154,12 +202,15 @@ concepts from your notes on top of the deterministic graph: `.\make.ps1 extract 
 
 | URL | What it is |
 |---|---|
-| http://localhost:3000 | The app: chat, search, projects, sources, and a document view that shows every chunk boundary |
+| http://localhost:3000 | The app: chat, search, ideas, the graph, projects, sources, and a document view that shows every chunk boundary |
 | http://localhost:8000/docs | Swagger UI for the API |
 
 **No GPU?** `docker compose --profile models up -d`, then set `MODEL_SERVER_URL=http://models:8001`
 in `.env`. Slower, same results. With no model server at all, indexing still works and search
 falls back to lexical, saying so.
+
+**Deploying** to a VPS (Caddy with TLS and basic auth, nightly backups, a manual deploy
+workflow): [docs/deploy.md](docs/deploy.md).
 
 Run `.\make.ps1` with no arguments for every task (`test`, `eval`, `label`, `logs worker`, …).
 On Linux or macOS, `make <task>` does the same.
@@ -188,7 +239,7 @@ files), whatever the `.gitignore` says.
 |---|---|---|---|
 | 1. **The Index** | 1–7 | Ingestion, AST chunking, embeddings, eval harness, hybrid search + rerank; sources + search UI | ✅ done |
 | 2. **The Brain** | 8–15 | RAG chat with citations and abstention; knowledge graph (deterministic extraction from manifests, imports and git first, LLM extraction after); chat + projects UI | ✅ done |
-| 3. **The Product** | 16–20 | Idea ↔ implementation gap, ego-network graph view, polish, deploy | next |
+| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅, deploy setup ✅; personal benchmark, screenshots and demo, first live deploy | in progress |
 
 The eval harness landed *before* the retrieval work it judges. That ordering is the point:
 you cannot improve what you cannot measure.
@@ -199,12 +250,14 @@ you cannot improve what you cannot measure.
 
 ```
 backend/app/services/  ingestion (walker, git, pipeline) · parsing · chunking · embedding · retrieval
-                       graph (manifests, technologies, builder, queries, concepts) · llm · chat
+                       graph (manifests, technologies, builder, queries, concepts) · ideas · llm · chat
 backend/app/modelserver/  the GPU model server
 backend/tests/         unit + integration (real Postgres, no models needed)
 eval/                  corpus, golden queries, runners, committed reports
 frontend/              Next.js 15 + Tailwind
 docs/adr/              architecture decisions and their revisit triggers
+docs/deploy.md         production: compose override, Caddy, backups, deploy workflow
+infra/                 Caddyfile, deploy.sh, backup.sh, Postgres init
 ```
 
 ---
