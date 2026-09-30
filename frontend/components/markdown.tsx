@@ -2,41 +2,43 @@
 
 import { Fragment, type ReactNode } from "react";
 
+import { CodeBlock } from "@/components/code-block";
+
+type Cite = {
+  valid: (n: number) => boolean;
+  onCite: (n: number) => void;
+  /** The citation whose source is open in the panel. */
+  active?: number | null;
+  /** While streaming, each new word fades in. */
+  streaming?: boolean;
+};
+
 /**
  * The subset of Markdown answers use (paragraphs, lists, headings, **bold**, `code`, fenced
  * code) plus [n] citations rendered as chips. Built from React elements, never from HTML
  * strings: an answer quoting a source cannot inject markup. Tolerates a half-streamed
  * answer (an unclosed fence renders as code so far).
  */
-export function Markdown({
-  text,
-  valid,
-  onCite,
-}: {
-  text: string;
-  valid: (n: number) => boolean;
-  onCite: (n: number) => void;
-}) {
+export function Markdown({ text, valid, onCite, active = null, streaming = false }: { text: string } & Cite) {
+  const cite: Cite = { valid, onCite, active, streaming };
   const blocks: ReactNode[] = [];
-  const parts = text.split(/^```[^\n]*\n?/m);
+  // Splitting on the fence with its info string captured yields, per fence pair:
+  // text, opening language, code, closing info (unused), text, …
+  const parts = text.split(/^```([^\n]*)\n?/m);
   parts.forEach((part, i) => {
-    if (i % 2 === 1) {
+    const slot = i % 4;
+    if (slot === 2) {
       blocks.push(
-        <pre
-          key={`code-${i}`}
-          className="overflow-x-auto rounded-md border border-zinc-200 bg-white px-3 py-2 font-mono text-[12.5px] leading-5 dark:border-zinc-800 dark:bg-zinc-900/60"
-        >
-          {part.replace(/\n$/, "")}
-        </pre>,
+        <CodeBlock key={`code-${i}`} content={part.replace(/\n$/, "")} startLine={null} language={parts[i - 1]?.trim() || null} />,
       );
-    } else {
-      blocks.push(...prose(part, `p-${i}`, valid, onCite));
+    } else if (slot === 0) {
+      blocks.push(...prose(part, `p-${i}`, cite));
     }
   });
-  return <div className="space-y-3 text-[15px] leading-relaxed">{blocks}</div>;
+  return <div className="space-y-3 text-[15px] leading-relaxed text-hi">{blocks}</div>;
 }
 
-function prose(text: string, key: string, valid: (n: number) => boolean, onCite: (n: number) => void) {
+function prose(text: string, key: string, cite: Cite) {
   const out: ReactNode[] = [];
   const paragraphs = text.split(/\n{2,}/).filter((p) => p.trim());
   paragraphs.forEach((paragraph, p) => {
@@ -44,16 +46,14 @@ function prose(text: string, key: string, valid: (n: number) => boolean, onCite:
     const isList = lines.every((l) => /^\s*(?:[-*]|\d+[.)])\s+/.test(l));
     if (isList) {
       const ordered = /^\s*\d/.test(lines[0]);
-      const items = lines.map((l, j) => (
-        <li key={j}>{inline(l.replace(/^\s*(?:[-*]|\d+[.)])\s+/, ""), valid, onCite)}</li>
-      ));
+      const items = lines.map((l, j) => <li key={j}>{inline(l.replace(/^\s*(?:[-*]|\d+[.)])\s+/, ""), cite)}</li>);
       out.push(
         ordered ? (
-          <ol key={`${key}-${p}`} className="list-decimal space-y-1 pl-5">
+          <ol key={`${key}-${p}`} className="list-decimal space-y-1 pl-5 marker:text-mid">
             {items}
           </ol>
         ) : (
-          <ul key={`${key}-${p}`} className="list-disc space-y-1 pl-5 marker:text-zinc-400">
+          <ul key={`${key}-${p}`} className="list-disc space-y-1 pl-5 marker:text-mid">
             {items}
           </ul>
         ),
@@ -64,7 +64,7 @@ function prose(text: string, key: string, valid: (n: number) => boolean, onCite:
     if (heading && lines.length === 1) {
       out.push(
         <h4 key={`${key}-${p}`} className="font-semibold">
-          {inline(heading[1], valid, onCite)}
+          {inline(heading[1], cite)}
         </h4>,
       );
       return;
@@ -75,7 +75,7 @@ function prose(text: string, key: string, valid: (n: number) => boolean, onCite:
         {lines.map((line, j) => (
           <Fragment key={j}>
             {j > 0 && <br />}
-            {inline(line, valid, onCite)}
+            {inline(line, cite)}
           </Fragment>
         ))}
       </p>,
@@ -84,14 +84,32 @@ function prose(text: string, key: string, valid: (n: number) => boolean, onCite:
   return out;
 }
 
+/** Plain text; while streaming, one span per word so only newly arrived words animate. */
+function words(text: string, key: number, streaming: boolean): ReactNode {
+  if (!streaming) return <Fragment key={key}>{text}</Fragment>;
+  return (
+    <Fragment key={key}>
+      {text.split(/(\s+)/).map((w, k) =>
+        w.trim() ? (
+          <span key={k} className="animate-word-in">
+            {w}
+          </span>
+        ) : (
+          w
+        ),
+      )}
+    </Fragment>
+  );
+}
+
 const INLINE = /(`[^`]+`|\*\*[^*]+\*\*|\[\d+(?:\s*[,;]\s*\d+)*\])/g;
 
-function inline(text: string, valid: (n: number) => boolean, onCite: (n: number) => void): ReactNode[] {
+function inline(text: string, cite: Cite): ReactNode[] {
   return text.split(INLINE).map((token, i) => {
-    if (i % 2 === 0) return <Fragment key={i}>{token}</Fragment>;
+    if (i % 2 === 0) return words(token, i, Boolean(cite.streaming));
     if (token.startsWith("`"))
       return (
-        <code key={i} className="rounded bg-zinc-200/70 px-1 py-0.5 font-mono text-[0.85em] dark:bg-zinc-800">
+        <code key={i} className="rounded-md border border-line bg-elevated px-1 py-0.5 font-mono text-[0.85em] text-hi">
           {token.slice(1, -1)}
         </code>
       );
@@ -108,19 +126,30 @@ function inline(text: string, valid: (n: number) => boolean, onCite: (n: number)
     return (
       <Fragment key={i}>
         {numbers.map((n) =>
-          valid(n) ? (
-            <button
-              key={n}
-              type="button"
-              onClick={() => onCite(n)}
-              title={`Show source ${n}`}
-              className="mx-0.5 inline-flex h-[18px] min-w-[18px] -translate-y-px items-center justify-center rounded bg-amber-100 px-1 align-middle font-mono text-[11px] font-medium text-amber-800 hover:bg-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:hover:bg-amber-500/30"
-            >
-              {n}
-            </button>
+          cite.valid(n) ? (
+            <CitationChip key={n} n={n} active={cite.active === n} onClick={() => cite.onCite(n)} />
           ) : null,
         )}
       </Fragment>
     );
   });
+}
+
+/** [n]: violet (a memory) at rest, cyan and glowing on hover and while its source is open. */
+export function CitationChip({ n, active, onClick }: { n: number; active: boolean; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      aria-label={`Show source ${n}`}
+      className={`mx-0.5 inline-flex h-[19px] min-w-[19px] -translate-y-px items-center justify-center rounded-md border px-1 align-middle font-mono text-[11px] font-medium transition-[color,border-color,box-shadow,background-color] duration-200 ${
+        active
+          ? "border-cyan-400/70 bg-[var(--surface-live)] text-cyan-400 shadow-glow-cyan"
+          : "border-violet-400/40 bg-violet-500/10 text-violet-300 hover:border-cyan-400/70 hover:bg-[var(--surface-live)] hover:text-cyan-400 hover:shadow-glow-cyan"
+      }`}
+    >
+      {n}
+    </button>
+  );
 }

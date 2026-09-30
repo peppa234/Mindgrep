@@ -1,19 +1,24 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
+import { GlassPanel } from "@/components/visual/glass-panel";
+import { GlowButton } from "@/components/visual/glow-button";
 import { api } from "@/lib/api";
 import { compact, relativeTime } from "@/lib/format";
+import { revealChild, revealParent } from "@/lib/motion";
 import type { Source, Stats } from "@/lib/types";
 
 const BUSY = new Set(["queued", "indexing"]);
 
-const STATUS_STYLE: Record<Source["status"], string> = {
-  idle: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-  queued: "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300",
-  indexing: "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300",
-  ready: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
-  failed: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300",
+// Indexing is live (cyan); a ready index is knowledge (violet); a failure is a gap (magenta).
+const STATUS_DOT: Record<Source["status"], string> = {
+  idle: "border border-mid",
+  queued: "bg-live",
+  indexing: "bg-live shadow-glow-cyan animate-pulse motion-off:animate-none",
+  ready: "bg-knowledge",
+  failed: "bg-gap",
 };
 
 function Progress({ source }: { source: Source }) {
@@ -33,14 +38,23 @@ function Progress({ source }: { source: Source }) {
       ? `embedding ${s.embedded}/${s.chunks_written} chunks`
       : (run.stage ?? run.status);
   return (
-    <div className="space-y-1">
-      <div className="h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+    <div className="space-y-1.5">
+      <div
+        className="h-1 overflow-hidden rounded-full bg-line"
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={fraction == null ? undefined : Math.round(fraction * 100)}
+      >
         <div
-          className={`h-full rounded-full bg-sky-500 transition-all ${fraction == null ? "w-1/3 animate-pulse" : ""}`}
+          className={`h-full rounded-full bg-live shadow-glow-cyan transition-[width] duration-500 ${
+            fraction == null ? "w-1/3 animate-pulse motion-off:animate-none" : ""
+          }`}
           style={fraction != null ? { width: `${Math.max(3, fraction * 100)}%` } : undefined}
         />
       </div>
-      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="font-mono text-xs text-cyan-400">{label}</p>
     </div>
   );
 }
@@ -68,51 +82,46 @@ function SourceRow({ source, onChange }: { source: Source; onChange: () => void 
   }
 
   return (
-    <li className="space-y-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-      <div className="flex flex-wrap items-center gap-2">
-        <h3 className="font-medium">{source.name}</h3>
-        <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[source.status]}`}>
+    <GlassPanel as="article" tone={BUSY.has(source.status) ? "live" : source.status === "failed" ? "gap" : "neutral"} className="space-y-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 className="text-h3">{source.name}</h2>
+        <span className="chip text-hi">
+          <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[source.status]}`} />
           {source.status}
         </span>
-        <span className="truncate font-mono text-xs text-zinc-500" title={source.uri}>
-          {source.kind === "git" ? "⎇ " : "📁 "}
-          {source.uri}
+        <span className="flex min-w-0 items-center gap-1.5 font-mono text-xs text-mid" title={source.uri}>
+          <span className="kbd">{source.kind === "git" ? "git" : "folder"}</span>
+          <span className="truncate">{source.uri}</span>
         </span>
         <div className="ml-auto flex gap-1.5 text-xs">
           {pendingEmbeddings > 0 && !BUSY.has(source.status) && (
-            <button
-              disabled={busy}
-              onClick={() => act(() => api.embed(source.id))}
-              className="rounded-md border border-zinc-200 px-2 py-1 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
+            <button type="button" disabled={busy} onClick={() => act(() => api.embed(source.id))} className="btn-ghost h-8 px-2.5">
               Embed {pendingEmbeddings} pending
             </button>
           )}
           <button
+            type="button"
             disabled={busy || BUSY.has(source.status)}
             onClick={() => act(() => api.reindex(source.id))}
-            className="rounded-md border border-zinc-200 px-2 py-1 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="btn-ghost h-8 px-2.5"
           >
             Re-index
           </button>
           {confirming ? (
             <>
-              <button
-                disabled={busy}
-                onClick={() => act(() => api.deleteSource(source.id))}
-                className="rounded-md bg-red-600 px-2 py-1 text-white hover:bg-red-700"
-              >
+              <button type="button" disabled={busy} onClick={() => act(() => api.deleteSource(source.id))} data-tone="gap" className="btn-ghost h-8 px-2.5">
                 Delete index
               </button>
-              <button onClick={() => setConfirming(false)} className="px-2 py-1 text-zinc-500">
+              <button type="button" onClick={() => setConfirming(false)} className="btn-ghost h-8 px-2.5">
                 Cancel
               </button>
             </>
           ) : (
             <button
+              type="button"
               disabled={busy || BUSY.has(source.status)}
               onClick={() => setConfirming(true)}
-              className="rounded-md px-2 py-1 text-zinc-500 hover:text-red-600 disabled:opacity-50"
+              className="btn-ghost h-8 px-2.5"
               title="Removes the index for this source. Your files are never touched."
             >
               Remove
@@ -123,10 +132,10 @@ function SourceRow({ source, onChange }: { source: Source; onChange: () => void 
 
       <Progress source={source} />
 
-      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-zinc-500">
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-mid">
         <div>
           <dt className="inline">documents </dt>
-          <dd className="inline font-medium text-zinc-800 dark:text-zinc-200">{compact(source.documents)}</dd>
+          <dd className="inline font-mono font-medium text-hi">{compact(source.documents)}</dd>
           {Object.keys(source.documents_by_kind).length > 0 && (
             <span>
               {" "}
@@ -136,7 +145,7 @@ function SourceRow({ source, onChange }: { source: Source; onChange: () => void 
         </div>
         <div>
           <dt className="inline">chunks </dt>
-          <dd className="inline font-medium text-zinc-800 dark:text-zinc-200">{compact(source.chunks)}</dd>
+          <dd className="inline font-mono font-medium text-hi">{compact(source.chunks)}</dd>
           {pendingEmbeddings > 0 && <span> ({compact(source.embedded)} embedded)</span>}
         </div>
         {source.last_indexed_at && <div>indexed {relativeTime(source.last_indexed_at)}</div>}
@@ -152,16 +161,16 @@ function SourceRow({ source, onChange }: { source: Source; onChange: () => void 
       </dl>
 
       {(source.error || error) && (
-        <p className="rounded bg-red-50 px-2 py-1 font-mono text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300">
+        <p className="alert font-mono text-xs" role="alert">
           {error ?? source.error}
         </p>
       )}
       {stats?.warnings?.map((w) => (
-        <p key={w} className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+        <p key={w} className="notice text-xs">
           {w}
         </p>
       ))}
-    </li>
+    </GlassPanel>
   );
 }
 
@@ -191,52 +200,54 @@ function AddSource({ onAdded }: { onAdded: () => void }) {
     }
   }
 
-  const field =
-    "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900";
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-      <div className="flex gap-1 text-sm">
+    <GlassPanel as="form" glow={false} onSubmit={submit} className="space-y-4" aria-label="Add a source">
+      <div className="seg" role="group" aria-label="Source kind">
         {(["local", "git"] as const).map((k) => (
-          <button
-            key={k}
-            type="button"
-            onClick={() => setKind(k)}
-            className={`rounded-md px-3 py-1 ${kind === k ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" : "text-zinc-500"}`}
-          >
+          <button key={k} type="button" aria-pressed={kind === k} onClick={() => setKind(k)}>
             {k === "local" ? "Local folder" : "GitHub repository"}
           </button>
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
+        <label htmlFor="source-uri" className="sr-only">
+          {kind === "local" ? "Folder inside SOURCES_DIR" : "Repository URL"}
+        </label>
         <input
+          id="source-uri"
           required
           value={uri}
           onChange={(e) => setUri(e.target.value)}
           placeholder={kind === "local" ? "notes   (a folder inside SOURCES_DIR)" : "https://github.com/you/repo"}
-          className={`${field} min-w-64 flex-1 font-mono`}
+          className="field h-10 min-w-64 flex-1 px-3 font-mono text-sm"
         />
+        <label htmlFor="source-name" className="sr-only">
+          Name
+        </label>
         <input
+          id="source-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={suggested || "name"}
-          className={`${field} w-44`}
+          className="field h-10 w-44 px-3 text-sm"
         />
-        <button
-          disabled={saving || !uri}
-          className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
-        >
+        <GlowButton type="submit" disabled={saving || !uri}>
           {saving ? "Adding…" : "Add and index"}
-        </button>
+        </GlowButton>
       </div>
       {kind === "local" && (
-        <p className="text-xs text-zinc-500">
-          Local folders are read from the directory mounted as <code className="font-mono">SOURCES_DIR</code> in{" "}
-          <code className="font-mono">.env</code> (read-only). A folder holding many repositories is fine: each
+        <p className="text-xs text-mid">
+          Local folders are read from the directory mounted as <code className="font-mono text-hi">SOURCES_DIR</code> in{" "}
+          <code className="font-mono text-hi">.env</code> (read-only). A folder holding many repositories is fine: each
           repo&apos;s git history is picked up.
         </p>
       )}
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-    </form>
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
+    </GlassPanel>
   );
 }
 
@@ -269,25 +280,37 @@ export function SourcesView() {
   }, [active, load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h1 className="text-xl font-semibold tracking-tight">Sources</h1>
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-h2">Sources</h1>
+          <p className="text-mid">Folders and repositories MemoryOS reads. Your files are never modified.</p>
+        </div>
         {stats && (
-          <p className="text-xs text-zinc-500">
-            {compact(stats.documents)} documents · {compact(stats.chunks)} chunks · {compact(stats.embedded)} embedded
+          <p className="font-mono text-xs text-mid">
+            <span className="text-hi">{compact(stats.documents)}</span> documents · <span className="text-hi">{compact(stats.chunks)}</span>{" "}
+            chunks · <span className="text-hi">{compact(stats.embedded)}</span> embedded
             {stats.needs_ocr > 0 && ` · ${stats.needs_ocr} PDFs need OCR`}
           </p>
         )}
       </div>
       <AddSource onAdded={load} />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <ul className="space-y-3">
-        {sources?.map((source) => <SourceRow key={source.id} source={source} onChange={load} />)}
-      </ul>
-      {sources?.length === 0 && (
-        <p className="py-8 text-center text-sm text-zinc-500">
-          No sources yet. Add your notes folder, a folder of repositories, or a GitHub URL.
+      {error && (
+        <p className="alert" role="alert">
+          {error}
         </p>
+      )}
+      {sources && sources.length > 0 && (
+        <motion.ul variants={revealParent} initial="hidden" animate="shown" className="space-y-4">
+          {sources.map((source) => (
+            <motion.li key={source.id} variants={revealChild}>
+              <SourceRow source={source} onChange={load} />
+            </motion.li>
+          ))}
+        </motion.ul>
+      )}
+      {sources?.length === 0 && (
+        <p className="py-8 text-center text-sm text-mid">No sources yet. Add your notes folder, a folder of repositories, or a GitHub URL.</p>
       )}
     </div>
   );

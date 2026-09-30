@@ -1,12 +1,15 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { CodeBlock } from "@/components/code-block";
+import { GlassPanel } from "@/components/visual/glass-panel";
 import { api } from "@/lib/api";
 import { lineRange, pageRange, relativeTime } from "@/lib/format";
+import { EASE_MEMORY, SPRING_LAYOUT, STAGGER } from "@/lib/motion";
 import type { DocKind, SearchHit, SearchMode, SearchResponse, Source } from "@/lib/types";
 
 const MODES: { value: SearchMode; label: string; hint: string }[] = [
@@ -34,52 +37,44 @@ function terms(q: string): string[] {
 function Hit({ hit, query }: { hit: SearchHit; query: string }) {
   const location = hit.doc_kind === "pdf" ? pageRange(hit.meta) : lineRange(hit.start_line, hit.end_line);
   return (
-    <article className="space-y-2">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span className="rounded bg-zinc-200/70 px-1.5 py-0.5 font-mono text-[11px] uppercase text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-          {hit.language ?? hit.doc_kind}
-        </span>
-        <Link
-          href={`/documents/${hit.document_id}#chunk-${hit.chunk_id}`}
-          className="font-mono text-[13px] text-zinc-600 hover:text-amber-700 hover:underline dark:text-zinc-400 dark:hover:text-amber-400"
-        >
+    <GlassPanel as="article" padding="none" className="space-y-3 p-4 sm:p-5">
+      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-sm">
+        <span className="chip py-0 font-mono text-[11px] uppercase">{hit.language ?? hit.doc_kind}</span>
+        <Link href={`/documents/${hit.document_id}#chunk-${hit.chunk_id}`} className="link min-w-0 truncate font-mono text-[13px]">
           {hit.source_name}/{hit.path}
         </Link>
-        {location && <span className="font-mono text-xs text-zinc-400">{location}</span>}
-        <span className="ml-auto text-xs text-zinc-400" title={hit.git_commit ? `commit ${hit.git_commit}` : "file modified"}>
+        {location && <span className="font-mono text-xs text-mid">{location}</span>}
+        <span className="ml-auto text-xs text-mid" title={hit.git_commit ? `commit ${hit.git_commit}` : "file modified"}>
           {relativeTime(hit.modified_at)}
         </span>
       </div>
       {hit.symbol && hit.doc_kind !== "pdf" && (
-        <h3 className="font-mono text-[15px] font-medium">
+        <h3 className="font-mono text-[15px] font-medium tracking-normal text-hi">
           {hit.symbol}
-          <span className="ml-2 font-sans text-xs font-normal text-zinc-400">{hit.chunk_kind.replace("_", " ")}</span>
+          <span className="ml-2 font-sans text-xs font-normal text-mid">{hit.chunk_kind.replace("_", " ")}</span>
         </h3>
       )}
-      {hit.doc_kind === "pdf" && hit.title && <h3 className="text-[15px] font-medium">{hit.title}</h3>}
+      {hit.doc_kind === "pdf" && hit.title && <h3 className="text-h3">{hit.title}</h3>}
       <CodeBlock
         content={hit.content}
+        language={hit.doc_kind === "code" ? hit.language : null}
         startLine={hit.doc_kind === "code" || hit.doc_kind === "text" ? hit.start_line : null}
         terms={terms(query)}
         maxLines={14}
       />
-      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] text-zinc-500">
+      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] text-mid">
         {Object.entries(hit.ranks).map(([channel, rank]) => (
-          <span
-            key={channel}
-            className="rounded border border-zinc-200 px-1.5 dark:border-zinc-800"
-            title={`rank ${rank} in the ${channel} channel`}
-          >
+          <span key={channel} className="chip py-0 text-[11px]" title={`rank ${rank} in the ${channel} channel`}>
             {CHANNEL_LABEL[channel] ?? channel} #{rank}
           </span>
         ))}
         {hit.rerank_score != null && (
-          <span className="rounded border border-amber-300 px-1.5 text-amber-700 dark:border-amber-800 dark:text-amber-400" title="cross-encoder relevance, 0–1">
+          <span className="chip py-0 text-[11px] text-hi" title="cross-encoder relevance, 0–1">
             rerank {hit.rerank_score.toFixed(3)}
           </span>
         )}
       </div>
-    </article>
+    </GlassPanel>
   );
 }
 
@@ -106,7 +101,8 @@ export function SearchView() {
   // "/" or Ctrl/Cmd+K focuses the search box from anywhere on the page.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+      const typing =
+        e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement;
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
         inputRef.current?.focus();
@@ -142,7 +138,7 @@ export function SearchView() {
   useEffect(() => {
     const q = params.get("q");
     if (q) run(q);
-  }, [params, mode, kinds, sourceId]);
+  }, [params, mode, kinds, sourceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function submit(e?: FormEvent) {
     e?.preventDefault();
@@ -160,52 +156,50 @@ export function SearchView() {
     setKinds((current) => (current.includes(kind) ? current.filter((k) => k !== kind) : [...current, kind]));
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={submit} className="space-y-3">
-        <div className="relative">
+    <div className="mx-auto max-w-4xl space-y-6">
+      <h1 className="sr-only">Search</h1>
+      <form onSubmit={submit} role="search" className="space-y-3">
+        {/* The command bar: the glass lights up while the input has focus. */}
+        <div className="glass flex items-center gap-3 px-4 transition-[border-color,box-shadow] duration-300 focus-within:border-line-bright focus-within:shadow-glow-violet has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-violet-400">
+          <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-mid" fill="none" stroke="currentColor" strokeWidth={1.8}>
+            <circle cx="11" cy="11" r="7" />
+            <path strokeLinecap="round" d="m20 20-3.5-3.5" />
+          </svg>
+          <label htmlFor="search-input" className="sr-only">
+            Search your memory
+          </label>
           <input
+            id="search-input"
             ref={inputRef}
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Describe what you're looking for: a function, a note, an idea…"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 pr-20 text-base shadow-sm outline-none placeholder:text-zinc-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+            className="h-14 min-w-0 flex-1 bg-transparent text-base text-hi outline-none placeholder:text-mid"
           />
-          <kbd className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded border border-zinc-200 px-1.5 font-mono text-[11px] text-zinc-400 dark:border-zinc-700">
-            Ctrl K
-          </kbd>
+          {loading ? (
+            <span className="flex items-center gap-2 font-mono text-xs text-cyan-400" role="status">
+              <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-live shadow-glow-cyan motion-off:animate-none" />
+              searching
+            </span>
+          ) : (
+            <span className="kbd hidden sm:inline" aria-hidden>
+              Ctrl K
+            </span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <div className="flex rounded-md border border-zinc-200 p-0.5 dark:border-zinc-800">
+          <div className="seg" role="group" aria-label="Search mode">
             {MODES.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                title={m.hint}
-                onClick={() => setMode(m.value)}
-                className={`rounded px-2.5 py-1 text-xs ${
-                  mode === m.value
-                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-                }`}
-              >
+              <button key={m.value} type="button" title={m.hint} aria-pressed={mode === m.value} onClick={() => setMode(m.value)}>
                 {m.label}
               </button>
             ))}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1" role="group" aria-label="Document kinds">
             {KINDS.map((kind) => (
-              <button
-                key={kind}
-                type="button"
-                onClick={() => toggleKind(kind)}
-                className={`rounded-full border px-2.5 py-0.5 text-xs ${
-                  kinds.includes(kind)
-                    ? "border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300"
-                    : "border-zinc-200 text-zinc-500 dark:border-zinc-800"
-                }`}
-              >
+              <button key={kind} type="button" aria-pressed={kinds.includes(kind)} onClick={() => toggleKind(kind)} className="chip">
                 {kind}
               </button>
             ))}
@@ -213,7 +207,8 @@ export function SearchView() {
           <select
             value={sourceId ?? ""}
             onChange={(e) => setSourceId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-md border border-zinc-200 bg-transparent px-2 py-1 text-xs dark:border-zinc-800"
+            aria-label="Source"
+            className="field h-8 rounded-lg px-2 text-xs"
           >
             <option value="">All sources</option>
             {sources?.map((s) => (
@@ -226,36 +221,35 @@ export function SearchView() {
             value={pathPrefix}
             onChange={(e) => setPathPrefix(e.target.value)}
             onBlur={() => submit()}
+            aria-label="Path prefix"
             placeholder="path prefix, e.g. src/"
-            className="w-44 rounded-md border border-zinc-200 bg-transparent px-2 py-1 font-mono text-xs dark:border-zinc-800"
+            className="field h-8 w-44 rounded-lg px-2 font-mono text-xs"
           />
         </div>
       </form>
 
       {sources?.length === 0 && (
-        <p className="rounded-lg border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <GlassPanel glow={false} className="text-center text-sm text-mid">
           Nothing indexed yet.{" "}
-          <Link href="/sources" className="text-amber-700 underline dark:text-amber-400">
+          <Link href="/sources" className="link">
             Add a folder or a GitHub repository
           </Link>{" "}
           to start.
-        </p>
+        </GlassPanel>
       )}
 
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">{error}</p>
-      )}
-
-      {result && result.degraded.length > 0 && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
-          Partial results. {result.degraded.join(" · ")}
+        <p className="alert" role="alert">
+          {error}
         </p>
       )}
 
+      {result && result.degraded.length > 0 && <p className="notice">Partial results. {result.degraded.join(" · ")}</p>}
+
       {result && (
-        <div className="flex items-center justify-between text-xs text-zinc-500">
+        <div className="flex items-center justify-between font-mono text-xs text-mid" aria-live="polite">
           <span>
-            {result.hits.length} of {result.candidates} candidates · mode <b>{result.mode}</b>
+            {result.hits.length} of {result.candidates} candidates · mode <span className="text-hi">{result.mode}</span>
           </span>
           <span title={Object.entries(result.timings_ms).map(([k, v]) => `${k}: ${v} ms`).join("\n")}>
             {result.timings_ms.total?.toFixed(0)} ms
@@ -263,28 +257,42 @@ export function SearchView() {
         </div>
       )}
 
-      <div className={`space-y-8 transition-opacity ${loading ? "opacity-50" : ""}`}>
-        {result?.hits.map((hit) => <Hit key={hit.chunk_id} hit={hit} query={result.query} />)}
-        {result && result.hits.length === 0 && (
-          <p className="py-12 text-center text-sm text-zinc-500">No matches. Try describing it differently.</p>
-        )}
-      </div>
+      <motion.ul layout className={`space-y-4 transition-opacity duration-300 ${loading ? "opacity-60" : ""}`}>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {result?.hits.map((hit, i) => (
+            <motion.li
+              key={hit.chunk_id}
+              layout
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_MEMORY, delay: Math.min(i, 10) * STAGGER } }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              transition={SPRING_LAYOUT}
+            >
+              <Hit hit={hit} query={result.query} />
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </motion.ul>
+      {result && result.hits.length === 0 && <p className="py-12 text-center text-sm text-mid">No matches. Try describing it differently.</p>}
 
       {!result && !loading && sources && sources.length > 0 && (
-        <div className="space-y-2 pt-8 text-center text-sm text-zinc-500">
-          <p>Try:</p>
-          {EXAMPLES.map((example) => (
-            <button
-              key={example}
-              onClick={() => {
-                setQuery(example);
-                router.replace(`${pathname}?q=${encodeURIComponent(example)}`);
-              }}
-              className="block w-full font-mono text-xs hover:text-amber-700 dark:hover:text-amber-400"
-            >
-              {example}
-            </button>
-          ))}
+        <div className="space-y-3 pt-8 text-center text-sm">
+          <p className="text-mid">Try</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {EXAMPLES.map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => {
+                  setQuery(example);
+                  router.replace(`${pathname}?q=${encodeURIComponent(example)}`);
+                }}
+                className="chip font-mono"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

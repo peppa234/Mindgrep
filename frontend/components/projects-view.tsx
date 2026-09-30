@@ -1,33 +1,42 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
+import { GlassPanel } from "@/components/visual/glass-panel";
 import { api } from "@/lib/api";
+import { SPRING_PRESS, revealChild, revealParent } from "@/lib/motion";
+import { useMotionOff } from "@/lib/stores/motion";
 import type { ProjectSummary, StackTech } from "@/lib/types";
 
-export const CATEGORY_STYLE: Record<string, string> = {
-  language: "border-sky-300 text-sky-800 dark:border-sky-800 dark:text-sky-300",
-  framework: "border-violet-300 text-violet-800 dark:border-violet-800 dark:text-violet-300",
-  database: "border-emerald-300 text-emerald-800 dark:border-emerald-800 dark:text-emerald-300",
-  ai: "border-fuchsia-300 text-fuchsia-800 dark:border-fuchsia-800 dark:text-fuchsia-300",
-  auth: "border-rose-300 text-rose-800 dark:border-rose-800 dark:text-rose-300",
-  infra: "border-amber-300 text-amber-800 dark:border-amber-800 dark:text-amber-300",
+export const CATEGORY_LABEL: Record<string, string> = {
+  language: "Languages",
+  framework: "Frameworks",
+  database: "Databases",
+  ai: "AI / ML",
+  auth: "Auth & security",
+  infra: "Infrastructure",
+  library: "Libraries",
+  tool: "Tooling",
 };
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-const NEUTRAL = "border-zinc-200 text-zinc-600 dark:border-zinc-800 dark:text-zinc-400";
 
-export function TechChip({ tech, onClick }: { tech: StackTech; onClick?: () => void }) {
+/**
+ * A detected technology. Chips are neutral: categories are grouped, not colour-coded, so
+ * hue keeps its meaning. The one that matches the active filter is cyan.
+ */
+export function TechChip({ tech, active = false, onClick }: { tech: StackTech; active?: boolean; onClick?: () => void }) {
+  const title = `${tech.category ?? "technology"} · detected via ${tech.via.join(", ")}`;
+  if (!onClick)
+    return (
+      <span className="chip" title={title} data-active={active}>
+        {tech.name}
+      </span>
+    );
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={`${tech.category ?? "technology"} · detected via ${tech.via.join(", ")}`}
-      className={`rounded-full border px-2 py-0.5 text-xs ${CATEGORY_STYLE[tech.category ?? ""] ?? NEUTRAL} ${
-        onClick ? "hover:bg-zinc-100 dark:hover:bg-zinc-900" : "cursor-default"
-      }`}
-    >
+    <button type="button" onClick={onClick} title={title} aria-pressed={active} className="chip">
       {tech.name}
     </button>
   );
@@ -41,6 +50,7 @@ export function ProjectsView() {
   const [query, setQuery] = useState(uses);
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const still = useMotionOff();
 
   useEffect(() => {
     setQuery(uses);
@@ -60,73 +70,97 @@ export function ProjectsView() {
     filter(query);
   }
 
+  const matches = (tech: StackTech) => uses !== "" && tech.name.toLowerCase().includes(uses.toLowerCase());
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-zinc-500">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="max-w-2xl space-y-2">
+          <h1 className="text-h2">Projects</h1>
+          <p className="text-mid">
             Detected from Git repositories and dependency manifests. Every technology is read from a manifest, a Dockerfile,
             an import or the files themselves: never guessed.
           </p>
         </div>
-        <form onSubmit={submit} className="flex gap-2">
+        <form onSubmit={submit} className="flex items-center gap-2" role="search">
+          <label htmlFor="uses" className="sr-only">
+            Filter projects by technology
+          </label>
           <input
+            id="uses"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="uses… e.g. postgres"
-            className="w-52 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900"
+            className="field h-10 w-56 px-3 text-sm"
           />
           {uses && (
-            <button type="button" onClick={() => filter("")} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">
-              clear
+            <button type="button" onClick={() => filter("")} className="btn-ghost h-10 px-3 text-sm">
+              Clear
             </button>
           )}
         </form>
       </div>
 
-      {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">{error}</p>}
-      {projects === null && !error && <p className="text-sm text-zinc-500">Loading…</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
+      {projects === null && !error && <p className="text-sm text-mid">Loading…</p>}
       {projects?.length === 0 && (
-        <p className="rounded-lg border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
+        <GlassPanel glow={false} className="text-center text-sm text-mid">
           {uses ? (
             <>No project declares, imports or runs “{uses}”.</>
           ) : (
             <>
               No projects yet.{" "}
-              <Link href="/sources" className="text-amber-700 underline dark:text-amber-400">
+              <Link href="/sources" className="link">
                 Index a folder of repositories
               </Link>{" "}
               and they appear here.
             </>
           )}
-        </p>
+        </GlassPanel>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {projects?.map((project) => (
-          <article key={project.id} className="space-y-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-            <div>
-              <Link href={`/projects/${project.id}`} className="font-medium hover:text-amber-700 hover:underline dark:hover:text-amber-400">
-                {project.name}
-              </Link>
-              <p className="font-mono text-xs text-zinc-500">
-                {project.source_name}/{project.root || ""}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {project.technologies.map((tech) => (
-                <TechChip key={tech.name} tech={tech} onClick={() => filter(tech.name)} />
-              ))}
-              {project.technologies.length === 0 && <span className="text-xs text-zinc-400">no technologies detected</span>}
-            </div>
-            <p className="text-xs text-zinc-400">
-              {plural(project.package_count, "declared dependency", "declared dependencies")} ·{" "}
-              {plural(project.manifests.length, "manifest", "manifests")}
-            </p>
-          </article>
-        ))}
-      </div>
+      {projects && projects.length > 0 && (
+        <motion.ul
+          variants={revealParent}
+          initial="hidden"
+          animate="shown"
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          aria-label={uses ? `Projects using ${uses}` : "Projects"}
+        >
+          {projects.map((project) => (
+            <motion.li key={project.id} variants={revealChild} className="flex">
+              <motion.div whileHover={still ? undefined : { y: -4 }} transition={SPRING_PRESS} className="flex w-full">
+                <GlassPanel as="article" className="flex w-full flex-col gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-h3">
+                      <Link href={`/projects/${project.id}`} className="rounded-sm hover:text-violet-300">
+                        {project.name}
+                      </Link>
+                    </h2>
+                    <p className="truncate font-mono text-xs text-mid">
+                      {project.source_name}/{project.root || ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.technologies.map((tech) => (
+                      <TechChip key={tech.name} tech={tech} active={matches(tech)} onClick={() => filter(tech.name)} />
+                    ))}
+                    {project.technologies.length === 0 && <span className="text-xs text-mid">no technologies detected</span>}
+                  </div>
+                  <p className="mt-auto border-t border-line pt-3 font-mono text-xs text-mid">
+                    {plural(project.package_count, "dependency", "dependencies")} ·{" "}
+                    {plural(project.manifests.length, "manifest", "manifests")}
+                  </p>
+                </GlassPanel>
+              </motion.div>
+            </motion.li>
+          ))}
+        </motion.ul>
+      )}
     </div>
   );
 }

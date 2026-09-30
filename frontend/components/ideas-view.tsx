@@ -1,11 +1,14 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
+import { GlassPanel } from "@/components/visual/glass-panel";
 import { api } from "@/lib/api";
 import { lineRange, relativeTime } from "@/lib/format";
+import { EASE_MEMORY, revealChild, revealParent } from "@/lib/motion";
 import type { Idea, IdeaCandidate, IdeaStatus, IdeaSummary, ProjectSummary } from "@/lib/types";
 
 type Tab = IdeaStatus | "all";
@@ -19,75 +22,85 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "all", label: "All" },
 ];
 
-export const STATUS_STYLE: Record<IdeaStatus, { label: string; chip: string }> = {
-  unimplemented: {
-    label: "never built",
-    chip: "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-500/10 dark:text-amber-300",
-  },
-  partial: {
-    label: "partly built",
-    chip: "border-sky-300 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300",
-  },
-  implemented: {
-    label: "built",
-    chip: "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300",
-  },
-  abandoned: {
-    label: "abandoned",
-    chip: "border-zinc-300 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400",
-  },
+// Magenta is the gap: filled for never built, an outline for partly built. Violet is
+// knowledge realised in code. Abandoned ideas are neither.
+export const STATUS_STYLE: Record<IdeaStatus, { label: string; dot: string }> = {
+  unimplemented: { label: "never built", dot: "bg-gap" },
+  partial: { label: "partly built", dot: "border border-magenta-500" },
+  implemented: { label: "built", dot: "bg-knowledge" },
+  abandoned: { label: "abandoned", dot: "border border-mid" },
 };
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 function StatusChip({ status }: { status: IdeaStatus }) {
   const style = STATUS_STYLE[status];
-  return <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${style.chip}`}>{style.label}</span>;
+  return (
+    <span className="chip shrink-0 text-hi">
+      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+      {style.label}
+    </span>
+  );
 }
 
 function Bar({ value, title }: { value: number; title: string }) {
   return (
-    <span className="inline-flex h-1.5 w-20 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800" title={title}>
-      <span className="h-full bg-amber-500" style={{ width: pct(Math.min(1, value)) }} />
+    <span className="inline-flex h-1.5 w-20 overflow-hidden rounded-full bg-line" title={title}>
+      <span className="h-full rounded-full bg-knowledge" style={{ width: pct(Math.min(1, value)) }} />
     </span>
+  );
+}
+
+function Reveal({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3, ease: EASE_MEMORY }}
+          className="overflow-hidden"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
 function CandidateRow({ candidate, chosen }: { candidate: IdeaCandidate; chosen: boolean }) {
   const best = candidate.best;
   return (
-    <li className="space-y-1 py-2 first:pt-0 last:pb-0">
+    <li className="space-y-1.5 py-2.5 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-        <Link href={`/projects/${candidate.project_id}`} className={`hover:underline ${chosen ? "font-medium" : ""}`}>
+        <Link href={`/projects/${candidate.project_id}`} className={`link ${chosen ? "font-medium" : ""}`}>
           {candidate.project}
         </Link>
-        <span className="flex items-center gap-1.5 text-xs text-zinc-500">
+        <span className="flex items-center gap-1.5 text-xs text-mid">
           <Bar value={candidate.coverage} title="Share of the idea's distinctive words found in this project" />
           {pct(candidate.coverage)} of the words
         </span>
         {candidate.similarity != null && (
-          <span className="text-xs text-zinc-500" title="Reranker score of the idea against this project's closest chunk">
+          <span className="font-mono text-xs text-mid" title="Reranker score of the idea against this project's closest chunk">
             similarity {candidate.similarity.toFixed(2)}
           </span>
         )}
-        {candidate.linked && <span className="text-xs text-zinc-500">linked from the note</span>}
+        {candidate.linked && <span className="text-xs text-mid">linked from the note</span>}
       </div>
       {candidate.matched.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {candidate.matched.slice(0, 12).map((word) => (
-            <span key={word} className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+            <span key={word} className="chip py-0 font-mono text-[11px]">
               {word}
             </span>
           ))}
         </div>
       )}
       {best && (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-mid">
           closest code:{" "}
-          <Link
-            href={`/documents/${best.document_id}#chunk-${best.chunk_id}`}
-            className="font-mono text-zinc-600 hover:text-amber-700 hover:underline dark:text-zinc-400 dark:hover:text-amber-400"
-          >
+          <Link href={`/documents/${best.document_id}#chunk-${best.chunk_id}`} className="link font-mono">
             {best.path}
             {best.symbol ? ` :: ${best.symbol}` : ""} {lineRange(best.start_line, best.end_line)}
           </Link>
@@ -100,44 +113,41 @@ function CandidateRow({ candidate, chosen }: { candidate: IdeaCandidate; chosen:
 function Why({ idea }: { idea: Idea }) {
   const chosen = idea.project?.id;
   return (
-    <div className="space-y-3 border-t border-zinc-200 px-4 py-3 text-sm dark:border-zinc-800">
+    <div className="space-y-4 border-t border-line px-5 py-4 text-sm">
       {idea.origin === "declared" && (
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <p className="text-mid">
           The note says so in its frontmatter
           {idea.declared_status ? (
             <>
-              : <code className="font-mono text-xs">status: {idea.declared_status}</code>
+              : <code className="font-mono text-xs text-hi">status: {idea.declared_status}</code>
             </>
           ) : null}
           {idea.declared_project ? (
             <>
-              , <code className="font-mono text-xs">implemented_by: {idea.declared_project}</code>
+              , <code className="font-mono text-xs text-hi">implemented_by: {idea.declared_project}</code>
             </>
           ) : null}
-          . Matching alone says <strong>{STATUS_STYLE[idea.matched_status].label}</strong>.
+          . Matching alone says <strong className="text-hi">{STATUS_STYLE[idea.matched_status].label}</strong>.
         </p>
       )}
       {idea.origin === "user" && (
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <p className="text-mid">
           You marked this{idea.user_note ? `: “${idea.user_note}”` : "."} Matching alone says{" "}
-          <strong>{STATUS_STYLE[idea.matched_status].label}</strong>.
+          <strong className="text-hi">{STATUS_STYLE[idea.matched_status].label}</strong>.
         </p>
       )}
       {idea.status === "unimplemented" && idea.origin === "match" && (
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <p className="text-mid">
           No project clears the bar
           {idea.signals.includes("similarity") ? " on the words it shares or on the reranker's similarity" : " on the words it shares"}.
         </p>
       )}
       {idea.missing.length > 0 && (
-        <div className="space-y-1">
-          <h4 className="text-xs font-medium tracking-wide text-zinc-500 uppercase">Distinctive words no project contains</h4>
+        <div className="space-y-2">
+          <h4 className="font-mono text-[11px] tracking-widest text-mid uppercase">Distinctive words no project contains</h4>
           <div className="flex flex-wrap gap-1">
             {idea.missing.slice(0, 16).map((word) => (
-              <span
-                key={word}
-                className="rounded border border-dashed border-zinc-300 px-1.5 py-0.5 font-mono text-[11px] text-zinc-500 dark:border-zinc-700"
-              >
+              <span key={word} data-tone="gap" className="chip py-0 font-mono text-[11px]">
                 {word}
               </span>
             ))}
@@ -145,16 +155,16 @@ function Why({ idea }: { idea: Idea }) {
         </div>
       )}
       {idea.candidates.length > 0 && (
-        <div className="space-y-1">
-          <h4 className="text-xs font-medium tracking-wide text-zinc-500 uppercase">Closest projects</h4>
-          <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <div className="space-y-2">
+          <h4 className="font-mono text-[11px] tracking-widest text-mid uppercase">Closest projects</h4>
+          <ul className="divide-y divide-line">
             {idea.candidates.map((c) => (
               <CandidateRow key={c.project_id} candidate={c} chosen={c.project_id === chosen} />
             ))}
           </ul>
         </div>
       )}
-      <p className="text-xs text-zinc-400">
+      <p className="text-xs text-mid">
         Checked {relativeTime(idea.matched_at)} with {idea.signals.join(" + ") || "no signal"}.
       </p>
     </div>
@@ -187,15 +197,14 @@ function Override({
     }
   }
 
-  const button =
-    "rounded-md border border-zinc-200 px-2 py-1 text-xs hover:border-amber-400 disabled:opacity-50 dark:border-zinc-800";
+  const button = "btn-ghost h-8 px-2.5 text-xs";
   return (
-    <div className="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-4 py-2 dark:border-zinc-800">
-      <span className="text-xs text-zinc-500">Wrong? It is</span>
+    <div className="flex flex-wrap items-center gap-2 border-t border-line px-5 py-3">
+      <span className="text-xs text-mid">Wrong? It is</span>
       <select
         value={project ?? ""}
         onChange={(e) => setProject(e.target.value ? Number(e.target.value) : null)}
-        className="rounded-md border border-zinc-200 bg-white px-1.5 py-1 text-xs dark:border-zinc-800 dark:bg-zinc-900"
+        className="field h-8 rounded-lg px-2 text-xs"
         aria-label="Project that implements it"
       >
         {projects.map((p) => (
@@ -205,6 +214,7 @@ function Override({
         ))}
       </select>
       <button
+        type="button"
         disabled={busy || project == null}
         className={button}
         onClick={() => run(() => api.overrideIdea(idea.id, { status: "implemented", project_id: project }))}
@@ -212,25 +222,30 @@ function Override({
         built there
       </button>
       <button
+        type="button"
         disabled={busy || project == null}
         className={button}
         onClick={() => run(() => api.overrideIdea(idea.id, { status: "partial", project_id: project }))}
       >
         partly built there
       </button>
-      <span className="text-xs text-zinc-400">or</span>
-      <button disabled={busy} className={button} onClick={() => run(() => api.overrideIdea(idea.id, { status: "unimplemented" }))}>
+      <span className="text-xs text-mid">or</span>
+      <button type="button" disabled={busy} className={button} onClick={() => run(() => api.overrideIdea(idea.id, { status: "unimplemented" }))}>
         never built
       </button>
-      <button disabled={busy} className={button} onClick={() => run(() => api.overrideIdea(idea.id, { status: "abandoned" }))}>
+      <button type="button" disabled={busy} className={button} onClick={() => run(() => api.overrideIdea(idea.id, { status: "abandoned" }))}>
         abandoned
       </button>
       {idea.origin === "user" && (
-        <button disabled={busy} className={`${button} ml-auto`} onClick={() => run(() => api.clearIdeaOverride(idea.id))}>
+        <button type="button" disabled={busy} className={`${button} ml-auto`} onClick={() => run(() => api.clearIdeaOverride(idea.id))}>
           back to automatic
         </button>
       )}
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && (
+        <span className="alert py-1 text-xs" role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 }
@@ -239,52 +254,57 @@ function IdeaCard({ idea, projects, onChange }: { idea: Idea; projects: ProjectS
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const where = `/documents/${idea.document_id}${idea.chunk_id ? `#chunk-${idea.chunk_id}` : ""}`;
+  const gap = idea.status === "unimplemented";
   return (
-    <li className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/40">
-      <div className="space-y-1.5 px-4 py-3">
-        <div className="flex items-start gap-3">
-          <h3 className="min-w-0 flex-1 font-medium">{idea.title}</h3>
-          {idea.written_on && <span className="shrink-0 text-xs text-zinc-400 tabular-nums">{idea.written_on}</span>}
-          <StatusChip status={idea.status} />
+    <GlassPanel as="article" tone={gap ? "gap" : "neutral"} padding="none">
+      <div className="space-y-2 px-5 py-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3">
+          <h3 className="min-w-0 flex-1 text-h3">{idea.title}</h3>
+          <div className="flex items-center gap-3 sm:pt-0.5">
+            {idea.written_on && <span className="shrink-0 font-mono text-xs text-mid tabular-nums">{idea.written_on}</span>}
+            <StatusChip status={idea.status} />
+          </div>
         </div>
-        {idea.summary && <p className="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{idea.summary}</p>}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-          <Link href={where} className="font-mono hover:text-amber-700 hover:underline dark:hover:text-amber-400">
+        {idea.summary && <p className="line-clamp-2 text-sm text-mid">{idea.summary}</p>}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-mid">
+          <Link href={where} className="link font-mono">
             {idea.path}
             {idea.line ? `:${idea.line}` : ""}
           </Link>
           {idea.project && (idea.status === "implemented" || idea.status === "partial") && (
             <span>
               →{" "}
-              <Link href={`/projects/${idea.project.id}`} className="font-medium text-zinc-700 hover:underline dark:text-zinc-300">
+              <Link href={`/projects/${idea.project.id}`} className="link font-medium">
                 {idea.project.name}
               </Link>
             </span>
           )}
-          {idea.status === "unimplemented" && idea.closest && idea.closest.coverage + (idea.closest.similarity ?? 0) > 0.05 && (
+          {gap && idea.closest && idea.closest.coverage + (idea.closest.similarity ?? 0) > 0.05 && (
             <span>
-              closest: {idea.closest.project} ({pct(idea.closest.coverage)}
+              closest: <span className="text-hi">{idea.closest.project}</span> ({pct(idea.closest.coverage)}
               {idea.closest.similarity != null ? `, sim ${idea.closest.similarity.toFixed(2)}` : ""})
             </span>
           )}
           {idea.origin !== "match" && <span className="italic">{idea.origin === "user" ? "marked by you" : "declared in the note"}</span>}
-          <span className="ml-auto flex gap-3">
+          <span className="ml-auto flex gap-1">
             {idea.node_id != null && (
-              <Link href={`/graph?node=${idea.node_id}`} className="hover:text-zinc-900 dark:hover:text-zinc-100">
+              <Link href={`/graph?node=${idea.node_id}`} className="btn-ghost h-7 px-2 text-xs">
                 graph
               </Link>
             )}
-            <button onClick={() => setEditing(!editing)} className="hover:text-zinc-900 dark:hover:text-zinc-100">
+            <button type="button" aria-expanded={editing} onClick={() => setEditing(!editing)} className="btn-ghost h-7 px-2 text-xs">
               {editing ? "cancel" : "correct"}
             </button>
-            <button onClick={() => setOpen(!open)} className="hover:text-zinc-900 dark:hover:text-zinc-100">
+            <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="btn-ghost h-7 px-2 text-xs">
               {open ? "hide" : "why?"}
             </button>
           </span>
         </div>
       </div>
-      {open && <Why idea={idea} />}
-      {editing && (
+      <Reveal open={open}>
+        <Why idea={idea} />
+      </Reveal>
+      <Reveal open={editing}>
         <Override
           idea={idea}
           projects={projects}
@@ -293,8 +313,8 @@ function IdeaCard({ idea, projects, onChange }: { idea: Idea; projects: ProjectS
             onChange(next);
           }}
         />
-      )}
-    </li>
+      </Reveal>
+    </GlassPanel>
   );
 }
 
@@ -353,77 +373,86 @@ export function IdeasView() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="max-w-2xl">
-          <h1 className="text-xl font-semibold tracking-tight">Ideas</h1>
-          <p className="text-sm text-zinc-500">
-            Everything you wrote down as an idea (notes tagged <code className="font-mono">#idea</code>, notes in an{" "}
-            <code className="font-mono">ideas/</code> folder, lines starting with <code className="font-mono">Idea:</code>), checked
-            against the code of your {summary?.projects ?? "…"} projects. “Never built” means no project comes close; open{" "}
-            <em>why?</em> to see what was compared.
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="max-w-2xl space-y-2">
+          <h1 className="text-h2">Ideas</h1>
+          <p className="text-mid">
+            Everything you wrote down as an idea (notes tagged <code className="font-mono text-hi">#idea</code>, notes in an{" "}
+            <code className="font-mono text-hi">ideas/</code> folder, lines starting with{" "}
+            <code className="font-mono text-hi">Idea:</code>), checked against the code of your {summary?.projects ?? "…"}{" "}
+            projects. <span className="text-hi">Never built</span> means no project comes close; open <em>why?</em> to see what
+            was compared.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <select
             value={sort}
             onChange={(e) => navigate({ sort: e.target.value as Sort })}
-            className="rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="field h-9 rounded-lg px-2 text-sm"
             aria-label="Sort"
           >
             <option value="oldest">Oldest first</option>
             <option value="newest">Newest first</option>
             <option value="closest">How close you got</option>
           </select>
-          <button
-            onClick={refresh}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:border-amber-400 dark:border-zinc-700"
-            title="Re-match every idea against every project"
-          >
+          <button type="button" onClick={refresh} className="btn-ghost h-9 px-3 text-sm" title="Re-match every idea against every project">
             Re-check
           </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-800">
-        {TABS.map((t) => (
-          <button
-            key={t.value}
-            onClick={() => navigate({ status: t.value })}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm transition-colors ${
-              tab === t.value
-                ? "border-amber-500 text-zinc-900 dark:text-zinc-100"
-                : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-            }`}
-          >
-            {t.label}
-            <span className="ml-1.5 text-xs text-zinc-400 tabular-nums">{counts[t.value] ?? 0}</span>
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-1 border-b border-line" role="group" aria-label="Filter by status">
+        {TABS.map((t) => {
+          const active = tab === t.value;
+          return (
+            <button
+              key={t.value}
+              type="button"
+              aria-pressed={active}
+              onClick={() => navigate({ status: t.value })}
+              className={`relative -mb-px px-3 py-2.5 text-sm transition-colors ${active ? "text-hi" : "text-mid hover:text-hi"}`}
+            >
+              {t.label}
+              <span className="ml-1.5 font-mono text-xs text-mid tabular-nums">{counts[t.value] ?? 0}</span>
+              {active && <span aria-hidden className="absolute inset-x-2 bottom-0 h-px bg-live shadow-glow-cyan" />}
+            </button>
+          );
+        })}
       </div>
 
-      {notice && <p className="rounded-md bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">{notice}</p>}
-      {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">{error}</p>}
-      {!ideas && !error && <p className="text-sm text-zinc-500">Loading…</p>}
-      {ideas && ideas.length === 0 && (
-        <p className="text-sm text-zinc-500">
-          No ideas found yet. Tag a note <code className="font-mono">#idea</code>, keep ideas in an{" "}
-          <code className="font-mono">ideas/</code> folder, or start a line with <code className="font-mono">Idea:</code>, then
-          re-index the source.
+      {notice && (
+        <p className="notice" role="status">
+          {notice}
         </p>
       )}
-      {ideas && ideas.length > 0 && shown.length === 0 && <p className="text-sm text-zinc-500">Nothing here.</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
+      {!ideas && !error && <p className="text-sm text-mid">Loading…</p>}
+      {ideas && ideas.length === 0 && (
+        <p className="text-sm text-mid">
+          No ideas found yet. Tag a note <code className="font-mono text-hi">#idea</code>, keep ideas in an{" "}
+          <code className="font-mono text-hi">ideas/</code> folder, or start a line with{" "}
+          <code className="font-mono text-hi">Idea:</code>, then re-index the source.
+        </p>
+      )}
+      {ideas && ideas.length > 0 && shown.length === 0 && <p className="text-sm text-mid">Nothing here.</p>}
 
-      <ul className="space-y-3">
+      <motion.ul key={tab} variants={revealParent} initial="hidden" animate="shown" className="space-y-4">
         {shown.map((idea) => (
-          <IdeaCard key={idea.id} idea={idea} projects={projects} onChange={replace} />
+          <motion.li key={idea.id} variants={revealChild}>
+            <IdeaCard idea={idea} projects={projects} onChange={replace} />
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
 
       {tab === "unimplemented" && shown.length > 0 && (
-        <p className="text-xs text-zinc-400">
+        <p className="text-sm text-mid">
           Ask it in chat too:{" "}
-          <Link href={`/chat?q=${encodeURIComponent("What ideas have I never implemented?")}`} className="underline">
+          <Link href={`/chat?q=${encodeURIComponent("What ideas have I never implemented?")}`} className="link">
             “What ideas have I never implemented?”
           </Link>
         </p>

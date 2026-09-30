@@ -1,18 +1,601 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
-}
-
+/* ─────────────────────────────────────────────────────────────────────────────
+   MemoryOS design tokens: "living memory".
+   Every value below is the single source of truth: Tailwind utilities read them
+   through @theme inline, and scripts/check-contrast.mjs audits them from this file.
+   Semantic rule: violet = knowledge, cyan = live/active, magenta = gap/missing.
+   ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: light dark;
+  /* Base: violet-biased black, never pure #000 */
+  --bg-void: #06050D;
+  --bg-base: #0A0818;
+  --bg-elevated: #0F0C21;
+  --surface-glass: rgba(139, 92, 246, 0.04);
+  --surface-knowledge: rgba(139, 92, 246, 0.1);
+  --surface-field: rgba(10, 8, 24, 0.6);
+  --surface-live: rgba(34, 211, 238, 0.08);
+  --border-glass: rgba(168, 139, 250, 0.12);
+  --border-bright: rgba(168, 139, 250, 0.28);
+
+  /* Primary violet: memory / knowledge */
+  --violet-300: #C4B5FD;
+  --violet-400: #A78BFA;
+  --violet-500: #8B5CF6;
+  --violet-600: #7C3AED;
+  --violet-900: #2E1065;
+
+  /* Secondary cyan: live data / active state */
+  --cyan-400: #22D3EE;
+  --cyan-500: #06B6D4;
+
+  /* Tertiary magenta: gaps / missing / alerts */
+  --magenta-500: #D946EF;
+
+  /* Text */
+  --text-hi: #EDEAFF;
+  --text-mid: #A5A0C4;
+  --text-low: #6B6690;
+
+  /* Glows */
+  --glow-violet: 0 0 40px rgba(139, 92, 246, 0.35), 0 0 80px rgba(139, 92, 246, 0.15);
+  --glow-cyan: 0 0 30px rgba(34, 211, 238, 0.3);
+  --glow-magenta: 0 0 30px rgba(217, 70, 239, 0.25);
+
+  /* Effect parameters, derived from the palette above */
+  --highlight-violet: rgba(196, 181, 253, 0.4);
+  --highlight-cyan: rgba(34, 211, 238, 0.45);
+  --highlight-magenta: rgba(217, 70, 239, 0.45);
+  --glass-inset: inset 0 1px 0 0 rgba(237, 234, 255, 0.03), inset 0 0 32px 0 rgba(139, 92, 246, 0.03);
+  --aurora-violet: rgba(124, 58, 237, 0.12);
+  --aurora-cyan: rgba(6, 182, 212, 0.08);
+  --aurora-violet-deep: rgba(124, 58, 237, 0.09);
+  --grid-line: rgba(168, 139, 250, 0.04);
+  --cta-from: color-mix(in srgb, var(--violet-600) 80%, var(--violet-900));
+  --cta-to: color-mix(in srgb, var(--violet-600) 55%, var(--violet-900));
+  --cta-sweep: rgba(255, 255, 255, 0.1);
+  --cta-edge: rgba(196, 181, 253, 0.3);
+  --focus-ring: var(--violet-400);
+  --dash-line: rgba(168, 139, 250, 0.25);
+
+  /* Syntax highlighting: muted tints, deliberately unlike the three semantic accents.
+     Code always sits on a solid surface (--code-bg), where every tint passes AA. */
+  --code-bg: var(--bg-base);
+  --code-text: var(--text-hi);
+  --code-keyword: var(--violet-300);
+  --code-string: #B6E3D4;
+  --code-number: #E6D3AE;
+  --code-type: #D9D2FF;
+  --code-comment: var(--text-mid);
+  --code-punct: #948FB7;
+  --code-gutter: #948FB7;
+  --code-mark: rgba(34, 211, 238, 0.16);
+
+  /* Motion: page transitions and entrances. Springs live in lib/motion.ts. */
+  --ease-memory: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-page: 400ms;
+  --stagger: 60ms;
+
+  /* Monochrome fractal noise, tiled; kills banding in the aurora gradients. */
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-body {
-  @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+@theme inline {
+  --color-void: var(--bg-void);
+  /* "base" would collide with the text-base font size, so the utility is named ground. */
+  --color-ground: var(--bg-base);
+  --color-elevated: var(--bg-elevated);
+  --color-glass: var(--surface-glass);
+  --color-glass-knowledge: var(--surface-knowledge);
+  --color-line: var(--border-glass);
+  --color-line-bright: var(--border-bright);
+
+  --color-violet-300: var(--violet-300);
+  --color-violet-400: var(--violet-400);
+  --color-violet-500: var(--violet-500);
+  --color-violet-600: var(--violet-600);
+  --color-violet-900: var(--violet-900);
+  --color-cyan-400: var(--cyan-400);
+  --color-cyan-500: var(--cyan-500);
+  --color-magenta-500: var(--magenta-500);
+
+  /* Semantic aliases: prefer these in product code so meaning, not hue, is chosen. */
+  --color-knowledge: var(--violet-400);
+  --color-live: var(--cyan-400);
+  --color-gap: var(--magenta-500);
+
+  --color-hi: var(--text-hi);
+  --color-mid: var(--text-mid);
+  --color-low: var(--text-low);
+
+  --shadow-glow-violet: var(--glow-violet);
+  --shadow-glow-cyan: var(--glow-cyan);
+  --shadow-glow-magenta: var(--glow-magenta);
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-ui: var(--font-geist), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
 }
 
-::selection {
-  @apply bg-amber-300/60 dark:bg-amber-500/40;
+@theme {
+  /* next/font sets these three variables on <html> (app/layout.tsx). */
+  --font-sans: var(--font-geist), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+
+  /* Display type scale: Space Grotesk, h1–h3 only. */
+  --text-h1: clamp(2.5rem, 6vw, 5rem);
+  --text-h1--line-height: 0.95;
+  --text-h1--letter-spacing: -0.03em;
+  --text-h1--font-weight: 700;
+  --text-h2: clamp(1.75rem, 3.2vw, 2.5rem);
+  --text-h2--line-height: 1.05;
+  --text-h2--letter-spacing: -0.025em;
+  --text-h2--font-weight: 700;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.02em;
+  --text-h3--font-weight: 500;
+
+  /* Ease-in-out drift, quantised. The quarter keyframes sit on a sine ease (0, .146, .5,
+     .854, 1 of the way), and each quarter advances in 60 steps: the field moves ~1px every
+     ~200ms, which reads as continuous on a soft field, while glass panels re-blur their
+     backdrop 5 times a second instead of 60 (measured 28 fps → 140 fps on /projects in
+     software compositing). */
+  --animate-aurora-a: aurora-a 48s steps(60) infinite alternate;
+  --animate-aurora-b: aurora-b 57s steps(60) infinite alternate;
+  --animate-aurora-c: aurora-c 41s steps(60) infinite alternate;
+
+  @keyframes aurora-a {
+    0% { transform: translate3d(-8vw, -6vh, 0) scale(1); }
+    25% { transform: translate3d(-5.37vw, -3.96vh, 0) scale(1.018); }
+    50% { transform: translate3d(1vw, 1vh, 0) scale(1.06); }
+    75% { transform: translate3d(7.37vw, 5.96vh, 0) scale(1.102); }
+    100% { transform: translate3d(10vw, 8vh, 0) scale(1.12); }
+  }
+  @keyframes aurora-b {
+    0% { transform: translate3d(6vw, 4vh, 0) scale(1.08); }
+    25% { transform: translate3d(3.66vw, 2.25vh, 0) scale(1.06); }
+    50% { transform: translate3d(-2vw, -2vh, 0) scale(1.01); }
+    75% { transform: translate3d(-7.66vw, -6.25vh, 0) scale(0.96); }
+    100% { transform: translate3d(-10vw, -8vh, 0) scale(0.94); }
+  }
+  @keyframes aurora-c {
+    0% { transform: translate3d(-4vw, 6vh, 0) scale(0.96); }
+    25% { transform: translate3d(-2.25vw, 4.25vh, 0) scale(0.98); }
+    50% { transform: translate3d(2vw, 0, 0) scale(1.03); }
+    75% { transform: translate3d(6.25vw, -4.25vh, 0) scale(1.08); }
+    100% { transform: translate3d(8vw, -6vh, 0) scale(1.1); }
+  }
+
+  /* Floating panels drift 6px; never a bounce. */
+  --animate-float: float 7s ease-in-out infinite alternate;
+  @keyframes float {
+    from { transform: translate3d(0, -3px, 0); }
+    to { transform: translate3d(0, 3px, 0); }
+  }
+
+  /* Streaming answers: each new word fades in. Opacity only, so it stays under reduced motion. */
+  --animate-word-in: word-in 420ms var(--ease-memory) both;
+  @keyframes word-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  --animate-fade-in: word-in 300ms var(--ease-memory) both;
+}
+
+/* Reduced motion: the OS setting, or the in-app override (data-motion="reduce"). */
+@custom-variant motion-off {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  &:where([data-motion="reduce"] *) {
+    @slot;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--bg-void);
+  }
+
+  body {
+    background-color: var(--bg-void);
+    color: var(--text-hi);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .memory-theme {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+  }
+
+  :where(h1, h2, h3) {
+    font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: rgba(139, 92, 246, 0.4);
+    color: var(--text-hi);
+  }
+}
+
+@layer components {
+  /* GlassPanel: the core surface. Tones swap the accent vars, never the structure. */
+  .glass {
+    --glass-surface: var(--surface-glass);
+    --glass-border: var(--border-glass);
+    --glass-highlight: var(--highlight-violet);
+    --glass-hover-border: var(--border-bright);
+    --glass-hover-glow: var(--glow-violet);
+    position: relative;
+    isolation: isolate;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
+    background-color: var(--glass-surface);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    box-shadow: var(--glass-inset);
+    transition:
+      border-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+    pointer-events: none;
+  }
+  .glass[data-tone="knowledge"] {
+    --glass-surface: var(--surface-knowledge);
+    --glass-border: rgba(167, 139, 250, 0.2);
+  }
+  .glass[data-tone="live"] {
+    --glass-highlight: var(--highlight-cyan);
+    --glass-hover-border: rgba(34, 211, 238, 0.35);
+    --glass-hover-glow: var(--glow-cyan);
+  }
+  .glass[data-tone="gap"] {
+    --glass-border: rgba(217, 70, 239, 0.16);
+    --glass-highlight: var(--highlight-magenta);
+    --glass-hover-border: rgba(217, 70, 239, 0.38);
+    --glass-hover-glow: var(--glow-magenta);
+  }
+  .glass[data-glow]:is([data-state="hover"], :focus-visible, :has(:focus-visible)) {
+    border-color: var(--glass-hover-border);
+    box-shadow: var(--glass-inset), var(--glass-hover-glow);
+  }
+  @media (hover: hover) {
+    .glass[data-glow]:hover {
+      border-color: var(--glass-hover-border);
+      box-shadow: var(--glass-inset), var(--glass-hover-glow);
+    }
+  }
+
+  /* GlowButton: violet CTA with a sweeping reflection. Scale springs are Framer's. */
+  .glow-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid var(--cta-edge);
+    border-radius: var(--radius-xl);
+    background-image: linear-gradient(135deg, var(--cta-from), var(--cta-to));
+    color: var(--text-hi);
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow:
+      var(--glow-violet),
+      inset 0 1px 0 0 rgba(196, 181, 253, 0.35);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .glow-btn::after {
+    content: "";
+    position: absolute;
+    inset: -1px auto -1px 0;
+    z-index: -1;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, var(--cta-sweep), transparent);
+    transform: translateX(-160%) skewX(-20deg);
+    transition: transform 750ms var(--ease-memory);
+    pointer-events: none;
+  }
+  .glow-btn:is([data-state="hover"], [data-state="pressed"], :focus-visible)::after {
+    transform: translateX(320%) skewX(-20deg);
+  }
+  @media (hover: hover) {
+    .glow-btn:hover::after {
+      transform: translateX(320%) skewX(-20deg);
+    }
+  }
+  .glow-btn:disabled,
+  .glow-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: inset 0 1px 0 0 rgba(196, 181, 253, 0.2);
+  }
+  .glow-btn:disabled::after,
+  .glow-btn[aria-disabled="true"]::after {
+    display: none;
+  }
+  .glow-btn {
+    @variant motion-off {
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  /* AuroraBackground */
+  /* The 120px blur is baked into the gradient's falloff rather than applied as a filter:
+     a live blur(120px) on three drifting viewport-sized layers re-rasterizes every frame
+     (measured: 1.7 fps vs 20.6 fps in software compositing) for a visually equal result. */
+  .aurora-blob {
+    position: absolute;
+    width: 72vmax;
+    height: 72vmax;
+    border-radius: 9999px;
+    background: radial-gradient(
+      closest-side,
+      var(--blob) 0%,
+      color-mix(in srgb, var(--blob) 88%, transparent) 18%,
+      color-mix(in srgb, var(--blob) 62%, transparent) 38%,
+      color-mix(in srgb, var(--blob) 34%, transparent) 58%,
+      color-mix(in srgb, var(--blob) 13%, transparent) 76%,
+      color-mix(in srgb, var(--blob) 3%, transparent) 90%,
+      transparent 100%
+    );
+    will-change: transform;
+  }
+  .aurora-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 64px);
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 80%);
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 25%, transparent 80%);
+  }
+  .noise-overlay {
+    background-image: var(--noise);
+    background-size: 220px 220px;
+    pointer-events: none;
+  }
+
+  /* ConnectionLines: dashed beziers whose dashes travel; still under reduced motion. */
+  .dash-path {
+    fill: none;
+    stroke: var(--dash-line);
+    stroke-width: 1;
+    stroke-dasharray: 4 6;
+    stroke-linecap: round;
+    animation: dash-travel 1.6s linear infinite;
+    @variant motion-off {
+      animation: none;
+    }
+  }
+  @keyframes dash-travel {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+
+  /* Graph nodes are SVG groups: their keyboard focus ring is a drawn circle. */
+  .graph-node .focus-ring {
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+  .graph-node:focus-visible .focus-ring {
+    opacity: 1;
+  }
+
+  /* ── Controls ──────────────────────────────────────────────────────────────── */
+
+  /* Text inputs, selects and textareas: dark glass, violet glow on focus. */
+  .field {
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    background-color: var(--surface-field);
+    color: var(--text-hi);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    transition:
+      border-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+  .field::placeholder {
+    color: var(--text-mid);
+  }
+  .field:hover {
+    border-color: var(--border-bright);
+  }
+  .field:focus-visible,
+  .field:focus {
+    border-color: var(--border-bright);
+    box-shadow: var(--glow-violet);
+  }
+  select.field option {
+    background-color: var(--bg-elevated);
+    color: var(--text-hi);
+  }
+
+  /* Secondary actions. The primary action is always a GlowButton. */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-glass);
+    color: var(--text-mid);
+    white-space: nowrap;
+    transition:
+      color 200ms ease,
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--border-bright);
+    color: var(--text-hi);
+  }
+  .btn-ghost:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .btn-ghost[data-tone="gap"] {
+    border-color: rgba(217, 70, 239, 0.45);
+    color: var(--text-hi);
+  }
+  .btn-ghost[data-tone="gap"]:hover:not(:disabled) {
+    border-color: var(--magenta-500);
+    box-shadow: var(--glow-magenta);
+  }
+
+  /* Chips: neutral at rest; cyan when active or selected (the "live" state). */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid var(--border-glass);
+    border-radius: 9999px;
+    padding: 0.125rem 0.625rem;
+    color: var(--text-mid);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    transition:
+      color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  :is(button, a).chip:hover {
+    border-color: var(--border-bright);
+    color: var(--text-hi);
+  }
+  .chip:is([aria-pressed="true"], [aria-current="true"], [data-active="true"]) {
+    border-color: rgba(34, 211, 238, 0.55);
+    background-color: var(--surface-live);
+    color: var(--cyan-400);
+  }
+  .chip[data-tone="gap"] {
+    border-style: dashed;
+    border-color: rgba(217, 70, 239, 0.5);
+    color: var(--text-hi);
+  }
+
+  /* Segmented control: one pressed option, cyan. */
+  .seg {
+    display: inline-flex;
+    gap: 0.125rem;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-field);
+    padding: 0.125rem;
+  }
+  .seg > button {
+    border-radius: calc(var(--radius-lg) - 2px);
+    padding: 0.25rem 0.625rem;
+    color: var(--text-mid);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    transition:
+      color 200ms ease,
+      background-color 200ms ease;
+  }
+  .seg > button:hover {
+    color: var(--text-hi);
+  }
+  .seg > button[aria-pressed="true"] {
+    background-color: var(--surface-live);
+    color: var(--cyan-400);
+    box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.4);
+  }
+
+  .kbd {
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm);
+    padding: 0 0.375rem;
+    color: var(--text-mid);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.25rem;
+  }
+
+  /* Links inside prose and metadata: knowledge you can follow. */
+  .link {
+    color: var(--violet-300);
+    text-decoration-line: underline;
+    text-decoration-color: rgba(196, 181, 253, 0.35);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 200ms ease;
+  }
+  .link:hover {
+    text-decoration-color: var(--violet-300);
+  }
+
+  /* Errors and failures: a magenta accent (alert), text stays text-hi. */
+  .alert {
+    border: 1px solid rgba(217, 70, 239, 0.35);
+    border-left: 3px solid var(--magenta-500);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-field);
+    padding: 0.5rem 0.75rem;
+    color: var(--text-hi);
+    font-size: 0.875rem;
+  }
+  .notice {
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-field);
+    padding: 0.5rem 0.75rem;
+    color: var(--text-mid);
+    font-size: 0.875rem;
+  }
+
+  /* ── Code ──────────────────────────────────────────────────────────────────── */
+  .code-surface {
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    background-color: var(--code-bg);
+    color: var(--code-text);
+  }
+  /* The surface clips to its rounded corners, so rings inside it are drawn inset. */
+  .code-surface :focus-visible {
+    outline-offset: -2px;
+  }
+  .tok-keyword { color: var(--code-keyword); }
+  .tok-string { color: var(--code-string); }
+  .tok-number { color: var(--code-number); }
+  .tok-type { color: var(--code-type); }
+  .tok-function { color: var(--code-text); font-weight: 500; }
+  .tok-comment { color: var(--code-comment); font-style: italic; }
+  .tok-punct { color: var(--code-punct); }
+  .mark-term {
+    border-radius: 2px;
+    background-color: var(--code-mark);
+    color: var(--text-hi);
+    box-shadow: inset 0 -1px 0 var(--cyan-400);
+  }
 }

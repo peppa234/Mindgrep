@@ -16,6 +16,20 @@ const links = [
   { href: "/sources", label: "Sources" },
 ];
 
+/** The MemoryOS mark: a small lit sphere, the orb in miniature. */
+export function Logo() {
+  return (
+    <span className="flex items-center gap-2.5 font-display text-[15px] font-medium tracking-tight text-hi">
+      <span
+        aria-hidden
+        className="h-4 w-4 rounded-full shadow-glow-violet"
+        style={{ background: "radial-gradient(circle at 35% 30%, var(--violet-300), var(--violet-600) 55%, var(--violet-900))" }}
+      />
+      MemoryOS
+    </span>
+  );
+}
+
 function ModelStatus() {
   const [health, setHealth] = useState<Health | null>(null);
   const [down, setDown] = useState(false);
@@ -36,18 +50,20 @@ function ModelStatus() {
   }, []);
 
   const models = health?.checks.models;
-  const [color, label, title] = down
-    ? ["bg-red-500", "API offline", "The FastAPI backend is not reachable"]
+  // Live = cyan; a gap in the stack (offline, degraded) = magenta; unknown = neutral.
+  const [dot, label, title] = down
+    ? ["bg-gap", "API offline", "The FastAPI backend is not reachable"]
     : !models
-      ? ["bg-zinc-400", "…", ""]
+      ? ["bg-low", "…", "Checking the model server"]
       : models.ok
-        ? ["bg-emerald-500", models.embedding_model?.split("/").pop() ?? models.embedder, "Model server reachable"]
-        : ["bg-amber-500", "lexical only", models.error ?? "Model server unreachable"];
+        ? ["bg-live shadow-glow-cyan", models.embedding_model?.split("/").pop() ?? models.embedder, "Model server reachable"]
+        : ["bg-gap", "lexical only", models.error ?? "Model server unreachable"];
 
   return (
-    <span className="flex items-center gap-2 text-xs text-zinc-500" title={title}>
-      <span className={`h-2 w-2 rounded-full ${color}`} />
-      {label}
+    <span className="flex items-center gap-2 font-mono text-xs text-mid" title={title} role="status">
+      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      <span className="hidden sm:inline">{label}</span>
+      <span className="sr-only sm:hidden">{label}</span>
     </span>
   );
 }
@@ -55,32 +71,41 @@ function ModelStatus() {
 export function Nav() {
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-10 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-6 px-4">
-        <Link href="/chat" className="font-semibold tracking-tight">
-          Memory<span className="text-amber-600 dark:text-amber-400">OS</span>
+    <header className="sticky top-0 z-30 border-b border-line bg-void/70 backdrop-blur-xl">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-elevated focus:px-3 focus:py-2 focus:text-sm"
+      >
+        Skip to content
+      </a>
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
+        <Link href="/" aria-label="MemoryOS home" className="shrink-0 rounded-md">
+          <Logo />
         </Link>
-        <nav className="flex gap-1 text-sm">
+        <nav aria-label="Main" className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto px-1 py-1 text-sm">
           {links.map((link) => {
             const active = pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-md px-3 py-1.5 transition-colors ${
-                  active
-                    ? "bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                aria-current={active ? "page" : undefined}
+                className={`relative shrink-0 rounded-lg px-3 py-1.5 transition-colors duration-200 ${
+                  active ? "text-hi" : "text-mid hover:text-hi"
                 }`}
               >
                 {link.label}
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-3 bottom-0 h-px bg-live shadow-glow-cyan"
+                  />
+                )}
               </Link>
             );
           })}
         </nav>
-        <div className="ml-auto">
-          <ModelStatus />
-        </div>
+        <ModelStatus />
       </div>
     </header>
   );
