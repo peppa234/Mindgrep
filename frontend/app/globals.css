@@ -112,7 +112,7 @@
   --shadow-glow-cyan: var(--glow-cyan);
   --shadow-glow-magenta: var(--glow-magenta);
 
-  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-geist), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-code: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
 }
@@ -122,15 +122,15 @@
   --font-sans: var(--font-geist), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
 
-  /* Display type scale: Space Grotesk, h1–h3 only. */
+  /* Display type scale: Sora, h1–h3 only. */
   --text-h1: clamp(2.5rem, 6vw, 5rem);
   --text-h1--line-height: 0.95;
   --text-h1--letter-spacing: -0.03em;
-  --text-h1--font-weight: 700;
+  --text-h1--font-weight: 600;
   --text-h2: clamp(1.75rem, 3.2vw, 2.5rem);
   --text-h2--line-height: 1.05;
   --text-h2--letter-spacing: -0.025em;
-  --text-h2--font-weight: 700;
+  --text-h2--font-weight: 600;
   --text-h3: 1.25rem;
   --text-h3--line-height: 1.25;
   --text-h3--letter-spacing: -0.02em;
@@ -215,7 +215,7 @@
   }
 
   :where(h1, h2, h3) {
-    font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
     font-weight: 500;
     letter-spacing: -0.025em;
     text-wrap: balance;
@@ -408,6 +408,7 @@
   }
   .graph-node:focus-visible .focus-ring {
     opacity: 1;
+    transition-duration: 0s;
   }
 
   /* ── Controls ──────────────────────────────────────────────────────────────── */
@@ -598,4 +599,10 @@
     color: var(--text-hi);
     box-shadow: inset 0 -1px 0 var(--cyan-400);
   }
+}
+
+/* Focus rings appear at once. transition-colors also transitions outline-color, which would
+   fade a ring in; unlayered so it outranks the transition utilities on the focused element. */
+:focus-visible {
+  transition-duration: 0s;
 }

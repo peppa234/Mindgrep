@@ -55,8 +55,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main id="main">
-        <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-24 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
+      <main id="main" className="overflow-x-clip">
+        <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-24 sm:px-6 lg:grid-cols-[0.95fr_1.1fr] lg:pt-20">
           <div className="space-y-8">
             <p className="font-mono text-xs tracking-widest text-mid uppercase">A second brain for developers</p>
             <h1 className="text-h1">

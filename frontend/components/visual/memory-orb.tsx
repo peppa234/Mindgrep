@@ -49,13 +49,17 @@ export function MemoryOrb({ className = "" }: { className?: string }) {
   const live = load && !off;
   return (
     <div className={`relative aspect-square ${className}`} data-orb={live && ready ? "canvas" : "poster"}>
-      <OrbPoster className={`absolute inset-0 transition-opacity duration-1000 ${live && ready ? "opacity-0" : "opacity-100"}`} />
-      {live && (
-        <OrbCanvas
-          onReady={() => setReady(true)}
-          className={`absolute inset-0 transition-opacity duration-1000 [mask-image:radial-gradient(closest-side,#000_62%,transparent_100%)] ${ready ? "opacity-100" : "opacity-0"}`}
-        />
-      )}
+      {/* The scene is drawn 18% beyond the layout box on each side: the particle ring and
+          bloom extend past the sphere, and clipping them at the box edge reads as a cut. */}
+      <div className="pointer-events-none absolute -inset-[18%]">
+        <OrbPoster className={`absolute inset-0 transition-opacity duration-1000 ${live && ready ? "opacity-0" : "opacity-100"}`} />
+        {live && (
+          <OrbCanvas
+            onReady={() => setReady(true)}
+            className={`absolute inset-0 transition-opacity duration-1000 [mask-image:radial-gradient(closest-side,#000_82%,transparent_100%)] ${ready ? "opacity-100" : "opacity-0"}`}
+          />
+        )}
+      </div>
     </div>
   );
 }

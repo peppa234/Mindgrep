@@ -24,20 +24,20 @@ function Orb() {
   return (
     <group ref={group}>
       <mesh>
-        <icosahedronGeometry args={[1.2, 24]} />
+        <icosahedronGeometry args={[1.45, 32]} />
         <MeshDistortMaterial
           color={VIOLET_600}
           emissive={VIOLET_500}
           emissiveIntensity={0.55}
           roughness={0.28}
           metalness={0.25}
-          distort={0.32}
+          distort={0.16}
           speed={1.2}
         />
       </mesh>
       {/* Same distortion and clock as the body, so the cage breathes with it. */}
       <mesh scale={1.035}>
-        <icosahedronGeometry args={[1.2, 3]} />
+        <icosahedronGeometry args={[1.45, 3]} />
         <MeshDistortMaterial
           wireframe
           transparent
@@ -45,7 +45,7 @@ function Orb() {
           color={VIOLET_300}
           emissive={VIOLET_300}
           emissiveIntensity={0.9}
-          distort={0.32}
+          distort={0.16}
           speed={1.2}
           depthWrite={false}
         />
@@ -91,7 +91,7 @@ function Particles({ count }: { count: number }) {
     const out = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const angle = rand() * Math.PI * 2;
-      const r = 1.7 + Math.pow(rand(), 0.7) * 1.05;
+      const r = 1.85 + Math.pow(rand(), 0.7) * 0.7;
       const spread = (rand() + rand() + rand() - 1.5) * 0.12 * r;
       out.set([Math.cos(angle) * r, spread, Math.sin(angle) * r], i * 3);
     }
@@ -161,7 +161,7 @@ export default function OrbCanvas({ onReady, className = "" }: { onReady?: () =>
       <Canvas
         dpr={[1, 2]}
         frameloop={inView && pageVisible ? "always" : "never"}
-        camera={{ position: [0, 0, 7], fov: 38 }}
+        camera={{ position: [0, 0, 8.1], fov: 38 }}
         gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);

@@ -5,27 +5,61 @@
 const PHI = (1 + Math.sqrt(5)) / 2;
 const SIZE = 400;
 const C = SIZE / 2;
-const R = 108;
+const R = 104; // orb radius 1.45 of a 2.8-unit half-extent
 
-function icosahedronPath(): string {
-  const raw: [number, number, number][] = [];
+type V = [number, number, number];
+
+/**
+ * The live orb's cage is an icosahedron subdivided 4 times per edge (three.js detail 3),
+ * projected onto the sphere. Draw the same lattice, front half only, so the cross-fade from
+ * poster to canvas does not change the mesh.
+ */
+function geodesicPath(segments = 4): string {
+  const raw: V[] = [];
   for (const a of [-1, 1]) for (const b of [-PHI, PHI]) raw.push([0, a, b], [a, b, 0], [b, 0, a]);
+  const dist = (p: V, q: V) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+  const faces: [V, V, V][] = [];
+  for (let i = 0; i < raw.length; i++)
+    for (let j = i + 1; j < raw.length; j++)
+      for (let k = j + 1; k < raw.length; k++)
+        if ([dist(raw[i], raw[j]), dist(raw[j], raw[k]), dist(raw[i], raw[k])].every((d) => Math.abs(d - 2) < 1e-6))
+          faces.push([raw[i], raw[j], raw[k]]);
+
   // Tilt it so no edge lines up with the screen axes.
   const [ry, rx] = [0.55, 0.38];
-  const pts = raw.map(([x, y, z]) => {
-    const x1 = x * Math.cos(ry) + z * Math.sin(ry);
-    const z1 = -x * Math.sin(ry) + z * Math.cos(ry);
-    const y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
+  const project = ([x, y, z]: V) => {
     const n = Math.hypot(x, y, z);
-    return [C + (x1 / n) * R, C - (y2 / n) * R] as const;
-  });
-  const segments: string[] = [];
-  for (let i = 0; i < raw.length; i++)
-    for (let j = i + 1; j < raw.length; j++) {
-      const d = Math.hypot(raw[i][0] - raw[j][0], raw[i][1] - raw[j][1], raw[i][2] - raw[j][2]);
-      if (Math.abs(d - 2) < 1e-6) segments.push(`M${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}L${pts[j][0].toFixed(1)} ${pts[j][1].toFixed(1)}`);
-    }
-  return segments.join("");
+    const [ux, uy, uz] = [x / n, y / n, z / n];
+    const x1 = ux * Math.cos(ry) + uz * Math.sin(ry);
+    const z1 = -ux * Math.sin(ry) + uz * Math.cos(ry);
+    const y2 = uy * Math.cos(rx) - z1 * Math.sin(rx);
+    const z2 = uy * Math.sin(rx) + z1 * Math.cos(rx);
+    return { x: C + x1 * R, y: C - y2 * R, z: z2 };
+  };
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const [a, b, c] of faces) {
+    const at = (i: number, j: number): V => {
+      const k = segments - i - j;
+      return [0, 1, 2].map((d) => (a[d] * k + b[d] * i + c[d] * j) / segments) as V;
+    };
+    const edge = (p: V, q: V) => {
+      const [pp, qq] = [project(p), project(q)];
+      if (pp.z + qq.z < 0) return; // back of the sphere
+      const s = `M${pp.x.toFixed(1)} ${pp.y.toFixed(1)}L${qq.x.toFixed(1)} ${qq.y.toFixed(1)}`;
+      const r = `M${qq.x.toFixed(1)} ${qq.y.toFixed(1)}L${pp.x.toFixed(1)} ${pp.y.toFixed(1)}`;
+      if (seen.has(s) || seen.has(r)) return;
+      seen.add(s);
+      out.push(s);
+    };
+    for (let i = 0; i < segments; i++)
+      for (let j = 0; j < segments - i; j++) {
+        edge(at(i, j), at(i + 1, j));
+        edge(at(i, j), at(i, j + 1));
+        edge(at(i + 1, j), at(i, j + 1));
+      }
+  }
+  return out.join("");
 }
 
 function particles(count: number) {
@@ -33,7 +67,7 @@ function particles(count: number) {
   const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   return Array.from({ length: count }, () => {
     const angle = rand() * Math.PI * 2;
-    const radius = 150 + rand() * 45;
+    const radius = 132 + rand() * 50;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius * 0.28 + (rand() - 0.5) * 10;
     // Tilt the disc slightly.
@@ -47,7 +81,7 @@ function particles(count: number) {
   });
 }
 
-const WIREFRAME = icosahedronPath();
+const WIREFRAME = geodesicPath();
 const PARTICLES = particles(150);
 
 export function OrbPoster({ className = "", id = "orb" }: { className?: string; id?: string }) {
@@ -68,7 +102,7 @@ export function OrbPoster({ className = "", id = "orb" }: { className?: string; 
       </defs>
       <circle cx={C} cy={C} r={C} fill={`url(#${id}-halo)`} />
       <circle cx={C} cy={C} r={R} fill={`url(#${id}-body)`} style={{ filter: "drop-shadow(0 0 24px rgba(139, 92, 246, 0.55))" }} />
-      <path d={WIREFRAME} fill="none" strokeWidth={0.9} style={{ stroke: "var(--violet-300)", opacity: 0.5 }} />
+      <path d={WIREFRAME} fill="none" strokeWidth={0.7} style={{ stroke: "var(--violet-300)", opacity: 0.45 }} />
       <g style={{ fill: "var(--cyan-400)" }}>
         {PARTICLES.map((p, i) => (
           <circle key={i} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r={p.r.toFixed(2)} opacity={p.o.toFixed(2)} />

@@ -50,8 +50,8 @@ export function HeroStage() {
 
   return (
     <div className="relative">
-      <div className="relative mx-auto grid w-full max-w-[34rem] grid-cols-3 gap-3 sm:block sm:aspect-square">
-        <div data-anchor="orb" data-anchor-shape="circle" data-anchor-radius="0.5" className="col-span-3 mx-auto w-[82%] sm:absolute sm:inset-[9%] sm:w-auto">
+      <div className="relative mx-auto grid w-full max-w-[40rem] grid-cols-3 gap-3 sm:block sm:aspect-square">
+        <div data-anchor="orb" data-anchor-shape="circle" data-anchor-radius="0.72" className="col-span-3 mx-auto my-[14%] w-[80%] sm:absolute sm:inset-[6%] sm:my-0 sm:w-auto">
           <MemoryOrb />
         </div>
         <Stat anchor="repos" value={show(counts?.repos)} label="repos" detail="projects detected" className="sm:absolute sm:top-[4%] sm:left-0" />
