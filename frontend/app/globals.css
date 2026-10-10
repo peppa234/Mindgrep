@@ -198,6 +198,9 @@
   html {
     color-scheme: dark;
     background-color: var(--bg-void);
+    /* 18px base, as a percentage so a reader's own browser text size still scales it. Every
+       size and most spacing is in rem, so the whole interface grows with it. */
+    font-size: 112.5%;
   }
 
   body {
@@ -540,7 +543,7 @@
     padding: 0 0.375rem;
     color: var(--text-mid);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 0.75rem;
     line-height: 1.25rem;
   }
 

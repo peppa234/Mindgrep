@@ -61,7 +61,7 @@ export function FeatureGrid() {
           <RevealItem as="li" key={f.id} className="flex">
             <div data-anchor={`f-${f.id}`} className="relative z-10 flex w-full">
               <GlassPanel as="article" tone={f.tone} padding="lg" className="flex w-full flex-col gap-3">
-                <p className="flex items-center gap-2 font-mono text-[11px] tracking-widest text-mid uppercase">
+                <p className="flex items-center gap-2 font-mono text-xs tracking-widest text-mid uppercase">
                   <span
                     aria-hidden
                     className={`h-1.5 w-1.5 rounded-full ${f.tone === "gap" ? "bg-gap" : "bg-knowledge"}`}

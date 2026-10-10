@@ -264,7 +264,7 @@ export default function StyleguidePage() {
                 </div>
                 <div className="space-y-2">
                   <Caption name="Code · JetBrains Mono" detail="font-mono · 13px" />
-                  <pre className="overflow-x-auto rounded-xl border border-line bg-ground p-4 font-mono text-[13px] leading-6 text-hi">
+                  <pre className="overflow-x-auto rounded-xl border border-line bg-ground p-4 font-mono text-[0.8125rem] leading-6 text-hi">
                     <code>{`backend/app/retrieval/hybrid.py:42
 const recall = 0.913;  // 3,201 memories
 fn rank(query: &str) -> Vec<Hit>`}</code>

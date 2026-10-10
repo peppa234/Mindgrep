@@ -74,7 +74,7 @@ function SourceCard({ source, active, cited }: { source: ChatSource; active: boo
     >
       <div className="flex items-baseline gap-2 text-xs">
         <span
-          className={`inline-flex h-[19px] min-w-[19px] items-center justify-center rounded-md border px-1 font-mono text-[11px] font-medium ${
+          className={`inline-flex h-[19px] min-w-[19px] items-center justify-center rounded-md border px-1 font-mono text-xs font-medium ${
             active ? "border-cyan-400/70 text-cyan-400" : "border-violet-400/40 text-violet-300"
           }`}
         >
@@ -88,10 +88,10 @@ function SourceCard({ source, active, cited }: { source: ChatSource; active: boo
           <span className="truncate font-mono text-mid">{source.path}</span>
         )}
       </div>
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] text-mid">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-mid">
         {source.symbol && <span className="font-mono text-hi">{source.symbol}</span>}
         {where && <span className="font-mono">{where}</span>}
-        {source.kind === "evidence" && <span className="chip py-0 text-[11px]">graph evidence</span>}
+        {source.kind === "evidence" && <span className="chip py-0 text-xs">graph evidence</span>}
         {!cited && <span>not cited</span>}
         {source.modified_at && <span className="ml-auto">{relativeTime(source.modified_at)}</span>}
       </div>
@@ -207,7 +207,7 @@ function AssistantTurn({
   const valid = (n: number) => n >= 1 && n <= turn.sources.length;
   return (
     <GlassPanel glow={false} padding="none" className="space-y-3 px-5 py-4">
-      <p className="flex items-center gap-2 font-mono text-[11px] tracking-widest text-mid uppercase">
+      <p className="flex items-center gap-2 font-mono text-xs tracking-widest text-mid uppercase">
         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-knowledge" />
         MemoryOS
         {turn.abstained && (
@@ -234,7 +234,7 @@ function AssistantTurn({
         </p>
       )}
       {!turn.pending && !turn.error && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-[11px] text-mid">
+        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-xs text-mid">
           {turn.model === "graph" ? (
             <span
               className="chip border-violet-400/40 text-violet-300"
@@ -572,7 +572,7 @@ export function ChatView() {
                     tone="knowledge"
                     glow={false}
                     padding="none"
-                    className="max-w-[85%] rounded-br-md px-4 py-2.5 text-[15px] whitespace-pre-wrap text-hi"
+                    className="max-w-[85%] rounded-br-md px-4 py-2.5 text-[0.9375rem] whitespace-pre-wrap text-hi"
                   >
                     {turn.content}
                   </GlassPanel>
@@ -614,7 +614,7 @@ export function ChatView() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
               placeholder="Ask about your code, notes or papers…"
-              className="field block w-full resize-none px-4 py-3 pr-28 text-[15px]"
+              className="field block w-full resize-none px-4 py-3 pr-28 text-[0.9375rem]"
             />
             <div className="absolute right-2.5 bottom-2.5">
               {streaming ? (
@@ -628,7 +628,7 @@ export function ChatView() {
               )}
             </div>
           </div>
-          <p className="mt-2 flex flex-wrap gap-x-3 text-[11px] text-mid">
+          <p className="mt-2 flex flex-wrap gap-x-3 text-xs text-mid">
             <span>
               <span className="kbd">Enter</span> to send
             </span>

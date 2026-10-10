@@ -91,7 +91,7 @@ function CandidateRow({ candidate, chosen }: { candidate: IdeaCandidate; chosen:
       {candidate.matched.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {candidate.matched.slice(0, 12).map((word) => (
-            <span key={word} className="chip py-0 font-mono text-[11px]">
+            <span key={word} className="chip py-0 font-mono text-xs">
               {word}
             </span>
           ))}
@@ -144,10 +144,10 @@ function Why({ idea }: { idea: Idea }) {
       )}
       {idea.missing.length > 0 && (
         <div className="space-y-2">
-          <h4 className="font-mono text-[11px] tracking-widest text-mid uppercase">Distinctive words no project contains</h4>
+          <h4 className="font-mono text-xs tracking-widest text-mid uppercase">Distinctive words no project contains</h4>
           <div className="flex flex-wrap gap-1">
             {idea.missing.slice(0, 16).map((word) => (
-              <span key={word} data-tone="gap" className="chip py-0 font-mono text-[11px]">
+              <span key={word} data-tone="gap" className="chip py-0 font-mono text-xs">
                 {word}
               </span>
             ))}
@@ -156,7 +156,7 @@ function Why({ idea }: { idea: Idea }) {
       )}
       {idea.candidates.length > 0 && (
         <div className="space-y-2">
-          <h4 className="font-mono text-[11px] tracking-widest text-mid uppercase">Closest projects</h4>
+          <h4 className="font-mono text-xs tracking-widest text-mid uppercase">Closest projects</h4>
           <ul className="divide-y divide-line">
             {idea.candidates.map((c) => (
               <CandidateRow key={c.project_id} candidate={c} chosen={c.project_id === chosen} />

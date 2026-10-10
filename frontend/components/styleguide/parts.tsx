@@ -32,7 +32,7 @@ export function Section({
 
 /** Small uppercase label above a group of specimens. */
 export function Label({ children }: { children: ReactNode }) {
-  return <p className="mb-3 font-mono text-[11px] tracking-widest text-mid uppercase">{children}</p>;
+  return <p className="mb-3 font-mono text-xs tracking-widest text-mid uppercase">{children}</p>;
 }
 
 /** A specimen caption: name on the first line, technical detail in mono below. */

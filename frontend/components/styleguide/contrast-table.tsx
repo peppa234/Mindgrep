@@ -66,7 +66,7 @@ export function ContrastTable() {
   const failing = rows.filter((r) => !r.pass).length;
   const head = (
     <thead>
-      <tr className="text-left font-mono text-[11px] tracking-widest text-mid uppercase">
+      <tr className="text-left font-mono text-xs tracking-widest text-mid uppercase">
         <th scope="col" className="pb-3 font-normal">Foreground and use</th>
         <th scope="col" className="pb-3 font-normal">Surface</th>
         <th scope="col" className="pb-3 text-right font-normal">Ratio</th>

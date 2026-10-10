@@ -21,7 +21,7 @@ function EvidenceLine({ evidence }: { evidence: Evidence }) {
   const file = evidence.path?.split("/").pop();
   return (
     <li className="flex items-baseline gap-3 text-xs">
-      <span className="w-16 shrink-0 font-mono text-[10px] tracking-widest text-mid uppercase">{evidence.extractor}</span>
+      <span className="w-16 shrink-0 font-mono text-xs tracking-widest text-mid uppercase">{evidence.extractor}</span>
       <span className="min-w-0 truncate font-mono text-hi">{evidence.evidence}</span>
       {href && (
         <Link href={href} className="link ml-auto shrink-0 font-mono">
@@ -36,7 +36,7 @@ function EvidenceLine({ evidence }: { evidence: Evidence }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <GlassPanel as="section" glow={false} className="space-y-4">
-      <h2 className="font-mono text-[11px] font-normal tracking-widest text-mid uppercase">{title}</h2>
+      <h2 className="font-mono text-xs font-normal tracking-widest text-mid uppercase">{title}</h2>
       {children}
     </GlassPanel>
   );

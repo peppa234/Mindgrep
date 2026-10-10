@@ -35,7 +35,7 @@ export function Markdown({ text, valid, onCite, active = null, streaming = false
       blocks.push(...prose(part, `p-${i}`, cite));
     }
   });
-  return <div className="space-y-3 text-[15px] leading-relaxed text-hi">{blocks}</div>;
+  return <div className="space-y-3 text-[0.9375rem] leading-relaxed text-hi">{blocks}</div>;
 }
 
 function prose(text: string, key: string, cite: Cite) {
@@ -143,7 +143,7 @@ export function CitationChip({ n, active, onClick }: { n: number; active: boolea
       onClick={onClick}
       aria-pressed={active}
       aria-label={`Show source ${n}`}
-      className={`mx-0.5 inline-flex h-[19px] min-w-[19px] -translate-y-px items-center justify-center rounded-md border px-1 align-middle font-mono text-[11px] font-medium transition-[color,border-color,box-shadow,background-color] duration-200 ${
+      className={`mx-0.5 inline-flex h-[19px] min-w-[19px] -translate-y-px items-center justify-center rounded-md border px-1 align-middle font-mono text-xs font-medium transition-[color,border-color,box-shadow,background-color] duration-200 ${
         active
           ? "border-cyan-400/70 bg-[var(--surface-live)] text-cyan-400 shadow-glow-cyan"
           : "border-violet-400/40 bg-violet-500/10 text-violet-300 hover:border-cyan-400/70 hover:bg-[var(--surface-live)] hover:text-cyan-400 hover:shadow-glow-cyan"

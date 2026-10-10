@@ -19,7 +19,7 @@ const links = [
 /** The MemoryOS mark: a small lit sphere, the orb in miniature. */
 export function Logo() {
   return (
-    <span className="flex items-center gap-2.5 font-display text-[15px] font-medium tracking-tight text-hi">
+    <span className="flex items-center gap-2.5 font-display text-[0.9375rem] font-medium tracking-tight text-hi">
       <span
         aria-hidden
         className="h-4 w-4 rounded-full shadow-glow-violet"

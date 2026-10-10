@@ -66,7 +66,7 @@ export function CodeBlock({
 
   return (
     <div className="code-surface overflow-hidden">
-      <pre data-lenis-prevent className="overflow-x-auto py-3 font-mono text-[12.5px] leading-5">
+      <pre data-lenis-prevent className="overflow-x-auto py-3 font-mono text-[0.8125rem] leading-5">
         {grammar ? (
           <Highlight code={visible} language={grammar} theme={EMPTY_THEME}>
             {({ tokens }) =>

@@ -39,8 +39,8 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
   return (
     <GlassPanel as="article" padding="none" className="space-y-3 p-4 sm:p-5">
       <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-sm">
-        <span className="chip py-0 font-mono text-[11px] uppercase">{hit.language ?? hit.doc_kind}</span>
-        <Link href={`/documents/${hit.document_id}#chunk-${hit.chunk_id}`} className="link min-w-0 truncate font-mono text-[13px]">
+        <span className="chip py-0 font-mono text-xs uppercase">{hit.language ?? hit.doc_kind}</span>
+        <Link href={`/documents/${hit.document_id}#chunk-${hit.chunk_id}`} className="link min-w-0 truncate font-mono text-[0.8125rem]">
           {hit.source_name}/{hit.path}
         </Link>
         {location && <span className="font-mono text-xs text-mid">{location}</span>}
@@ -49,7 +49,7 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
         </span>
       </div>
       {hit.symbol && hit.doc_kind !== "pdf" && (
-        <h3 className="font-mono text-[15px] font-medium tracking-normal text-hi">
+        <h3 className="font-mono text-[0.9375rem] font-medium tracking-normal text-hi">
           {hit.symbol}
           <span className="ml-2 font-sans text-xs font-normal text-mid">{hit.chunk_kind.replace("_", " ")}</span>
         </h3>
@@ -62,14 +62,14 @@ function Hit({ hit, query }: { hit: SearchHit; query: string }) {
         terms={terms(query)}
         maxLines={14}
       />
-      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] text-mid">
+      <div className="flex flex-wrap gap-1.5 font-mono text-xs text-mid">
         {Object.entries(hit.ranks).map(([channel, rank]) => (
-          <span key={channel} className="chip py-0 text-[11px]" title={`rank ${rank} in the ${channel} channel`}>
+          <span key={channel} className="chip py-0 text-xs" title={`rank ${rank} in the ${channel} channel`}>
             {CHANNEL_LABEL[channel] ?? channel} #{rank}
           </span>
         ))}
         {hit.rerank_score != null && (
-          <span className="chip py-0 text-[11px] text-hi" title="cross-encoder relevance, 0–1">
+          <span className="chip py-0 text-xs text-hi" title="cross-encoder relevance, 0–1">
             rerank {hit.rerank_score.toFixed(3)}
           </span>
         )}

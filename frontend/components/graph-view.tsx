@@ -138,7 +138,7 @@ function Detail({ node }: { node: NodeDetail }) {
   return (
     <div className="space-y-4 text-sm">
       <div className="space-y-1">
-        <p className="font-mono text-[11px] tracking-widest text-mid uppercase">{node.kind}</p>
+        <p className="font-mono text-xs tracking-widest text-mid uppercase">{node.kind}</p>
         <h2 className="text-h3">{node.name}</h2>
         {typeof node.meta.status === "string" && (
           <p className="flex items-center gap-1.5 text-xs text-mid">
@@ -456,10 +456,10 @@ export function GraphView() {
                         y={centre ? r + (compact ? 34 : 22) : compact ? 8 : 4}
                         textAnchor={centre ? "middle" : right ? "start" : "end"}
                         fill={centre || lit ? "var(--text-hi)" : "var(--text-mid)"}
-                        fontSize={centre ? (compact ? 30 : 16) : compact ? 24 : 12}
+                        fontSize={centre ? (compact ? 30 : 20) : compact ? 24 : 15}
                         className={centre ? "font-display font-medium" : ""}
                       >
-                        {centre ? node.name : truncate(node.name, compact ? 14 : 24)}
+                        {centre ? node.name : truncate(node.name, compact ? 14 : 22)}
                       </text>
                       <title>{label}</title>
                     </g>
