@@ -25,8 +25,10 @@ you indexed, and comes back as built, partly built, or never built, with the evi
 >   (no project comes close; nowhere in your code: *algerian, answering, augmented, big, french*)
 
 **Status:** Phase 3 of 3 (*The Product*) is underway: the idea ↔ implementation gap, the
-ego-network graph view, measured numbers with the real models, and a production deployment
-setup are in. Phases 1 (*The Index*) and 2 (*The Brain*) are complete. See [Roadmap](#roadmap).
+ego-network graph view, measured numbers with the real models, a production deployment setup,
+and a full visual redesign with a landing page are in. Still to come: the personal benchmark,
+chat eval numbers, screenshots and a demo, and the first live deploy. Phases 1 (*The Index*)
+and 2 (*The Brain*) are complete. See [Roadmap](#roadmap).
 
 ---
 
@@ -239,7 +241,10 @@ files), whatever the `.gitignore` says.
 |---|---|---|---|
 | 1. **The Index** | 1–7 | Ingestion, AST chunking, embeddings, eval harness, hybrid search + rerank; sources + search UI | ✅ done |
 | 2. **The Brain** | 8–15 | RAG chat with citations and abstention; knowledge graph (deterministic extraction from manifests, imports and git first, LLM extraction after); chat + projects UI | ✅ done |
-| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅, deploy setup ✅; personal benchmark, screenshots and demo, first live deploy | in progress |
+| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅, deploy setup ✅, redesign + landing page ✅; chat eval numbers, personal benchmark, chunking ablation (fixed-size vs AST), screenshots and demo, first live deploy | in progress |
+
+Deliberately left out of V1: multi-user auth (a single-user deploy sits behind Caddy basic
+auth), OCR for scanned PDFs (they are flagged, not read), and LLM tracing (Langfuse).
 
 The eval harness landed *before* the retrieval work it judges. That ordering is the point:
 you cannot improve what you cannot measure.

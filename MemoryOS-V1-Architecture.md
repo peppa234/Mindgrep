@@ -5,6 +5,29 @@
 **Constraint:** One developer, 4–6 months, near-zero budget.
 **Status:** Buildable plan, not a wish list.
 
+> ### Where the build stands (2026-10-10)
+>
+> The 10 phases below were condensed into three: **The Index** (Phases 0–4), **The Brain**
+> (5–6) and **The Product** (7–8, 10). Phase 9 (multi-user auth) was cut first, as §10.1 says.
+>
+> | Phase | State | What is still open |
+> |---|---|---|
+> | 0. Setup | ✅ | — |
+> | 1. Ingestion | ✅ tree-sitter for 6 languages, Markdown, PyMuPDF, manifests, ARQ, idempotent | Docling OCR (scanned PDFs are flagged `needs_ocr`, not read) |
+> | 2. Chunking & embeddings | ✅ AST chunking, embedding cache, HNSW | LLM contextual headers (headers are deterministic instead) |
+> | 3. Eval harness | ✅ 44 + 12 unanswerable fixture queries, CI gates for retrieval, graph and ideas | **60–100 queries over your own data** (`eval/golden/personal.example.yaml` is still a template) |
+> | 4. Hybrid + rerank | ✅ three channels, RRF, bge-reranker, metadata filters, measured | Lift is not yet shown: on the fixture, vector alone ties hybrid+rerank. Needs the personal benchmark |
+> | 5. RAG chat | ✅ fallback chain (Gemini models → Groq → Ollama), cited SSE, two-layer abstention, history, feedback | Chat eval numbers; Langfuse tracing |
+> | 6. Knowledge graph | ✅ deterministic edges, alias table, verified LLM concepts, neighbourhood CTE | Graph-augmented retrieval (entity in query → seed chunks) |
+> | 7. Idea ↔ implementation gap | ✅ detection, matching with evidence, built / partial / abandoned / never, overrides | LLM idea extraction or LLM judge, only if the personal benchmark asks for it |
+> | 8. Frontend | ✅ every page, redesign, landing, styleguide, SVG ego-network (instead of Cytoscape) | Lighthouse ≥ 85 and keyboard-only gates; a real ⌘K palette |
+> | 9. Auth & multi-user | ✂️ cut | RLS + the cross-tenant leak test, if anyone else ever uses it |
+> | 10. Deploy & docs | 🟡 prod compose, Caddy, backups, deploy workflow, six ADRs | Live URL, screenshots, demo video, license, Sentry |
+>
+> Departures from this plan, on purpose: Valkey instead of Redis, ideas are detected
+> deterministically (tag, folder, `Idea:` line) rather than by LLM, `/ideas` instead of
+> `/insights`, and no Pydantic AI (structured output is plain JSON schema + verification).
+
 ---
 
 ## 0. The Simplification You Just Unlocked
