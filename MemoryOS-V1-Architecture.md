@@ -17,7 +17,7 @@
 > | 2. Chunking & embeddings | ✅ AST chunking, embedding cache, HNSW | LLM contextual headers (headers are deterministic instead) |
 > | 3. Eval harness | ✅ 44 + 12 unanswerable fixture queries, CI gates for retrieval, graph and ideas | **60–100 queries over your own data** (`eval/golden/personal.example.yaml` is still a template) |
 > | 4. Hybrid + rerank | ✅ three channels, RRF, bge-reranker, metadata filters, measured | Lift is not yet shown: on the fixture, vector alone ties hybrid+rerank. Needs the personal benchmark |
-> | 5. RAG chat | ✅ fallback chain (Gemini models → Groq → Ollama), cited SSE, two-layer abstention, history, feedback | Chat eval numbers; Langfuse tracing |
+> | 5. RAG chat | ✅ fallback chain (Gemini models → Groq → Ollama), cited SSE, two-layer abstention, history, feedback | Langfuse tracing (chat eval: abstention 1.000, citation hit rate 0.977) |
 > | 6. Knowledge graph | ✅ deterministic edges, alias table, verified LLM concepts, neighbourhood CTE | Graph-augmented retrieval (entity in query → seed chunks) |
 > | 7. Idea ↔ implementation gap | ✅ detection, matching with evidence, built / partial / abandoned / never, overrides | LLM idea extraction or LLM judge, only if the personal benchmark asks for it |
 > | 8. Frontend | ✅ every page, redesign, landing, styleguide, SVG ego-network (instead of Cytoscape) | Lighthouse ≥ 85 and keyboard-only gates; a real ⌘K palette |

@@ -1,0 +1,636 @@
+{
+  "created_at": "2026-10-10T13:24:23+00:00",
+  "chat_model": "gemini:gemini-3.8-flash -> gemini:gemini-3.5-flash-lite",
+  "reranker": "BAAI/bge-reranker-v2-m3",
+  "runs": {
+    "0.008": {
+      "summary": {
+        "queries": 56,
+        "abstention_accuracy": 1.0,
+        "answer_rate": 1.0,
+        "citation_precision": 0.7246,
+        "citation_hit_rate": 0.9773,
+        "grounded_rate": 0.9773,
+        "errors": 0
+      },
+      "rows": [
+        {
+          "id": "id-01",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-02",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-03",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-04",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-05",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-06",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-07",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "id-08",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-01",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            false,
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-02",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-03",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-04",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-05",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "kw-06",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-01",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-02",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-03",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-04",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true,
+            false,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-05",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-06",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-07",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-08",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-09",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-10",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-11",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-12",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-13",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-14",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-15",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "vague-16",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            false
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-01",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-02",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-03",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            false,
+            true,
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-04",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-05",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-06",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true,
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-07",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-08",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-09",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-10",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "note-11",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "pdf-01",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "pdf-02",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "pdf-03",
+          "answerable": true,
+          "abstained": false,
+          "intent": "rag",
+          "cited_match": [
+            true
+          ],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "none-01",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-02",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-03",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-04",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-05",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-06",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-07",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-08",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-09",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": "gemini:gemini-3.5-flash-lite",
+          "error": null
+        },
+        {
+          "id": "none-10",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-11",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        },
+        {
+          "id": "none-12",
+          "answerable": false,
+          "abstained": true,
+          "intent": "rag",
+          "cited_match": [],
+          "model": null,
+          "error": null
+        }
+      ]
+    }
+  }
+}

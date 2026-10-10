@@ -27,7 +27,7 @@ you indexed, and comes back as built, partly built, or never built, with the evi
 **Status:** Phase 3 of 3 (*The Product*) is underway: the idea ↔ implementation gap, the
 ego-network graph view, measured numbers with the real models, a production deployment setup,
 and a full visual redesign with a landing page are in. Still to come: the personal benchmark,
-chat eval numbers, screenshots and a demo, and the first live deploy. Phases 1 (*The Index*)
+screenshots and a demo, and the first live deploy. Phases 1 (*The Index*)
 and 2 (*The Brain*) are complete. See [Roadmap](#roadmap).
 
 ---
@@ -70,7 +70,7 @@ survive every re-index ([ADR-0006](docs/adr/0006-idea-implementation-gap.md)).
 MRR per search mode, including *unanswerable* queries), a graph benchmark (precision and
 recall of extracted facts), and an end-to-end chat eval (abstention accuracy, citation
 precision), and an idea benchmark (detection, and matching errors in both directions). All
-but the chat eval gate CI. See [Evaluation](#evaluation).
+but the chat eval (which needs a real model) gate CI. See [Evaluation](#evaluation).
 
 ---
 
@@ -133,8 +133,18 @@ joined the corpus: they describe the same things the code does, and now compete 
 "broken link crawler" note outranks `crawler.go` for a vague description of it). The labels
 were left alone; harder is more realistic.
 
-**Chat** (`.\make.ps1 eval-chat`): abstention accuracy and citation precision over the same
-56 queries. It needs a real chat model (a Gemini or Groq key), so its numbers are still to come.
+**Chat, end to end** (the same 56 queries through the full pipeline; Gemini 3.5 Flash-Lite
+answering, real embedder and reranker; [report](eval/reports/chat-2026-10-10.md)):
+
+| Abstention accuracy | Answer rate | Citation hit rate | Citation precision | Errors |
+|---|---|---|---|---|
+| **1.000** | 1.000 | 0.977 | 0.725 | 0 |
+
+Every unanswerable query was refused (11 by the reranker threshold before any model call, 1
+by the model's own `NO_ANSWER`), and every answerable one was answered. 43 of 44 answers
+cite a labelled source; the other cites nothing and is flagged as ungrounded. Citation
+precision is the soft number: answers often cite a second or third source that supports
+the claim but is not in the (deliberately sparse) labels, so read it as a lower bound.
 
 ---
 
@@ -241,7 +251,7 @@ files), whatever the `.gitignore` says.
 |---|---|---|---|
 | 1. **The Index** | 1–7 | Ingestion, AST chunking, embeddings, eval harness, hybrid search + rerank; sources + search UI | ✅ done |
 | 2. **The Brain** | 8–15 | RAG chat with citations and abstention; knowledge graph (deterministic extraction from manifests, imports and git first, LLM extraction after); chat + projects UI | ✅ done |
-| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅, deploy setup ✅, redesign + landing page ✅; chat eval numbers, personal benchmark, chunking ablation (fixed-size vs AST), screenshots and demo, first live deploy | in progress |
+| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅ (chat eval included), deploy setup ✅, redesign + landing page ✅; personal benchmark, chunking ablation (fixed-size vs AST), screenshots and demo, first live deploy | in progress |
 
 Deliberately left out of V1: multi-user auth (a single-user deploy sits behind Caddy basic
 auth), OCR for scanned PDFs (they are flagged, not read), and LLM tracing (Langfuse).
