@@ -75,10 +75,12 @@ class OpenAICompatible:
         api_key: str = "",
         timeout_s: float = 60,
         transport: httpx.AsyncBaseTransport | None = None,  # tests pass a MockTransport
+        extra: dict[str, Any] | None = None,  # provider-specific request fields
     ) -> None:
         self.provider = provider
         self.model = model
         self.name = f"{provider}:{model}"
+        self._extra = extra or {}
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self._client = httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
@@ -93,6 +95,7 @@ class OpenAICompatible:
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
+            **self._extra,
         }
         if max_tokens:
             payload["max_tokens"] = max_tokens

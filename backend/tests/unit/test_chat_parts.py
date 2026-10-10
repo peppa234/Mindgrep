@@ -139,6 +139,37 @@ async def test_openai_compatible_errors_become_unavailable():
     assert caught.value.status == 429
 
 
+async def test_openai_compatible_sends_provider_extras():
+    seen = {}
+
+    def handler(request):
+        seen.update(json.loads(request.content))
+        lines = 'data: {"choices": [{"delta": {"content": "ok"}}]}\n\ndata: [DONE]\n\n'
+        return httpx.Response(200, text=lines, headers={"content-type": "text/event-stream"})
+
+    model = OpenAICompatible(
+        "gemini", "http://llm.test/v1", "m", "key",
+        transport=httpx.MockTransport(handler), extra={"reasoning_effort": "low"},
+    )  # fmt: skip
+    [p async for p in model.stream([{"role": "user", "content": "hi"}])]
+    assert seen["reasoning_effort"] == "low" and seen["model"] == "m" and seen["stream"] is True
+
+
+def test_gemini_chain_is_the_model_then_its_fallbacks(monkeypatch):
+    from app.services.llm import factory
+
+    monkeypatch.setattr(factory.settings, "gemini_api_key", "k")
+    monkeypatch.setattr(factory.settings, "gemini_model", "primary")
+    monkeypatch.setattr(factory.settings, "gemini_fallback_models", "lite, primary,")
+    monkeypatch.setattr(factory.settings, "gemini_reasoning_effort", "low")
+    chain = factory._chain("gemini")
+    assert [m.name for m in chain.models] == ["gemini:primary", "gemini:lite"]
+    assert all(m._extra == {"reasoning_effort": "low"} for m in chain.models)
+
+    monkeypatch.setattr(factory.settings, "gemini_reasoning_effort", "")
+    assert all(m._extra == {} for m in factory._chain("gemini").models)
+
+
 async def test_complete_falls_back_from_json_schema_to_json_mode():
     seen = []
 

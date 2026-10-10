@@ -41,8 +41,17 @@ class Settings(BaseSettings):
     # fake: a deterministic extractive model with no network, used by tests and CI.
     llm_providers: str = "gemini,groq,ollama"
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.8-flash"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    # Gemini 3.x models think before they write. At the default effort the first token took
+    # 22 s on a 3k-token prompt (and the answer arrived in one piece); real chat prompts
+    # passed the read timeout. "low" brought it to ~4 s, streamed. Empty = provider default.
+    gemini_reasoning_effort: str = "low"
+    # Tried, in order, after gemini_model fails (503 "high demand", timeout): a different model
+    # usually has capacity when one is overloaded. Comma-separated; empty = none.
+    gemini_fallback_models: str = "gemini-3.5-flash-lite"
+    # Silence allowed before falling back to the next model (the read timeout, between chunks).
+    gemini_timeout_s: float = 30.0
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
     groq_base_url: str = "https://api.groq.com/openai/v1"
