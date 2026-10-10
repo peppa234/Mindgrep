@@ -19,6 +19,7 @@ import argparse
 import asyncio
 import json
 import sys
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -54,7 +55,10 @@ async def run_query(q: str, source_id: int) -> dict[str, Any]:
     return {"sources": sources, "done": done}
 
 
-def score(rows: list[dict]) -> dict[str, Any]:
+def score(all_rows: list[dict]) -> dict[str, Any]:
+    # A query no model could answer (outage, quota) says nothing about the pipeline: it is
+    # counted as an error and left out of the rates, instead of passing as an uncited answer.
+    rows = [r for r in all_rows if not r.get("error")] or all_rows
     answerable = [r for r in rows if r["answerable"]]
     answered = [r for r in answerable if not r["abstained"]]
     cited = [c for r in answered for c in r["cited_match"]]
@@ -67,7 +71,7 @@ def score(rows: list[dict]) -> dict[str, Any]:
         if answered
         else 0.0,
         "grounded_rate": round(sum(bool(r["cited_match"]) for r in answered) / len(answered), 4) if answered else 0.0,
-        "errors": sum(1 for r in rows if r.get("error")),
+        "errors": sum(1 for r in all_rows if r.get("error")),
     }
 
 
@@ -82,9 +86,11 @@ async def chunk_keys(chunk_ids: list[int]) -> dict[int, dict]:
     return {r.id: {"symbol": r.symbol, "symbols": r.symbols, "meta": r.meta} for r in rows}
 
 
-async def evaluate(queries: list[dict], source_id: int) -> dict[str, Any]:
+async def evaluate(queries: list[dict], source_id: int, pause_s: float = 0.0) -> dict[str, Any]:
     rows = []
-    for query in queries:
+    for i, query in enumerate(queries):
+        if pause_s and i:
+            await asyncio.sleep(pause_s)  # free tiers cap requests per minute
         result = await run_query(query["q"], source_id)
         done, sources = result["done"], result["sources"]
         by_n = {s["n"]: s for s in sources}
@@ -94,6 +100,9 @@ async def evaluate(queries: list[dict], source_id: int) -> dict[str, Any]:
             any(matches(label, source | keys.get(source.get("chunk_id"), {})) for label in query["labels"])
             for source in cited
         ]
+        # The chat degrades gracefully when every model fails ("chat: every chat model
+        # failed"); for the eval that is an error, not an answer.
+        unavailable = next((d for d in done.get("degraded", []) if d.startswith("chat:")), None)
         rows.append(
             {
                 "id": query["id"],
@@ -101,7 +110,8 @@ async def evaluate(queries: list[dict], source_id: int) -> dict[str, Any]:
                 "abstained": bool(done.get("abstained")),
                 "intent": done.get("intent"),
                 "cited_match": cited_match,
-                "error": done.get("error"),
+                "model": done.get("model"),
+                "error": done.get("error") or unavailable,
             }
         )
     return {"summary": score(rows), "rows": rows}
@@ -115,6 +125,7 @@ async def main() -> int:
     parser.add_argument("--threshold", default=None, help="comma-separated abstention thresholds to compare")
     parser.add_argument("--out", type=Path, default=EVAL_ROOT / "reports")
     parser.add_argument("--name", default=None)
+    parser.add_argument("--pause", type=float, default=0.0, help="seconds between queries (free-tier rate limits)")
     args = parser.parse_args()
 
     golden = yaml.safe_load(args.golden.read_text(encoding="utf-8"))
@@ -140,7 +151,7 @@ async def main() -> int:
     for threshold in thresholds:
         settings.abstain_threshold = threshold
         print(f"threshold {threshold} ...", file=sys.stderr)
-        report["runs"][str(threshold)] = await evaluate(queries, source_id)
+        report["runs"][str(threshold)] = await evaluate(queries, source_id, args.pause)
 
     lines = [
         "# Chat eval: fixture",
@@ -157,6 +168,9 @@ async def main() -> int:
             f"| {threshold} | **{s['abstention_accuracy']:.3f}** | {s['answer_rate']:.3f} | "
             f"{s['citation_precision']:.3f} | {s['citation_hit_rate']:.3f} | {s['grounded_rate']:.3f} | {s['errors']} |"
         )
+    served = Counter(r["model"] for run in report["runs"].values() for r in run["rows"] if r.get("model"))
+    if served:
+        lines += ["", "Answered by: " + ", ".join(f"`{m}` {n}" for m, n in served.most_common())]
     text = "\n".join(lines) + "\n"
     print(text)
     args.out.mkdir(parents=True, exist_ok=True)
