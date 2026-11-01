@@ -38,15 +38,43 @@ export function Markdown({ text, valid, onCite, active = null, streaming = false
   return <div className="space-y-3 text-[0.9375rem] leading-relaxed text-hi">{blocks}</div>;
 }
 
+const LIST_ITEM = /^\s*(?:[-*]|\d+[.)])\s+/;
+const CONTINUATION = /^\s{2,}\S/;
+
 function prose(text: string, key: string, cite: Cite) {
   const out: ReactNode[] = [];
   const paragraphs = text.split(/\n{2,}/).filter((p) => p.trim());
-  paragraphs.forEach((paragraph, p) => {
-    const lines = paragraph.split("\n").filter((l) => l.trim());
-    const isList = lines.every((l) => /^\s*(?:[-*]|\d+[.)])\s+/.test(l));
-    if (isList) {
+  // A paragraph may mix text and list lines ("Supporting details:" then "- …" with no blank
+  // line between): split it into runs, each rendered as a paragraph or a list. An indented
+  // line under an item continues that item (idea answers put the evidence there).
+  const runs: { list: boolean; lines: string[] }[] = [];
+  for (const paragraph of paragraphs) {
+    const start = runs.length;
+    for (const line of paragraph.split("\n").filter((l) => l.trim())) {
+      const last = runs.length > start ? runs[runs.length - 1] : undefined;
+      const list = LIST_ITEM.test(line) || (last?.list === true && CONTINUATION.test(line));
+      if (last && last.list === list) last.lines.push(line);
+      else runs.push({ list, lines: [line] });
+    }
+  }
+  runs.forEach(({ list, lines }, p) => {
+    if (list) {
       const ordered = /^\s*\d/.test(lines[0]);
-      const items = lines.map((l, j) => <li key={j}>{inline(l.replace(/^\s*(?:[-*]|\d+[.)])\s+/, ""), cite)}</li>);
+      const entries: string[][] = [];
+      for (const line of lines) {
+        if (LIST_ITEM.test(line)) entries.push([line.replace(LIST_ITEM, "")]);
+        else entries[entries.length - 1].push(line.trim());
+      }
+      const items = entries.map((entry, j) => (
+        <li key={j}>
+          {entry.map((line, k) => (
+            <Fragment key={k}>
+              {k > 0 && <br />}
+              {inline(line, cite)}
+            </Fragment>
+          ))}
+        </li>
+      ));
       out.push(
         ordered ? (
           <ol key={`${key}-${p}`} className="list-decimal space-y-1 pl-5 marker:text-mid">
@@ -115,8 +143,9 @@ function inline(text: string, cite: Cite): ReactNode[] {
       );
     if (token.startsWith("**"))
       return (
+        // Bold often wraps a file name in backticks (**`app/security.py`**): parse its inside too.
         <strong key={i} className="font-semibold">
-          {token.slice(2, -2)}
+          {inline(token.slice(2, -2), cite)}
         </strong>
       );
     const numbers = token
