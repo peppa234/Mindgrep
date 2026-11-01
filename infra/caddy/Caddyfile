@@ -2,8 +2,9 @@
 {$DOMAIN} {
 	encode zstd gzip
 
-	# Liveness for an uptime monitor: status only, no data behind it.
-	handle /health {
+	# Liveness for an uptime monitor: {"status":"ok"} and nothing else. The detailed /health
+	# (versions, models, errors) stays behind the password like everything else.
+	handle /health/live {
 		reverse_proxy api:8000
 	}
 

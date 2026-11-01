@@ -1,8 +1,13 @@
 # Same tasks as make.ps1, for CI, WSL, Linux and macOS. On Windows use: .\make.ps1 <task>
 .PHONY: help up down restart build logs ps health docs psql valkey migrate test fmt lint \
-        models eval eval-personal eval-baseline eval-graph eval-chat eval-ideas \n        refresh-ideas extract label clean deploy
+        models eval eval-personal eval-baseline eval-graph eval-chat eval-ideas \
+        refresh-ideas extract label clean deploy
 
 MODELS_VENV := backend/.venv-models
+# The model server has no auth, so it listens on loopback (Docker Desktop forwards
+# host.docker.internal to it). On Linux Docker, containers arrive over the docker0 bridge:
+# make models MODELS_HOST=172.17.0.1
+MODELS_HOST ?= 127.0.0.1
 DC_EVAL := docker compose exec api python -m eval.runners.retrieval_eval
 
 help:
@@ -85,7 +90,7 @@ $(MODELS_VENV)/bin/python:
 	uv pip install --python $(MODELS_VENV) -r backend/requirements-models.txt
 
 models: $(MODELS_VENV)/bin/python
-	cd backend && .venv-models/bin/python -m uvicorn app.modelserver.main:app --host 0.0.0.0 --port 8001
+	cd backend && .venv-models/bin/python -m uvicorn app.modelserver.main:app --host $(MODELS_HOST) --port 8001
 
 eval:
 	$(DC_EVAL) --modes lexical,vector,hybrid,rerank

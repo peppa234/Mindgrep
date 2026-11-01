@@ -1,8 +1,10 @@
 name: Deploy
 
 # Manual on purpose: a personal index is deployed when you decide, not on every push.
-# Needs three repository secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY (a key allowed to
-# log in to the VPS), and the repository checked out at DEPLOY_PATH there (default ~/MemoryOs).
+# Needs four repository secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY (a key allowed to
+# log in to the VPS), DEPLOY_KNOWN_HOSTS (the VPS host key, `ssh-keyscan -H <host>` run once
+# from a machine you trust), and the repository checked out at DEPLOY_PATH there (default
+# ~/MemoryOs). A pinned host key means a machine impersonating the VPS is refused, not trusted.
 on:
   workflow_dispatch:
     inputs:
@@ -25,6 +27,7 @@ jobs:
           HOST: ${{ secrets.DEPLOY_HOST }}
           USER: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '~/MemoryOs' }}
           REF: ${{ inputs.ref }}
         run: |
@@ -33,5 +36,6 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/deploy_key "$USER@$HOST" "cd $DEPLOY_PATH && ./infra/deploy.sh '$REF'"
+          [ -n "$KNOWN_HOSTS" ] || { echo "set the DEPLOY_KNOWN_HOSTS secret" >&2; exit 1; }
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" "cd $DEPLOY_PATH && ./infra/deploy.sh '$REF'"

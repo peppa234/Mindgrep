@@ -4,6 +4,8 @@ x-backend-env: &backend-env
   DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
   REDIS_URL: redis://valkey:6379/0
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  MAX_REPO_BYTES: ${MAX_REPO_BYTES:-2000000000}
+  GIT_ALLOW_PRIVATE_HOSTS: ${GIT_ALLOW_PRIVATE_HOSTS:-false}
   EMBEDDER: ${EMBEDDER:-http}
   RERANKER: ${RERANKER:-http}
   MODEL_SERVER_URL: ${MODEL_SERVER_URL:-http://host.docker.internal:8001}
@@ -42,8 +44,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    # Every published port is loopback only. Nothing here has auth (Valkey has no password
+    # and ARQ jobs are pickled), so a port open to the LAN is a way into the stack.
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "127.0.0.1:${POSTGRES_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -56,7 +60,7 @@ services:
   valkey:
     image: valkey/valkey:8-alpine
     ports:
-      - "${VALKEY_PORT}:6379"
+      - "127.0.0.1:${VALKEY_PORT}:6379"
     volumes:
       - valkeydata:/data
     healthcheck:
@@ -69,7 +73,7 @@ services:
     build: ./backend
     environment: *backend-env
     ports:
-      - "${API_PORT}:8000"
+      - "127.0.0.1:${API_PORT}:8000"
     volumes: *backend-volumes
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -98,7 +102,7 @@ services:
       args:
         API_URL: http://api:8000
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
     depends_on:
       - api
 
@@ -111,7 +115,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.models
     ports:
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     volumes:
       - hfcache:/models
 

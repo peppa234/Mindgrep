@@ -16,8 +16,10 @@ for one user's notes and repositories this is the whole production system.
 | backup | `pg_dump` every 24 h into the `backups` volume, 14 days kept | none |
 | models (optional) | the CPU model server | the compose network |
 
-MemoryOS is single-user. Everything except `/health` sits behind basic auth, so the index is
-never public. (Multi-user accounts with row-level security are deliberately out of scope for
+MemoryOS is single-user. Everything except `/health/live` (a bare `{"status":"ok"}` for an
+uptime monitor) sits behind basic auth, so the index is never public. Writes from other
+websites are refused (`Sec-Fetch-Site`), since the browser would otherwise attach your
+basic-auth credentials to them. (Multi-user accounts with row-level security are deliberately out of scope for
 V1; see the architecture plan's cut list.)
 
 ## First deploy
@@ -66,8 +68,10 @@ Pick one:
 ## Updates
 
 From the Actions tab: **Deploy → Run workflow** (any branch, tag or commit). It needs the
-repository secrets `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_KEY`, and optionally the
-variable `DEPLOY_PATH` (default `~/MemoryOs`). It runs `infra/deploy.sh <ref>` over SSH.
+repository secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS`
+(the output of `ssh-keyscan -H <host>`, run once from a machine you trust; the workflow
+refuses any other host key), and optionally the variable `DEPLOY_PATH` (default
+`~/MemoryOs`). It runs `infra/deploy.sh <ref>` over SSH.
 Or on the server: `./infra/deploy.sh v0.4.0`.
 
 ## Backups and restore

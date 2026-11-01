@@ -15,6 +15,10 @@ if [ ! -f .env ]; then
     echo "deploy: no .env here; copy .env.example and fill in DOMAIN and BASIC_AUTH_*" >&2
     exit 1
 fi
+if grep -Eq '^POSTGRES_PASSWORD=(memoryos)?[[:space:]]*$' .env; then
+    echo "deploy: POSTGRES_PASSWORD is empty or the dev default; set a long random one in .env" >&2
+    exit 1
+fi
 
 git fetch --quiet --tags origin
 git checkout --quiet "$REF"

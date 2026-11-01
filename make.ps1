@@ -80,7 +80,9 @@ switch ($Task) {
         }
         Write-Host "Model server on http://localhost:8001 (first start downloads ~2.5 GB of weights)" -ForegroundColor Cyan
         Push-Location backend
-        try { & ".venv-models/Scripts/python.exe" -m uvicorn app.modelserver.main:app --host 0.0.0.0 --port 8001 }
+        # Loopback only: the server has no auth. Docker Desktop still forwards
+        # host.docker.internal to it.
+        try { & ".venv-models/Scripts/python.exe" -m uvicorn app.modelserver.main:app --host 127.0.0.1 --port 8001 }
         finally { Pop-Location }
     }
 
