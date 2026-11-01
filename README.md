@@ -245,6 +245,26 @@ files), whatever the `.gitignore` says.
 
 ---
 
+## Security
+
+MemoryOS is single-user: whoever reaches it can read everything it indexed. So:
+
+- **Locally, nothing listens beyond your machine.** Every port in `docker-compose.yml` and the
+  model server binds to `127.0.0.1`.
+- **Deployed, everything sits behind Caddy** (TLS, basic auth). Only `/health/live` answers
+  without the password, and it says `{"status":"ok"}` and nothing else.
+- **Other websites cannot act for you.** Writes whose `Sec-Fetch-Site` is not `same-origin` are
+  refused, since a browser would otherwise attach your credentials to them. A
+  Content-Security-Policy allows no script, frame or connection from another origin.
+- **Indexed content is data, never code.** Answers render as React elements, never as HTML.
+  Git runs with a repository's own hooks, fsmonitor and signature programs switched off.
+  Clone URLs must be public `https://` hosts (no `localhost`, private networks or cloud
+  metadata), and a clone over `MAX_REPO_BYTES` is deleted.
+- **Dependencies are locked and audited.** `uv.lock` is installed with hashes, and CI runs
+  `pip-audit` and `npm audit` on every push.
+
+---
+
 ## Roadmap
 
 | Phase | Weeks | What it delivers | Status |
