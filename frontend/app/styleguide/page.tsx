@@ -50,7 +50,7 @@ const SURFACES = [
 const PALETTES = [
   {
     role: "Knowledge",
-    rule: "Violet marks what MemoryOS knows: memories, concepts, the graph, the primary action.",
+    rule: "Violet marks what Mindgrep knows: memories, concepts, the graph, the primary action.",
     alias: "text-knowledge · bg-knowledge = violet-400",
     swatches: [
       ["violet-300", "#C4B5FD"],
@@ -131,7 +131,7 @@ export default function StyleguidePage() {
     <div className="overflow-x-clip">
       <div className="mx-auto max-w-6xl px-6 pb-32">
         <header className="flex flex-col gap-10 pt-16 pb-14 md:pt-24">
-          <p className="font-mono text-xs tracking-widest text-mid uppercase">MemoryOS · design system · foundation</p>
+          <p className="font-mono text-xs tracking-widest text-mid uppercase">Mindgrep · design system · foundation</p>
           <h1 className="max-w-4xl text-h1">
             Living <span className="text-violet-300">memory</span>, rendered in deep space.
           </h1>
@@ -257,7 +257,7 @@ export default function StyleguidePage() {
                 <div className="space-y-2">
                   <Caption name="Body · Geist" detail="font-sans · 16px / 1.5" />
                   <p className="text-hi">
-                    MemoryOS indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers
+                    Mindgrep indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers
                     questions with the exact passage it drew on.
                   </p>
                   <p className="text-sm text-mid">Secondary copy sits in text-mid at 14px: still 7.4:1 on glass.</p>
@@ -323,7 +323,7 @@ fn rank(query: &str) -> Vec<Hit>`}</code>
                     <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-live shadow-glow-cyan" />
                     indexing
                   </p>
-                  <p className="mt-2 text-hi">memoryos/backend · 214 of 380 files</p>
+                  <p className="mt-2 text-hi">mindgrep/backend · 214 of 380 files</p>
                   <p className="mt-3 text-sm text-mid">Cyan edge and glow: something happening now.</p>
                 </GlassPanel>
                 <GlassPanel tone="gap">

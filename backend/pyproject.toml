@@ -1,7 +1,7 @@
 [project]
-name = "memoryos-backend"
+name = "mindgrep-backend"
 version = "0.3.0"
-description = "MemoryOS backend: ingestion, retrieval, the knowledge graph, and the answer API"
+description = "Mindgrep backend: ingestion, retrieval, the knowledge graph, and the answer API"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",

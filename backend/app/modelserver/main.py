@@ -19,7 +19,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
-log = logging.getLogger("memoryos.models")
+log = logging.getLogger("mindgrep.models")
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-0.6B")
@@ -68,7 +68,7 @@ async def lifespan(app: FastAPI):
     _models.clear()
 
 
-app = FastAPI(title="MemoryOS model server", lifespan=lifespan)
+app = FastAPI(title="Mindgrep model server", lifespan=lifespan)
 
 
 class EmbedRequest(BaseModel):

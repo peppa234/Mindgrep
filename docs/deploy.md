@@ -1,4 +1,4 @@
-# Deploying MemoryOS
+# Deploying Mindgrep
 
 One small VPS, one compose file pair, Caddy in front. No Kubernetes, no managed services:
 for one user's notes and repositories this is the whole production system.
@@ -16,11 +16,11 @@ for one user's notes and repositories this is the whole production system.
 | backup | `pg_dump` every 24 h into the `backups` volume, 14 days kept | none |
 | models (optional) | the CPU model server | the compose network |
 
-MemoryOS is single-user. Everything except `/health/live` (a bare `{"status":"ok"}` for an
+Mindgrep is single-user. Everything except `/health/live` (a bare `{"status":"ok"}` for an
 uptime monitor) sits behind basic auth, so the index is never public. Writes from other
 websites are refused (`Sec-Fetch-Site`), since the browser would otherwise attach your
-basic-auth credentials to them. (Multi-user accounts with row-level security are deliberately out of scope for
-V1; see the architecture plan's cut list.)
+basic-auth credentials to them. (Multi-user accounts with row-level security are deliberately
+out of scope for V1; see the architecture plan's cut list.)
 
 ## First deploy
 
@@ -28,7 +28,7 @@ On a fresh Ubuntu VPS (2 vCPU / 4 GB is enough without the CPU model server):
 
 ```bash
 # Docker Engine + compose plugin: https://docs.docker.com/engine/install/ubuntu/
-git clone https://github.com/peppa234/MemoryOs && cd MemoryOs
+git clone https://github.com/peppa234/mindgrep && cd mindgrep
 cp .env.example .env
 ```
 
@@ -71,17 +71,17 @@ From the Actions tab: **Deploy → Run workflow** (any branch, tag or commit). I
 repository secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS`
 (the output of `ssh-keyscan -H <host>`, run once from a machine you trust; the workflow
 refuses any other host key), and optionally the variable `DEPLOY_PATH` (default
-`~/MemoryOs`). It runs `infra/deploy.sh <ref>` over SSH.
+`~/mindgrep`). It runs `infra/deploy.sh <ref>` over SSH.
 Or on the server: `./infra/deploy.sh v0.4.0`.
 
 ## Backups and restore
 
-`backups/memoryos-<timestamp>.dump` in the `backups` volume, one a day. Copy them off the
+`backups/mindgrep-<timestamp>.dump` in the `backups` volume, one a day. Copy them off the
 machine (`docker cp`, restic, rclone): a backup on the same disk is not a backup.
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T postgres \
-  pg_restore -U memoryos -d memoryos --clean --if-exists < memoryos-<timestamp>.dump
+  pg_restore -U mindgrep -d mindgrep --clean --if-exists < mindgrep-<timestamp>.dump
 ```
 
 The index itself can always be rebuilt by re-indexing the sources. What a backup protects is

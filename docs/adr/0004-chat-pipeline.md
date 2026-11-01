@@ -5,7 +5,7 @@
 
 ## Context
 
-Four of the five questions MemoryOS is built for are answerable in Phase 2:
+Four of the five questions Mindgrep is built for are answerable in Phase 2:
 
 1. "Where did I implement JWT authentication?": retrieval over code.
 2. "What was my original architecture for Student Portal?": retrieval plus time.

@@ -78,8 +78,8 @@ def test_git_url_validation_rejects_dangerous_urls(url):
 
 
 def test_git_url_validation_accepts_github():
-    assert git.validate_url(" https://github.com/peppa234/MemoryOs.git ") == (
-        "https://github.com/peppa234/MemoryOs.git"
+    assert git.validate_url(" https://github.com/peppa234/mindgrep.git ") == (
+        "https://github.com/peppa234/mindgrep.git"
     )
 
 

@@ -9,7 +9,7 @@ import "lenis/dist/lenis.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MemoryOS",
+  title: "Mindgrep",
   description: "Ask and search everything you have written: notes, papers, and code.",
 };
 

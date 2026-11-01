@@ -5,7 +5,7 @@
 
 ## Context
 
-MemoryOS needs relational data (sources, documents, runs), dense vectors, lexical search, and
+Mindgrep needs relational data (sources, documents, runs), dense vectors, lexical search, and
 in Phase 2 a knowledge graph. The expected corpus is 50k–500k chunks from one person's notes
 and repositories.
 

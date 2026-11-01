@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Styleguide · MemoryOS",
-  description: "Every token, component state and effect of the MemoryOS design system.",
+  title: "Styleguide · Mindgrep",
+  description: "Every token, component state and effect of the Mindgrep design system.",
   robots: { index: false, follow: false },
 };
 

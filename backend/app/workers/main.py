@@ -13,7 +13,7 @@ from app.services.graph.concepts import extract_concepts
 from app.services.ideas.service import match_all
 from app.services.ingestion.pipeline import Pipeline, embed_pending, summarize
 
-log = logging.getLogger("memoryos.worker")
+log = logging.getLogger("mindgrep.worker")
 
 
 async def index_source(ctx: dict[str, Any], source_id: int, run_id: int) -> dict[str, Any]:

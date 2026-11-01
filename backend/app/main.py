@@ -18,7 +18,7 @@ from app.services.embedding.factory import get_embedder, get_reranker
 from app.services.llm.factory import get_chat, get_extraction_chat
 
 configure_logging(settings.log_level)
-log = logging.getLogger("memoryos")
+log = logging.getLogger("mindgrep")
 
 
 @asynccontextmanager
@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="MemoryOS",
+    title="Mindgrep",
     version="0.4.0",
     description=(
         "Index notes, PDFs and repositories; search them with hybrid retrieval, ask questions "

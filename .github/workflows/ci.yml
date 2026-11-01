@@ -12,15 +12,15 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_USER: memoryos
-          POSTGRES_PASSWORD: memoryos
-          POSTGRES_DB: memoryos
+          POSTGRES_USER: mindgrep
+          POSTGRES_PASSWORD: mindgrep
+          POSTGRES_DB: mindgrep
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U memoryos" --health-interval 5s
+          --health-cmd "pg_isready -U mindgrep" --health-interval 5s
           --health-timeout 3s --health-retries 20
     env:
-      DATABASE_URL: postgresql+asyncpg://memoryos:memoryos@localhost:5432/memoryos
+      DATABASE_URL: postgresql+asyncpg://mindgrep:mindgrep@localhost:5432/mindgrep
       # No model downloads in CI: the hashing embedder gives a deterministic vector channel.
       EMBEDDER: hash
       RERANKER: none

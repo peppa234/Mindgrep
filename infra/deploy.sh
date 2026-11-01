@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy (or update) MemoryOS on the VPS, from the repository checkout there:
+# Deploy (or update) Mindgrep on the VPS, from the repository checkout there:
 #
 #   ./infra/deploy.sh            pull main, rebuild, restart, wait until healthy
 #   ./infra/deploy.sh <ref>      deploy a tag or commit instead
@@ -15,7 +15,7 @@ if [ ! -f .env ]; then
     echo "deploy: no .env here; copy .env.example and fill in DOMAIN and BASIC_AUTH_*" >&2
     exit 1
 fi
-if grep -Eq '^POSTGRES_PASSWORD=(memoryos)?[[:space:]]*$' .env; then
+if grep -Eq '^POSTGRES_PASSWORD=(mindgrep|memoryos)?[[:space:]]*$' .env; then
     echo "deploy: POSTGRES_PASSWORD is empty or the dev default; set a long random one in .env" >&2
     exit 1
 fi

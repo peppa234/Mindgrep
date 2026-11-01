@@ -3,7 +3,7 @@
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 #
 # (infra/deploy.sh runs exactly that.) What changes from development:
-#   * Caddy in front: TLS from Let's Encrypt, and basic auth over everything. MemoryOS is
+#   * Caddy in front: TLS from Let's Encrypt, and basic auth over everything. Mindgrep is
 #     single-user; the whole index is private, so nothing is reachable without the password.
 #   * No published ports except Caddy's 80/443: Postgres, Valkey, the API and the frontend
 #     are only reachable on the compose network.

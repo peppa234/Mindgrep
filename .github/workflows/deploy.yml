@@ -4,7 +4,7 @@ name: Deploy
 # Needs four repository secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY (a key allowed to
 # log in to the VPS), DEPLOY_KNOWN_HOSTS (the VPS host key, `ssh-keyscan -H <host>` run once
 # from a machine you trust), and the repository checked out at DEPLOY_PATH there (default
-# ~/MemoryOs). A pinned host key means a machine impersonating the VPS is refused, not trusted.
+# ~/mindgrep). A pinned host key means a machine impersonating the VPS is refused, not trusted.
 on:
   workflow_dispatch:
     inputs:
@@ -28,7 +28,7 @@ jobs:
           USER: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '~/MemoryOs' }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '~/mindgrep' }}
           REF: ${{ inputs.ref }}
         run: |
           # The ref ends up in a remote shell command: only plain ref characters.

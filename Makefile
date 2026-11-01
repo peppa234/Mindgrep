@@ -67,7 +67,7 @@ docs:
 	@echo "Swagger UI: http://localhost:8000/docs"
 
 psql:
-	docker compose exec postgres psql -U memoryos -d memoryos
+	docker compose exec postgres sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'
 
 valkey:
 	docker compose exec valkey valkey-cli
@@ -99,11 +99,10 @@ eval-personal:
 	$(DC_EVAL) --golden eval/golden/personal.yaml --no-index
 
 eval-baseline:
-	docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE IF EXISTS memoryos_ci" -c "CREATE DATABASE memoryos_ci"
-	docker compose exec -e DATABASE_URL=postgresql+asyncpg://memoryos:memoryos@postgres:5432/memoryos_ci \
-		-e EMBEDDER=hash -e RERANKER=none api sh -c \
-		"alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci"
-	docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE memoryos_ci"
+	docker compose exec postgres sh -c 'dropdb -U $$POSTGRES_USER --if-exists mindgrep_ci && createdb -U $$POSTGRES_USER mindgrep_ci'
+	docker compose exec -e EMBEDDER=hash -e RERANKER=none api sh -c \
+		'export DATABASE_URL=$${DATABASE_URL%/*}/mindgrep_ci && alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci'
+	docker compose exec postgres sh -c 'dropdb -U $$POSTGRES_USER mindgrep_ci'
 
 eval-graph:
 	docker compose exec api python -m eval.runners.graph_eval --out eval/reports

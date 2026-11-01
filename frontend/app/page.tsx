@@ -9,9 +9,9 @@ import { GlassPanel } from "@/components/visual/glass-panel";
 import { GlowButton } from "@/components/visual/glow-button";
 
 export const metadata: Metadata = {
-  title: "MemoryOS · a second brain for developers",
+  title: "Mindgrep · a second brain for developers",
   description:
-    "MemoryOS indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers with the exact line it drew on.",
+    "Mindgrep indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers with the exact line it drew on.",
 };
 
 const STEPS = [
@@ -34,7 +34,7 @@ export default function LandingPage() {
           Skip to content
         </a>
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
-          <Link prefetch={false} href="/" aria-label="MemoryOS home" className="rounded-md">
+          <Link prefetch={false} href="/" aria-label="Mindgrep home" className="rounded-md">
             <Logo />
           </Link>
           <nav aria-label="Product" className="hidden gap-1 text-sm md:flex">
@@ -50,7 +50,7 @@ export default function LandingPage() {
             ))}
           </nav>
           <GlowButton prefetch={false} href="/chat" size="sm" className="ml-auto">
-            Open MemoryOS
+            Open Mindgrep
           </GlowButton>
         </div>
       </header>
@@ -63,7 +63,7 @@ export default function LandingPage() {
               Everything you&apos;ve built, <span className="text-violet-300">remembered</span>.
             </h1>
             <p className="max-w-xl text-lg text-mid">
-              MemoryOS indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers with the
+              Mindgrep indexes your repositories, Markdown notes and PDFs into one knowledge graph, then answers with the
               exact line it drew on. It runs on your machine; nothing leaves it.
             </p>
             <div className="flex flex-wrap items-center gap-3">
@@ -114,7 +114,7 @@ export default function LandingPage() {
               <GlassPanel tone="knowledge" padding="lg" className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between md:p-12">
                 <div className="max-w-xl space-y-3">
                   <h2 className="text-h2">Your code already knows the answer.</h2>
-                  <p className="text-mid">Point MemoryOS at a folder of repositories and notes, and ask.</p>
+                  <p className="text-mid">Point Mindgrep at a folder of repositories and notes, and ask.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <GlowButton prefetch={false} href="/sources" size="lg">
@@ -132,7 +132,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-8 font-mono text-xs text-mid sm:px-6">
-          <span>MemoryOS · runs on your machine</span>
+          <span>Mindgrep · runs on your machine</span>
           <Link prefetch={false} href="/styleguide" className="hover:text-hi">
             Design system
           </Link>

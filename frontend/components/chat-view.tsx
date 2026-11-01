@@ -209,7 +209,7 @@ function AssistantTurn({
     <GlassPanel glow={false} padding="none" className="space-y-3 px-5 py-4">
       <p className="flex items-center gap-2 font-mono text-xs tracking-widest text-mid uppercase">
         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-knowledge" />
-        MemoryOS
+        Mindgrep
         {turn.abstained && (
           <span className="flex items-center gap-1.5 normal-case tracking-normal text-hi">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-gap" />

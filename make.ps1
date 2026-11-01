@@ -1,5 +1,5 @@
 <#
-    Windows task runner for MemoryOS.
+    Windows task runner for Mindgrep.
 
     There is no `make` on this machine, so this script is the everyday entry point.
     The Makefile alongside it holds the same tasks for CI and WSL.
@@ -61,7 +61,7 @@ switch ($Task) {
         Start-Process "http://localhost:8000/docs"
         Write-Host "Opened Swagger UI at http://localhost:8000/docs" -ForegroundColor Cyan
     }
-    "psql" { docker compose exec postgres psql -U memoryos -d memoryos }
+    "psql" { docker compose exec postgres sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB' }
     "valkey" { docker compose exec valkey valkey-cli }
     "migrate" { docker compose exec api alembic upgrade head }
     "test" { docker compose exec api pytest @Rest }
@@ -97,11 +97,10 @@ switch ($Task) {
     "eval-baseline" {
         # Regenerates the CI baseline exactly as CI computes it: hashing embedder, no reranker,
         # on a fresh throwaway database so no dev data can leak into the numbers.
-        docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE IF EXISTS memoryos_ci" -c "CREATE DATABASE memoryos_ci"
-        docker compose exec -e DATABASE_URL=postgresql+asyncpg://memoryos:memoryos@postgres:5432/memoryos_ci `
-            -e EMBEDDER=hash -e RERANKER=none api sh -c `
-            "alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci"
-        docker compose exec postgres psql -U memoryos -d postgres -qc "DROP DATABASE memoryos_ci"
+        docker compose exec postgres sh -c 'dropdb -U $POSTGRES_USER --if-exists mindgrep_ci && createdb -U $POSTGRES_USER mindgrep_ci'
+        docker compose exec -e EMBEDDER=hash -e RERANKER=none api sh -c `
+            'export DATABASE_URL=${DATABASE_URL%/*}/mindgrep_ci && alembic upgrade head && python -m eval.runners.retrieval_eval --modes lexical,vector,hybrid --name baseline-ci'
+        docker compose exec postgres sh -c 'dropdb -U $POSTGRES_USER mindgrep_ci'
     }
     "eval-graph" { docker compose exec api python -m eval.runners.graph_eval --out eval/reports @Rest }
     "eval-chat" { docker compose exec api python -m eval.runners.chat_eval @Rest }

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MemoryOS design tokens: "living memory".
+   Mindgrep design tokens: "living memory".
    Every value below is the single source of truth: Tailwind utilities read them
    through @theme inline, and scripts/check-contrast.mjs audits them from this file.
    Semantic rule: violet = knowledge, cyan = live/active, magenta = gap/missing.

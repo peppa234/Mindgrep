@@ -1,4 +1,7 @@
-# MemoryOS V1 — Developer Second Brain
+# Mindgrep V1 — Developer Second Brain
+
+*Written under the working title MemoryOS.*
+
 ## Architecture, Cost, and Build Plan for a Solo Developer
 
 **Scope:** Software engineers and AI engineers only. Markdown notes, PDFs, GitHub repositories.
@@ -283,7 +286,7 @@ Write both triggers into your README as "planned scaling path." It shows judgmen
 ## 5. Project Structure
 
 ```
-memoryos/
+mindgrep/
 ├── docker-compose.yml            # api, worker, postgres, redis, caddy
 ├── docker-compose.dev.yml
 ├── Makefile                      # make dev / make test / make eval / make index

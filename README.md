@@ -1,6 +1,7 @@
-# MemoryOS
+# Mindgrep
 
-An AI operating system for developers that remembers, connects, and understands everything you build.
+**Grep your own mind.** A second brain for developers that remembers, connects, and understands
+everything you build.
 
 Point it at your notes, your PDFs, and your Git repositories, then search them the way you
 remember them: *"the function that retried with growing delays"*, *"my notes on HNSW
@@ -194,8 +195,8 @@ Requires Docker Desktop. For the models: an NVIDIA GPU and [uv](https://docs.ast
 (or see *No GPU?* below).
 
 ```powershell
-git clone https://github.com/peppa234/MemoryOs
-cd MemoryOs
+git clone https://github.com/peppa234/mindgrep
+cd mindgrep
 copy .env.example .env      # then set SOURCES_DIR to the folder holding your notes and repos
 .\make.ps1 up               # postgres, valkey, api, worker, frontend
 .\make.ps1 models           # in a second terminal: model server on the GPU (first run downloads ~5 GB)
@@ -247,7 +248,7 @@ files), whatever the `.gitignore` says.
 
 ## Security
 
-MemoryOS is single-user: whoever reaches it can read everything it indexed. So:
+Mindgrep is single-user: whoever reaches it can read everything it indexed. So:
 
 - **Locally, nothing listens beyond your machine.** Every port in `docker-compose.yml` and the
   model server binds to `127.0.0.1`.

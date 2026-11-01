@@ -16,7 +16,7 @@ const links = [
   { href: "/sources", label: "Sources" },
 ];
 
-/** The MemoryOS mark: a small lit sphere, the orb in miniature. */
+/** The Mindgrep mark: a small lit sphere, the orb in miniature. */
 export function Logo() {
   return (
     <span className="flex items-center gap-2.5 font-display text-[0.9375rem] font-medium tracking-tight text-hi">
@@ -25,7 +25,7 @@ export function Logo() {
         className="h-4 w-4 rounded-full shadow-glow-violet"
         style={{ background: "radial-gradient(circle at 35% 30%, var(--violet-300), var(--violet-600) 55%, var(--violet-900))" }}
       />
-      MemoryOS
+      Mindgrep
     </span>
   );
 }
@@ -79,7 +79,7 @@ export function Nav() {
         Skip to content
       </a>
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
-        <Link href="/" aria-label="MemoryOS home" className="shrink-0 rounded-md">
+        <Link href="/" aria-label="Mindgrep home" className="shrink-0 rounded-md">
           <Logo />
         </Link>
         <nav aria-label="Main" className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto px-1 py-1 text-sm">

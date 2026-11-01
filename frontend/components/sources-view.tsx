@@ -284,7 +284,7 @@ export function SourcesView() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-h2">Sources</h1>
-          <p className="text-mid">Folders and repositories MemoryOS reads. Your files are never modified.</p>
+          <p className="text-mid">Folders and repositories Mindgrep reads. Your files are never modified.</p>
         </div>
         {stats && (
           <p className="font-mono text-xs text-mid">
