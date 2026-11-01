@@ -3,6 +3,8 @@
 **Grep your own mind.** A second brain for developers that remembers, connects, and understands
 everything you build.
 
+![Mindgrep's landing page: the memory orb, with live counts of repositories, notes and indexed chunks](docs/screenshots/landing.webp)
+
 Point it at your notes, your PDFs, and your Git repositories, then search them the way you
 remember them: *"the function that retried with growing delays"*, *"my notes on HNSW
 parameters"*, `limit_login`. Answers come back as the exact function, section, or page, with
@@ -27,9 +29,32 @@ you indexed, and comes back as built, partly built, or never built, with the evi
 
 **Status:** Phase 3 of 3 (*The Product*) is underway: the idea ↔ implementation gap, the
 ego-network graph view, measured numbers with the real models, a production deployment setup,
-and a full visual redesign with a landing page are in. Still to come: the personal benchmark,
-screenshots and a demo, and the first live deploy. Phases 1 (*The Index*)
-and 2 (*The Brain*) are complete. See [Roadmap](#roadmap).
+and a full visual redesign with a landing page are in. Still to come: the personal benchmark
+and a demo video. Phases 1 (*The Index*) and 2 (*The Brain*) are complete. See
+[Roadmap](#roadmap).
+
+---
+
+## A look around
+
+Every screenshot is the running app over the benchmark corpus in [`eval/corpus`](eval/corpus):
+five small repositories in five languages, a notes vault and two PDFs.
+
+**Chat** answers from your own code and notes, cites every claim with its file and line range,
+and opens the cited source beside the answer:
+
+![A chat answer about where JWT authentication is implemented, with numbered citations and the cited source code open in a side panel](docs/screenshots/chat.webp)
+
+<table>
+<tr>
+<td width="50%"><strong>Ideas</strong>: every idea in your notes, checked against every project: built, partly built, abandoned, or never built.<br><br><img src="docs/screenshots/ideas.webp" alt="The Ideas page listing ideas from notes with their status: built, abandoned, partly built"></td>
+<td width="50%"><strong>Graph</strong>: what a project is built with, read from its manifests, imports and git history, each edge with its evidence.<br><br><img src="docs/screenshots/graph.webp" alt="The ego-network graph around the auth-service project: FastAPI, PostgreSQL, Redis, JWT, Argon2 and more"></td>
+</tr>
+<tr>
+<td width="50%"><strong>Search</strong>: hybrid retrieval that finds the function from a description of what it does.<br><br><img src="docs/screenshots/search.webp" alt="Search for 'the function that hashes passwords' returning hash_password in auth-service with syntax-highlighted code"></td>
+<td width="50%"><strong>Documents</strong>: what the index holds for a file, chunk by chunk, on AST boundaries.<br><br><img src="docs/screenshots/document.webp" alt="The document view of security.py showing its first chunk, a function, with line numbers"></td>
+</tr>
+</table>
 
 ---
 
@@ -272,7 +297,7 @@ Mindgrep is single-user: whoever reaches it can read everything it indexed. So:
 |---|---|---|---|
 | 1. **The Index** | 1–7 | Ingestion, AST chunking, embeddings, eval harness, hybrid search + rerank; sources + search UI | ✅ done |
 | 2. **The Brain** | 8–15 | RAG chat with citations and abstention; knowledge graph (deterministic extraction from manifests, imports and git first, LLM extraction after); chat + projects UI | ✅ done |
-| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅ (chat eval included), deploy setup ✅, redesign + landing page ✅; personal benchmark, chunking ablation (fixed-size vs AST), screenshots and demo, first live deploy | in progress |
+| 3. **The Product** | 16–20 | Idea ↔ implementation gap ✅, ego-network graph view ✅, real-model numbers ✅ (chat eval included), deploy setup ✅, redesign + landing page ✅, screenshots ✅; personal benchmark, chunking ablation (fixed-size vs AST), demo video, first live deploy | in progress |
 
 Deliberately left out of V1: multi-user auth (a single-user deploy sits behind Caddy basic
 auth), OCR for scanned PDFs (they are flagged, not read), and LLM tracing (Langfuse).
