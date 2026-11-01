@@ -72,6 +72,8 @@ async def test_register_local_source_enqueues_indexing(client):
         {"name": "escape", "kind": "local", "uri": "../../etc"},
         {"name": "missing", "kind": "local", "uri": "does-not-exist"},
         {"name": "ssh", "kind": "git", "uri": "git@github.com:a/b.git"},
+        {"name": "internal", "kind": "git", "uri": "https://localhost/a/b"},
+        {"name": "metadata", "kind": "git", "uri": "https://169.254.169.254/latest"},
         {"name": "bad name!", "kind": "local", "uri": "notes"},
     ],
 )
@@ -79,6 +81,40 @@ async def test_invalid_sources_are_rejected(client, payload):
     response = await client.post("/api/v1/sources", json=payload)
     assert response.status_code == 422
     assert client.queue.jobs == []
+
+
+async def test_cross_site_writes_are_refused(client):
+    payload = {"name": "notes", "kind": "local", "uri": "notes"}
+    for site in ("cross-site", "same-site"):
+        refused = await client.post(
+            "/api/v1/sources", json=payload, headers={"sec-fetch-site": site}
+        )
+        assert refused.status_code == 403, site
+        # Body-less writes are the ones a CORS preflight would not have stopped.
+        refused = await client.post("/api/v1/ideas/refresh", headers={"sec-fetch-site": site})
+        assert refused.status_code == 403, site
+    assert client.queue.jobs == []
+
+    # Reads, the app itself, and non-browser clients (no header) are untouched.
+    read = await client.get("/api/v1/sources", headers={"sec-fetch-site": "cross-site"})
+    assert read.status_code == 200
+    created = await client.post(
+        "/api/v1/sources", json=payload, headers={"sec-fetch-site": "same-origin"}
+    )
+    assert created.status_code == 201, created.text
+    refresh = await client.post("/api/v1/ideas/refresh")
+    assert refresh.status_code == 202
+
+
+async def test_public_liveness_says_nothing_else(client):
+    response = await client.get("/health/live")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+async def test_conversation_limit_is_validated(client):
+    assert (await client.get("/api/v1/conversations", params={"limit": -1})).status_code == 422
+    assert (await client.get("/api/v1/conversations", params={"limit": 5})).status_code == 200
 
 
 async def test_search_documents_and_stats(client, sessions):

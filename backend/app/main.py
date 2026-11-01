@@ -10,6 +10,7 @@ from sqlalchemy import text
 
 from app.api.v1 import chat, documents, graph, ideas, search, sources
 from app.config import settings
+from app.core.csrf import CrossSiteGuard
 from app.core.logging import configure_logging
 from app.db.session import engine
 from app.services.embedding.base import ModelUnavailable
@@ -40,9 +41,17 @@ app = FastAPI(
     ),
     lifespan=lifespan,
 )
+app.add_middleware(CrossSiteGuard)
 
 for module in (sources, search, documents, chat, graph, ideas):
     app.include_router(module.router, prefix="/api/v1")
+
+
+@app.get("/health/live", tags=["health"])
+async def live() -> dict:
+    """Bare liveness for an uptime monitor: the one route Caddy serves without the password,
+    so it says nothing about versions, models or errors."""
+    return {"status": "ok"}
 
 
 @app.get("/health", tags=["health"])

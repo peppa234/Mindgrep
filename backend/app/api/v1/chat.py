@@ -1,7 +1,7 @@
 import json
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -57,7 +57,7 @@ async def chat(
 
 @router.get("/conversations", response_model=list[ConversationOut])
 async def list_conversations(
-    limit: int = 50, session: AsyncSession = Depends(get_session)
+    limit: int = Query(50, ge=1, le=200), session: AsyncSession = Depends(get_session)
 ) -> list[ConversationOut]:
     counts = (
         select(Message.conversation_id, func.count().label("n"))
@@ -69,7 +69,7 @@ async def list_conversations(
             select(Conversation, func.coalesce(counts.c.n, 0))
             .outerjoin(counts, counts.c.conversation_id == Conversation.id)
             .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
-            .limit(min(limit, 200))
+            .limit(limit)
         )
     ).all()
     out = []

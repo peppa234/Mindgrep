@@ -185,7 +185,14 @@ async def respond(
         log.exception("chat turn failed")
         turn.trace["error"] = repr(exc)[:500]
         await _save(sessions, conversation_id, turn)
-        yield Event("error", {"message": str(exc) or type(exc).__name__})
+        # A model outage says which provider failed and how; anything else is an internal
+        # error whose text (SQL, paths) stays in the log and the saved trace.
+        message = (
+            str(exc)
+            if isinstance(exc, LLMUnavailable)
+            else f"the answer failed ({type(exc).__name__}); details are in the server log"
+        )
+        yield Event("error", {"message": message})
         return
 
     message_id = await _save(sessions, conversation_id, turn)
