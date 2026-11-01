@@ -300,4 +300,4 @@ infra/                 Caddyfile, deploy.sh, backup.sh, Postgres init
 
 ## License
 
-Not yet chosen.
+[MIT](LICENSE).

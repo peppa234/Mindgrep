@@ -25,7 +25,7 @@
 > | 7. Idea ↔ implementation gap | ✅ detection, matching with evidence, built / partial / abandoned / never, overrides | LLM idea extraction or LLM judge, only if the personal benchmark asks for it |
 > | 8. Frontend | ✅ every page, redesign, landing, styleguide, SVG ego-network (instead of Cytoscape) | Lighthouse ≥ 85 and keyboard-only gates; a real ⌘K palette |
 > | 9. Auth & multi-user | ✂️ cut | RLS + the cross-tenant leak test, if anyone else ever uses it |
-> | 10. Deploy & docs | 🟡 prod compose, Caddy, backups, deploy workflow, six ADRs | Live URL, screenshots, demo video, license, Sentry |
+> | 10. Deploy & docs | 🟡 prod compose, Caddy, backups, deploy workflow, six ADRs | Live URL, screenshots, demo video, Sentry (MIT license added) |
 >
 > Departures from this plan, on purpose: Valkey instead of Redis, ideas are detected
 > deterministically (tag, folder, `Idea:` line) rather than by LLM, `/ideas` instead of
