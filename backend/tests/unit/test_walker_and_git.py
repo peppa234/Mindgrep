@@ -103,3 +103,78 @@ def test_file_history_and_repo_discovery(tmp_path):
 
     result = walk(tmp_path, max_bytes=1_000_000, max_pdf_bytes=1_000_000)
     assert result.repo_roots == ["projects/demo"]
+
+
+def _signed_repo(tmp_path):
+    """A repository whose own .git/config names a program for `git log` to run: log.showSignature
+    asks git to verify signatures, gpg.program says with what, and HEAD is a signed commit."""
+    repo = tmp_path / "downloaded"
+    write(repo / "a.py")
+    marker = tmp_path / "ran"
+    program = tmp_path / "fake-gpg"
+    program.write_text(f"#!/bin/sh\ntouch '{marker.as_posix()}'\n", encoding="utf-8")
+    program.chmod(0o755)
+
+    def run(*args, stdin=None):
+        return (
+            subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, input=stdin)
+            .stdout.decode()
+            .strip()
+        )
+
+    run("init", "-q")
+    run("add", ".")
+    tree = run("write-tree")
+    commit = (
+        f"tree {tree}\nauthor A <a@x> 1700000000 +0000\ncommitter A <a@x> 1700000000 +0000\n"
+        "gpgsig -----BEGIN PGP SIGNATURE-----\n \n abc\n -----END PGP SIGNATURE-----\n\nsigned\n"
+    )
+    run(
+        "update-ref",
+        "HEAD",
+        run("hash-object", "-t", "commit", "-w", "--stdin", stdin=commit.encode()),
+    )
+    run("config", "log.showSignature", "true")
+    run("config", "gpg.program", program.as_posix())
+    return repo, marker
+
+
+def test_repository_config_cannot_run_programs(tmp_path):
+    repo, marker = _signed_repo(tmp_path)
+    # Plain git does run it: the fixture is a live attack, not a no-op.
+    subprocess.run(["git", "log", "-1"], cwd=repo, capture_output=True)
+    assert marker.exists()
+    marker.unlink()
+
+    assert "a.py" in git.file_history(repo)
+    git.authors(repo)
+    git.toplevel(repo)
+    assert not marker.exists()
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://localhost/a/b",
+        "https://127.0.0.1/a/b",
+        "https://10.0.0.8/a/b",
+        "https://192.168.1.20:3000/a/b",
+        "https://169.254.169.254/latest/meta-data",
+        "https://0.0.0.0/a/b",
+    ],
+)
+def test_git_hosts_must_be_public(url):
+    with pytest.raises(ValueError, match="not a public address"):
+        git.check_public_host(git.validate_url(url))
+    git.check_public_host(url, allow_private=True)
+
+
+def test_oversized_clone_is_removed(tmp_path, monkeypatch):
+    dest = tmp_path / "source-1"
+    write(dest / ".git" / "HEAD", "ref: refs/heads/main\n")
+    write(dest / "big.bin", "x" * 5000)
+    monkeypatch.setattr(git, "check_public_host", lambda url, allow_private=False: None)
+    monkeypatch.setattr(git, "run_git", lambda args, cwd=None, timeout=900: "")
+    with pytest.raises(git.GitError, match="MAX_REPO_BYTES"):
+        git.clone_or_update("https://github.com/a/b", dest, max_bytes=1000)
+    assert not dest.exists()

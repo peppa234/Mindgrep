@@ -213,7 +213,13 @@ class Pipeline:
     async def _sync(self) -> Path:
         if self.source.kind == "git":
             dest = repo_dir(self.source.id)
-            await asyncio.to_thread(git.clone_or_update, self.source.uri, dest)
+            await asyncio.to_thread(
+                git.clone_or_update,
+                self.source.uri,
+                dest,
+                settings.max_repo_bytes,
+                settings.git_allow_private_hosts,
+            )
             return dest
         return resolve_local(self.source.uri)
 

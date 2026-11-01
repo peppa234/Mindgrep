@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     eval_corpus_dir: str = "/srv/eval/corpus"
     max_file_bytes: int = 1_000_000
     max_pdf_bytes: int = 50_000_000
+    # A cloned repository larger than this on disk is deleted and the run fails.
+    max_repo_bytes: int = 2_000_000_000
+    # Git URLs must resolve to public addresses; true allows a Git server on your own network.
+    git_allow_private_hosts: bool = False
 
     # --- Models ---
     # http: the model server (GPU on the host, or the CPU container).

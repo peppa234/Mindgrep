@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.db.models import Chunk, Document, IndexRun, Source
 from app.deps import get_arq, get_session
 from app.schemas.source import RunOut, SourceCreate, SourceOut
@@ -108,6 +109,7 @@ async def create_source(
             uri = body.uri
         else:
             uri = git.validate_url(body.uri)
+            await asyncio.to_thread(git.check_public_host, uri, settings.git_allow_private_hosts)
     except ValueError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
 
