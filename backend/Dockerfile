@@ -15,9 +15,13 @@ WORKDIR /srv
 
 # Dependencies install in their own layer, so editing application code
 # does not invalidate the (slow) dependency layer on rebuild.
+# Exact versions from uv.lock, each checked against its hash: a rebuild installs what CI
+# tested, not whatever was released since.
 RUN pip install --no-cache-dir uv
-COPY pyproject.toml ./
-RUN uv pip install --system --no-cache -r pyproject.toml --extra dev
+COPY pyproject.toml uv.lock ./
+RUN uv export --frozen --extra dev --no-emit-project -o /tmp/requirements.txt \
+    && uv pip install --system --no-cache --require-hashes -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt
 
 # Never run as root. /data/repos is created here so the named volume inherits the owner.
 RUN useradd --create-home --uid 1000 app \
