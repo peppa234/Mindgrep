@@ -93,16 +93,23 @@ export function OrbPoster({ className = "", id = "orb" }: { className?: string; 
           <stop offset="55%" style={{ stopColor: "var(--violet-600)", stopOpacity: 0.12 }} />
           <stop offset="100%" style={{ stopColor: "var(--violet-600)", stopOpacity: 0 }} />
         </radialGradient>
-        <radialGradient id={`${id}-body`} cx="36%" cy="30%" r="80%">
+        {/* Lit from the upper left like the live globe: a highlight there, a dark side opposite. */}
+        <radialGradient id={`${id}-body`} cx="32%" cy="28%" r="88%">
           <stop offset="0%" style={{ stopColor: "var(--violet-300)" }} />
-          <stop offset="38%" style={{ stopColor: "var(--violet-500)" }} />
-          <stop offset="78%" style={{ stopColor: "var(--violet-600)" }} />
+          <stop offset="16%" style={{ stopColor: "var(--violet-500)" }} />
+          <stop offset="46%" style={{ stopColor: "var(--violet-600)" }} />
           <stop offset="100%" style={{ stopColor: "var(--violet-900)" }} />
+        </radialGradient>
+        {/* The live globe's rim: light gathering toward the edge of the sphere. */}
+        <radialGradient id={`${id}-rim`}>
+          <stop offset="78%" style={{ stopColor: "var(--violet-300)", stopOpacity: 0 }} />
+          <stop offset="100%" style={{ stopColor: "var(--violet-300)", stopOpacity: 0.55 }} />
         </radialGradient>
       </defs>
       <circle cx={C} cy={C} r={C} fill={`url(#${id}-halo)`} />
       <circle cx={C} cy={C} r={R} fill={`url(#${id}-body)`} style={{ filter: "drop-shadow(0 0 24px rgba(139, 92, 246, 0.55))" }} />
-      <path d={WIREFRAME} fill="none" strokeWidth={0.7} style={{ stroke: "var(--violet-300)", opacity: 0.45 }} />
+      <circle cx={C} cy={C} r={R} fill={`url(#${id}-rim)`} />
+      <path d={WIREFRAME} fill="none" strokeWidth={0.7} style={{ stroke: "var(--violet-300)", opacity: 0.32 }} />
       <g style={{ fill: "var(--cyan-400)" }}>
         {PARTICLES.map((p, i) => (
           <circle key={i} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r={p.r.toFixed(2)} opacity={p.o.toFixed(2)} />
