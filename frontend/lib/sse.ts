@@ -1,4 +1,7 @@
+import { OFFLINE_MESSAGE, failure } from "./api";
 import type { ChatDone, ChatSource } from "./types";
+
+const CHAT = "/api/v1/chat";
 
 export interface ChatHandlers {
   onMeta?: (data: { conversation_id: number; user_message_id: number }) => void;
@@ -17,21 +20,22 @@ export async function streamChat(
   handlers: ChatHandlers,
   signal?: AbortSignal,
 ): Promise<void> {
-  const response = await fetch("/api/v1/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-    body: JSON.stringify(body),
-    signal,
-  });
+  let response: Response;
+  try {
+    response = await fetch(CHAT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+      body: JSON.stringify(body),
+      signal,
+    });
+  } catch (e) {
+    // Stopping the answer aborts the request: that is the caller's to report.
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    handlers.onError?.(OFFLINE_MESSAGE);
+    return;
+  }
   if (!response.ok || !response.body) {
-    let message = `${response.status} ${response.statusText}`;
-    try {
-      const data = await response.json();
-      if (typeof data.detail === "string") message = data.detail;
-    } catch {
-      // not JSON
-    }
-    handlers.onError?.(message);
+    handlers.onError?.((await failure(response, CHAT)).message);
     return;
   }
 

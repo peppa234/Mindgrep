@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
 import { GlowButton } from "@/components/visual/glow-button";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { compact, relativeTime } from "@/lib/format";
 import { revealChild, revealParent } from "@/lib/motion";
 import type { Source, Stats } from "@/lib/types";
@@ -263,7 +264,7 @@ export function SourcesView() {
       setStats(st);
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   }, []);
 
@@ -295,11 +296,7 @@ export function SourcesView() {
         )}
       </div>
       <AddSource onAdded={load} />
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <LoadError error={error} onRetry={load} />}
       {sources && sources.length > 0 && (
         <motion.ul variants={revealParent} initial="hidden" animate="shown" className="space-y-4">
           {sources.map((source) => (

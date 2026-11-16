@@ -6,8 +6,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { CodeBlock } from "@/components/code-block";
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { lineRange, pageRange, relativeTime } from "@/lib/format";
 import { EASE_MEMORY, SPRING_LAYOUT, STAGGER } from "@/lib/motion";
 import type { DocKind, SearchHit, SearchMode, SearchResponse, Source } from "@/lib/types";
@@ -27,11 +28,23 @@ const EXAMPLES = [
   "notes about vector index parameters",
 ];
 
+// Words that say nothing about what is being looked for. Marking them buries the real matches
+// ("the function that hashes passwords" lit up every "the" and "that" in a result).
+const STOPWORDS = new Set(
+  (
+    "about all also and any are been being but can could did does each every for from had has have here how into its " +
+    "not only our over should some such than that the their them then there these they this those under was were " +
+    "what when where which who whom why will with would you your"
+  ).split(" "),
+);
+
+/** The query's words, and the parts of its identifiers, that are worth marking in a result. */
 function terms(q: string): string[] {
-  return q
+  const words = q
     .split(/[^A-Za-z0-9_]+/)
     .flatMap((w) => [w, ...w.split(/_|(?=[A-Z][a-z])/)])
-    .filter((w) => w.length >= 3);
+    .filter((w) => w.length >= 3 && !STOPWORDS.has(w.toLowerCase()));
+  return [...new Set(words)];
 }
 
 function Hit({ hit, query }: { hit: SearchHit; query: string }) {
@@ -85,18 +98,26 @@ export function SearchView() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState(params.get("q") ?? "");
-  const [mode, setMode] = useState<SearchMode>((params.get("mode") as SearchMode) ?? "auto");
-  const [kinds, setKinds] = useState<DocKind[]>((params.get("kinds")?.split(",").filter(Boolean) as DocKind[]) ?? []);
+  // Both come from the address bar, so anything that is not a known value is dropped.
+  const [mode, setMode] = useState<SearchMode>(MODES.find((m) => m.value === params.get("mode"))?.value ?? "auto");
+  const [kinds, setKinds] = useState<DocKind[]>(KINDS.filter((kind) => params.get("kinds")?.split(",").includes(kind)));
   const [sourceId, setSourceId] = useState<number | null>(params.get("source") ? Number(params.get("source")) : null);
   const [pathPrefix, setPathPrefix] = useState(params.get("path") ?? "");
   const [sources, setSources] = useState<Source[] | null>(null);
+  const [sourcesError, setSourcesError] = useState<string | null>(null);
   const [result, setResult] = useState<SearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    api.sources().then(setSources).catch(() => setSources([]));
+  // A failed load stays a failure: an empty list would claim that nothing is indexed.
+  const loadSources = useCallback(() => {
+    setSourcesError(null);
+    api
+      .sources()
+      .then(setSources)
+      .catch((e) => setSourcesError(errorMessage(e)));
   }, []);
+  useEffect(loadSources, [loadSources]);
 
   // "/" or Ctrl/Cmd+K focuses the search box from anywhere on the page.
   useEffect(() => {
@@ -126,7 +147,7 @@ export function SearchView() {
         };
         setResult(await api.search(q, mode, filters));
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(errorMessage(e));
       } finally {
         setLoading(false);
       }
@@ -220,7 +241,10 @@ export function SearchView() {
           <input
             value={pathPrefix}
             onChange={(e) => setPathPrefix(e.target.value)}
-            onBlur={() => submit()}
+            onBlur={() => {
+              // Leaving the field applies a new prefix; tabbing through it unchanged does nothing.
+              if (pathPrefix.trim() !== (params.get("path") ?? "")) submit();
+            }}
             aria-label="Path prefix"
             placeholder="path prefix, e.g. src/"
             className="field h-8 w-44 rounded-lg px-2 font-mono text-xs"
@@ -238,10 +262,15 @@ export function SearchView() {
         </GlassPanel>
       )}
 
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
+      {(error ?? sourcesError) && (
+        <LoadError
+          error={(error ?? sourcesError)!}
+          onRetry={() => {
+            if (sourcesError) loadSources();
+            const q = params.get("q") ?? query;
+            if (q.trim()) run(q);
+          }}
+        />
       )}
 
       {result && result.degraded.length > 0 && <p className="notice">Partial results. {result.degraded.join(" · ")}</p>}

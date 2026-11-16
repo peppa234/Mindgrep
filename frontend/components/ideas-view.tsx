@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { lineRange, relativeTime } from "@/lib/format";
 import { EASE_MEMORY, revealChild, revealParent } from "@/lib/motion";
 import type { Idea, IdeaCandidate, IdeaStatus, IdeaSummary, ProjectSummary } from "@/lib/types";
@@ -328,13 +329,14 @@ export function IdeasView() {
   const [summary, setSummary] = useState<IdeaSummary | null>(null);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ text: string; failed: boolean } | null>(null);
 
   const load = useCallback(() => {
+    setError(null);
     api
       .ideas("all", sort)
       .then(setIdeas)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+      .catch((e) => setError(errorMessage(e)));
     api.ideaSummary().then(setSummary).catch(() => undefined);
   }, [sort]);
 
@@ -361,9 +363,9 @@ export function IdeasView() {
     setNotice(null);
     try {
       await api.refreshIdeas();
-      setNotice("Re-matching every idea against every project; this page updates when you reload it.");
+      setNotice({ text: "Re-matching every idea against every project; this page updates when you reload it.", failed: false });
     } catch (e) {
-      setNotice(e instanceof Error ? e.message : String(e));
+      setNotice({ text: errorMessage(e), failed: true });
     }
   }
 
@@ -422,15 +424,11 @@ export function IdeasView() {
       </div>
 
       {notice && (
-        <p className="notice" role="status">
-          {notice}
+        <p className={notice.failed ? "alert" : "notice"} role={notice.failed ? "alert" : "status"}>
+          {notice.text}
         </p>
       )}
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <LoadError error={error} onRetry={load} />}
       {!ideas && !error && <p className="text-sm text-mid">Loading…</p>}
       {ideas && ideas.length === 0 && (
         <p className="text-sm text-mid">

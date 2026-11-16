@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CodeBlock } from "@/components/code-block";
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { lineRange, pageRange, relativeTime } from "@/lib/format";
 import type { DocumentDetail } from "@/lib/types";
 
@@ -14,10 +15,15 @@ export function DocumentView({ id }: { id: number }) {
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [target, setTarget] = useState<string>("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    api.document(id).then(setDoc).catch((e) => setError(e.message));
-  }, [id]);
+    setError(null);
+    api
+      .document(id)
+      .then(setDoc)
+      .catch((e) => setError(errorMessage(e)));
+  }, [id, attempt]);
 
   useEffect(() => {
     if (!doc) return;
@@ -28,9 +34,12 @@ export function DocumentView({ id }: { id: number }) {
 
   if (error)
     return (
-      <p className="alert" role="alert">
-        {error}
-      </p>
+      <div className="space-y-4">
+        <Link href="/search" className="text-sm text-mid hover:text-hi">
+          ← Search
+        </Link>
+        <LoadError error={error} onRetry={() => setAttempt((n) => n + 1)} />
+      </div>
     );
   if (!doc) return <p className="text-sm text-mid">Loading…</p>;
 

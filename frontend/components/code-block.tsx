@@ -5,6 +5,25 @@ import { Fragment, type ReactNode, useMemo, useState } from "react";
 
 import { EMPTY_THEME, prismLanguage, tokenClass } from "@/lib/code-theme";
 
+/**
+ * Matches a term where a word, or a part of an identifier, begins: "token" marks `token`,
+ * `tokens`, `access_token` and `accessToken`, but not the "the" inside "they". The whole
+ * pattern is one capturing group, which is what mark() splits on.
+ */
+function termPattern(terms: string[]): RegExp | null {
+  const words = [...new Set(terms.filter((t) => t.length >= 3).map((t) => t.toLowerCase()))];
+  if (!words.length) return null;
+  // Case is spelled out per letter, because the camelCase branch needs a real capital.
+  const either = (c: string) => (/[a-z]/.test(c) ? `[${c}${c.toUpperCase()}]` : c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const anyCase = words.map((w) => [...w].map(either).join(""));
+  const capitalised = words
+    .filter((w) => /^[a-z]/.test(w))
+    .map((w) => w[0].toUpperCase() + [...w.slice(1)].map(either).join(""));
+  const atWordStart = `(?<![A-Za-z])(?:${anyCase.join("|")})`;
+  const atCamelHump = capitalised.length ? `|(?<=[a-z0-9])(?:${capitalised.join("|")})` : "";
+  return new RegExp(`(${atWordStart}${atCamelHump})`, "g");
+}
+
 function mark(text: string, pattern: RegExp | null): ReactNode {
   if (!pattern || !text) return text;
   const parts = text.split(pattern);
@@ -40,10 +59,7 @@ export function CodeBlock({
   const all = content.split("\n");
   const limit = maxLines && !expanded ? maxLines : all.length;
   const visible = all.slice(0, limit).join("\n");
-  const pattern = useMemo(() => {
-    const words = terms.filter((t) => t.length >= 3).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    return words.length ? new RegExp(`(${words.join("|")})`, "gi") : null;
-  }, [terms]);
+  const pattern = useMemo(() => termPattern(terms), [terms]);
   const first = startLine ?? 1;
   const width = String(first + all.length).length;
   const grammar = prismLanguage(language);

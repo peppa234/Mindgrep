@@ -6,10 +6,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { CodeBlock } from "@/components/code-block";
+import { LoadError } from "@/components/load-error";
 import { Markdown } from "@/components/markdown";
 import { GlassPanel } from "@/components/visual/glass-panel";
 import { GlowButton } from "@/components/visual/glow-button";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { lineRange, relativeTime } from "@/lib/format";
 import { SPRING_LAYOUT, revealChild } from "@/lib/motion";
 import { streamChat } from "@/lib/sse";
@@ -29,6 +30,17 @@ interface Turn {
   feedback?: 1 | -1 | null;
   pending?: boolean;
   error?: string;
+}
+
+// The conversation column (max-w-3xl) and the source panel (sm:w-[32rem]), in rem, and the
+// space kept between them and to the window's edge, in px.
+const COLUMN_REM = 48;
+const PANEL_REM = 32;
+const GUTTER = 24;
+
+/** ?c= as a conversation id, or null when it is missing or not a number. */
+function conversationParam(value: string | null): number | null {
+  return value && /^\d+$/.test(value) ? Number(value) : null;
 }
 
 const EXAMPLES = [
@@ -278,7 +290,7 @@ export function ChatView() {
   const abortRef = useRef<AbortController | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
 
-  const [conversationId, setConversationId] = useState<number | null>(params.get("c") ? Number(params.get("c")) : null);
+  const [conversationId, setConversationId] = useState<number | null>(conversationParam(params.get("c")));
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -286,39 +298,55 @@ export function ChatView() {
   const [activeSource, setActiveSource] = useState<number | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [history, setHistory] = useState<Conversation[] | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const columnRef = useRef<HTMLDivElement>(null);
-  const [shift, setShift] = useState(0);
+  const [fit, setFit] = useState<{ x: number; maxWidth: number } | null>(null);
 
-  // On wide screens the conversation glides left so the open panel never covers the answer
-  // it cites. Below that (the panel is full width on phones) it stays put.
+  // On wide screens the conversation makes room for the open panel, so the panel never
+  // covers the answer it cites: the column glides left, and where gliding alone is not
+  // enough it also narrows. Below that (the panel is full width on phones) it stays put.
+  // Everything is measured from the column's parent, which no transform touches.
   useEffect(() => {
-    const PANEL = 512 + 24;
     const update = () => {
       const el = columnRef.current;
-      if (!el || !panelOpen || window.innerWidth < 1024) return setShift(0);
-      const rect = el.getBoundingClientRect();
-      const left = rect.left - shift; // where the column sits when not shifted
-      const overlap = left + rect.width - (window.innerWidth - PANEL);
-      setShift(overlap > 0 ? -Math.min(overlap, Math.max(0, left - 24)) : 0);
+      const parent = el?.parentElement;
+      if (!el || !parent) return;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const style = getComputedStyle(parent);
+      const box = parent.getBoundingClientRect();
+      const left = box.left + parseFloat(style.paddingLeft);
+      const room = box.width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      const natural = Math.min(room, COLUMN_REM * rem);
+      if (!panelOpen || window.innerWidth < 1024) return setFit({ x: 0, maxWidth: natural });
+      // The furthest right the column may reach, and the width that fits before it. The
+      // panel is pinned to the viewport inside the scrollbar, which innerWidth includes.
+      const limit = document.documentElement.clientWidth - PANEL_REM * rem - GUTTER;
+      const maxWidth = Math.min(natural, limit - GUTTER);
+      const centred = left + (room - maxWidth) / 2;
+      setFit({ x: Math.min(0, limit - maxWidth - centred), maxWidth });
     };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, [panelOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [panelOpen]);
 
+  // A failed load stays a failure: an empty list would claim there are no conversations.
   const loadHistory = useCallback(() => {
     api
       .conversations()
-      .then(setHistory)
-      .catch(() => setHistory([]));
+      .then((conversations) => {
+        setHistory(conversations);
+        setHistoryError(null);
+      })
+      .catch((e) => setHistoryError(errorMessage(e)));
   }, []);
   useEffect(loadHistory, [loadHistory]);
 
   // Open a conversation from the URL (?c=id), e.g. after a reload.
   useEffect(() => {
-    const id = params.get("c") ? Number(params.get("c")) : null;
+    const id = conversationParam(params.get("c"));
     // Already showing it (e.g. the URL just caught up with a conversation started here).
     if (id == null || (id === conversationId && turns.length > 0)) return;
     api
@@ -330,7 +358,7 @@ export function ChatView() {
         const last = loaded.map((t) => t.role).lastIndexOf("assistant");
         setSelected(last >= 0 ? last : null);
       })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+      .catch((e) => setError(errorMessage(e)));
   }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prefill from ?q= (e.g. "Ask about this project" on a project page).
@@ -455,12 +483,18 @@ export function ChatView() {
     try {
       await api.feedback(turn.id, rating);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   }
 
   async function removeConversation(id: number) {
-    await api.deleteConversation(id);
+    setError(null);
+    try {
+      await api.deleteConversation(id);
+    } catch (e) {
+      setError(`That conversation was not deleted. ${errorMessage(e)}`);
+      return;
+    }
     if (id === conversationId) newChat();
     loadHistory();
   }
@@ -471,7 +505,8 @@ export function ChatView() {
     <>
       <motion.div
         ref={columnRef}
-        animate={{ x: shift }}
+        initial={false}
+        animate={fit ?? undefined}
         transition={SPRING_LAYOUT}
         className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col"
       >
@@ -507,7 +542,13 @@ export function ChatView() {
                 data-lenis-prevent
                 className="max-h-72 divide-y divide-line overflow-y-auto text-sm"
               >
-                {history?.length === 0 && <li className="px-4 py-3 text-mid">No conversations yet.</li>}
+                {historyError && (
+                  <li className="p-2">
+                    <LoadError error={historyError} onRetry={loadHistory} />
+                  </li>
+                )}
+                {!historyError && history === null && <li className="px-4 py-3 text-mid">Loading…</li>}
+                {!historyError && history?.length === 0 && <li className="px-4 py-3 text-mid">No conversations yet.</li>}
                 {history?.map((c) => (
                   <li
                     key={c.id}

@@ -3,10 +3,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react";
 
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import type { GraphEdge, GraphNode, Neighbourhood, NodeDetail, NodeOut, ProjectSummary } from "@/lib/types";
 
 // One focal node and what surrounds it, never the whole graph: a force-directed hairball of
@@ -67,13 +68,62 @@ function layout(data: Neighbourhood, focal: number): Placed[] {
     const y = parents.reduce((s, p) => s + Math.sin(p.angle), 0);
     return { node, want: parents.length ? Math.atan2(y, x) : 0 };
   });
-  second.sort((a, b) => a.want - b.want);
-  second.forEach(({ node, want }, i) => {
-    const even = (2 * Math.PI * i) / Math.max(1, second.length) - Math.PI;
-    const angle = second.length > 12 ? even : want;
+  second.sort((a, b) => a.want - b.want || a.node.name.localeCompare(b.node.name));
+  const angles =
+    second.length > 12
+      ? second.map((_, i) => (2 * Math.PI * i) / second.length - Math.PI)
+      : fanOut(second.map((s) => s.want));
+  second.forEach(({ node }, i) => {
+    const angle = angles[i];
     placed.set(node.id, { ...node, angle, x: CX + RINGS[2] * Math.cos(angle), y: CY + RINGS[2] * Math.sin(angle) });
   });
   return [...placed.values()];
+}
+
+/**
+ * The angle two neighbouring labels on the outer ring need between them. At the sides of
+ * the ring labels stack, so a line's height is enough; toward the top and bottom they run
+ * into each other lengthwise and need more.
+ */
+function labelGap(angle: number) {
+  return Math.min(0.34, 22 / (RINGS[2] * Math.max(Math.abs(Math.cos(angle)), 0.05)));
+}
+
+/**
+ * Nodes that hang off the same parent all want the parent's angle, which stacked their
+ * labels on one spot. Keeps the order and pushes neighbours apart until every label has
+ * its gap. Takes sorted angles; up to 12 of them always fit round the ring.
+ */
+function fanOut(wants: number[]): number[] {
+  const angles = [...wants];
+  const n = angles.length;
+  if (n < 2) return angles;
+  for (let pass = 0; pass < 80; pass++) {
+    let moved = false;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const distance = angles[j] - angles[i] + (j === 0 ? 2 * Math.PI : 0);
+      const need = Math.max(labelGap(angles[i]), labelGap(angles[j]));
+      if (distance < need - 1e-4) {
+        const push = (need - distance) / 2;
+        angles[i] -= push;
+        angles[j] += push;
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return angles;
+}
+
+/**
+ * How many characters of an inner-ring label fit before it runs into the outer ring. Only
+ * matters at two hops: at the sides the rings are 115 units apart, at the top and bottom a
+ * label has the whole chord.
+ */
+function innerLabelRoom(angle: number, offset: number, fontSize: number) {
+  const reach = Math.sqrt(RINGS[2] ** 2 - (RINGS[1] * Math.sin(angle)) ** 2) - Math.abs(RINGS[1] * Math.cos(angle));
+  return Math.max(6, Math.floor((reach - offset - 14) / (fontSize * 0.55)));
 }
 
 function truncate(text: string, n = 24) {
@@ -173,20 +223,29 @@ function Detail({ node }: { node: NodeDetail }) {
 }
 
 function Start({ onPick }: { onPick: (id: number) => void }) {
-  const [projects, setProjects] = useState<ProjectSummary[]>([]);
-  useEffect(() => {
-    api.projects().then(setProjects).catch(() => undefined);
+  const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const load = useCallback(() => {
+    setError(null);
+    api
+      .projects()
+      .then(setProjects)
+      .catch((e) => setError(errorMessage(e)));
   }, []);
+  useEffect(load, [load]);
+
+  if (error) return <LoadError error={error} onRetry={load} />;
   return (
     <GlassPanel glow={false} className="space-y-4 text-sm">
       <p className="text-mid">Pick a starting point, or search for any technology, note, idea or person above.</p>
       <div className="flex flex-wrap gap-2">
-        {projects.map((p) => (
+        {projects === null && <span className="text-mid">Loading…</span>}
+        {projects?.map((p) => (
           <button key={p.id} type="button" onClick={() => onPick(p.id)} className="chip text-hi">
             {p.name}
           </button>
         ))}
-        {projects.length === 0 && <span className="text-mid">No projects indexed yet.</span>}
+        {projects?.length === 0 && <span className="text-mid">No projects indexed yet.</span>}
       </div>
     </GlassPanel>
   );
@@ -203,6 +262,8 @@ export function GraphView() {
   const [detail, setDetail] = useState<NodeDetail | null>(null);
   const [hover, setHover] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [detailFailed, setDetailFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<NodeOut[] | null>(null);
   // The SVG scales with its box, so on a phone 12-unit labels would render at ~5px:
@@ -219,15 +280,23 @@ export function GraphView() {
   useEffect(() => {
     if (focal == null) return;
     setError(null);
+    setDetailFailed(false);
     api
       .neighbourhood(focal, depth, kinds, 50)
       .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+      .catch((e) => {
+        // Drop what was drawn: it is another node's neighbourhood, not this one's.
+        setData(null);
+        setError(errorMessage(e));
+      });
     api
       .node(focal)
       .then(setDetail)
-      .catch(() => setDetail(null));
-  }, [focal, depth, kinds]);
+      .catch(() => {
+        setDetail(null);
+        setDetailFailed(true);
+      });
+  }, [focal, depth, kinds, attempt]);
 
   function go(id: number, nextDepth = depth) {
     setResults(null);
@@ -241,7 +310,7 @@ export function GraphView() {
     try {
       setResults(await api.searchNodes(query.trim()));
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(errorMessage(err));
     }
   }
 
@@ -366,14 +435,10 @@ export function GraphView() {
         )}
       </div>
 
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <LoadError error={error} onRetry={focal != null ? () => setAttempt((n) => n + 1) : undefined} />}
       {focal == null && <Start onPick={(id) => go(id)} />}
 
-      {focal != null && (
+      {focal != null && (data || !error) && (
         <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
           <div className="overflow-hidden rounded-2xl border border-line bg-void/70 shadow-[inset_0_0_120px_rgba(139,92,246,0.06)]">
             {!data && <p className="p-4 text-sm text-mid">Loading…</p>}
@@ -418,6 +483,9 @@ export function GraphView() {
                   const gap = isGap(node);
                   const accent = gap ? "var(--magenta-500)" : "var(--violet-300)";
                   const label = `${node.kind}: ${node.name}${gap ? " (never built)" : ""}`;
+                  const fontSize = centre ? (compact ? 30 : 20) : compact ? 24 : 15;
+                  const longest = compact ? 14 : 22;
+                  const fits = depth === 2 && node.depth === 1 ? Math.min(longest, innerLabelRoom(node.angle, r + 7, fontSize)) : longest;
                   return (
                     <g
                       key={node.id}
@@ -456,10 +524,10 @@ export function GraphView() {
                         y={centre ? r + (compact ? 34 : 22) : compact ? 8 : 4}
                         textAnchor={centre ? "middle" : right ? "start" : "end"}
                         fill={centre || lit ? "var(--text-hi)" : "var(--text-mid)"}
-                        fontSize={centre ? (compact ? 30 : 20) : compact ? 24 : 15}
+                        fontSize={fontSize}
                         className={centre ? "font-display font-medium" : ""}
                       >
-                        {centre ? node.name : truncate(node.name, compact ? 14 : 22)}
+                        {centre ? node.name : truncate(node.name, fits)}
                       </text>
                       <title>{label}</title>
                     </g>
@@ -475,7 +543,11 @@ export function GraphView() {
             )}
           </div>
           <GlassPanel as="aside" glow={false} aria-label="Selected node">
-            {detail ? <Detail node={detail} /> : <p className="text-sm text-mid">…</p>}
+            {detail ? (
+              <Detail node={detail} />
+            ) : (
+              <p className="text-sm text-mid">{detailFailed ? "This node's details did not load." : "Loading…"}</p>
+            )}
           </GlassPanel>
         </div>
       )}

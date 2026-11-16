@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
+import { LoadError } from "@/components/load-error";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { SPRING_PRESS, revealChild, revealParent } from "@/lib/motion";
 import { useMotionOff } from "@/lib/stores/motion";
 import type { ProjectSummary, StackTech } from "@/lib/types";
@@ -50,16 +51,18 @@ export function ProjectsView() {
   const [query, setQuery] = useState(uses);
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const still = useMotionOff();
 
   useEffect(() => {
     setQuery(uses);
     setProjects(null);
+    setError(null);
     api
       .projects(uses || undefined)
       .then(setProjects)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
-  }, [uses]);
+      .catch((e) => setError(errorMessage(e)));
+  }, [uses, attempt]);
 
   function filter(value: string) {
     router.replace(value.trim() ? `${pathname}?uses=${encodeURIComponent(value.trim())}` : pathname);
@@ -101,11 +104,7 @@ export function ProjectsView() {
         </form>
       </div>
 
-      {error && (
-        <p className="alert" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <LoadError error={error} onRetry={() => setAttempt((n) => n + 1)} />}
       {projects === null && !error && <p className="text-sm text-mid">Loading…</p>}
       {projects?.length === 0 && (
         <GlassPanel glow={false} className="text-center text-sm text-mid">

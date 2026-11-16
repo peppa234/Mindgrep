@@ -4,9 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { LoadError } from "@/components/load-error";
 import { CATEGORY_LABEL } from "@/components/projects-view";
 import { GlassPanel } from "@/components/visual/glass-panel";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
 import { relativeTime } from "@/lib/format";
 import { EASE_MEMORY } from "@/lib/motion";
 import type { Evidence, NodeDetail, Related } from "@/lib/types";
@@ -46,19 +47,24 @@ export function ProjectView({ id }: { id: number }) {
   const [node, setNode] = useState<NodeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<number | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    setError(null);
     api
       .node(id)
       .then(setNode)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
-  }, [id]);
+      .catch((e) => setError(errorMessage(e)));
+  }, [id, attempt]);
 
   if (error)
     return (
-      <p className="alert" role="alert">
-        {error}
-      </p>
+      <div className="space-y-4">
+        <Link href="/projects" className="text-sm text-mid hover:text-hi">
+          ← Projects
+        </Link>
+        <LoadError error={error} onRetry={() => setAttempt((n) => n + 1)} />
+      </div>
     );
   if (!node) return <p className="text-sm text-mid">Loading…</p>;
 

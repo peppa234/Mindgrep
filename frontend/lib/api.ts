@@ -18,31 +18,72 @@ import type {
   Stats,
 } from "./types";
 
+export const OFFLINE_MESSAGE = "The Mindgrep API is not responding. Check that the backend is running, then try again.";
+
 export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    /** The backend could not be reached at all, as opposed to answering with an error. */
+    public offline = false,
   ) {
     super(message);
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
-  if (!response.ok) {
-    let message = `${response.status} ${response.statusText}`;
-    try {
-      const body = await response.json();
-      if (typeof body.detail === "string") message = body.detail;
-      else if (Array.isArray(body.detail)) message = body.detail.map((d: { msg: string }) => d.msg).join("; ");
-    } catch {
-      // not JSON; keep the status line
-    }
-    throw new ApiError(response.status, message);
+/** The text to show for anything a request can throw. */
+export function errorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
+const HEALTH = "/health";
+
+/** FastAPI answers /health in JSON whatever its state; the proxy alone does not. */
+async function reachable(): Promise<boolean> {
+  try {
+    const response = await fetch(HEALTH, { cache: "no-store" });
+    await response.json();
+    return true;
+  } catch {
+    return false;
   }
+}
+
+/**
+ * The error for a response that was not ok. When FastAPI is down, the Next proxy answers
+ * for it with a bare "500 Internal Server Error" (and a gateway in front with 502–504),
+ * which says nothing useful: those become one "not responding" error instead.
+ */
+export async function failure(response: Response, path: string): Promise<ApiError> {
+  let message = `${response.status} ${response.statusText}`;
+  let json = false;
+  try {
+    const body = await response.json();
+    json = true;
+    if (typeof body.detail === "string") message = body.detail;
+    else if (Array.isArray(body.detail)) message = body.detail.map((d: { msg: string }) => d.msg).join("; ");
+  } catch {
+    // not JSON; keep the status line
+  }
+  if (!json && response.status >= 500) {
+    const gateway = response.status >= 502 && response.status <= 504;
+    if (gateway || path === HEALTH || !(await reachable())) return new ApiError(response.status, OFFLINE_MESSAGE, true);
+  }
+  return new ApiError(response.status, message);
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...init?.headers },
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new ApiError(0, OFFLINE_MESSAGE, true);
+  }
+  if (!response.ok) throw await failure(response, path);
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
